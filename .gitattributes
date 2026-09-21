@@ -1,0 +1,13 @@
+# Auto-detectar archivos de texto y normalizar saltos de línea a LF
+* text=auto
+
+# Asegurar que estos archivos mantengan LF siempre
+*.java text eol=lf
+*.xml text eol=lf
+*.md text eol=lf
+*.properties text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Excluir binarios
+*.jar binary
