@@ -16,11 +16,16 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
         </processorPath>
         <module name="backend_RestoPilot" />
+        <module name="backend" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="backend_RestoPilot" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="backend" options="-parameters" />
       <module name="backend_RestoPilot" options="-parameters" />
     </option>
   </component>
