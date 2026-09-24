@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.restopilot.backend.modules.restaurante.entity.Restaurante;
+import com.restopilot.backend.modules.restaurante.repository.RestauranteRepository;
 
 @Service
 public class AuthService {
@@ -19,17 +21,29 @@ public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RestauranteRepository restauranteRepository;
 
     public AuthService(UsuarioRepository usuarioRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       RestauranteRepository restauranteRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.restauranteRepository = restauranteRepository;
     }
-
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
+
+        Restaurante restaurante = null;
+        if (request.getRestauranteId() != null) {
+            restaurante = restauranteRepository.findById(request.getRestauranteId())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "El restaurante especificado no existe."
+                    ));
+        }
+
         String correoLimpio = request.getCorreo().trim().toLowerCase();
 
         if (usuarioRepository.existsByCorreo(correoLimpio)) {
@@ -46,6 +60,7 @@ public class AuthService {
                 .correo(correoLimpio)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .rol(rolAsignado)
+                .restaurante(restaurante)
                 .habilitado(true)
                 .build();
 

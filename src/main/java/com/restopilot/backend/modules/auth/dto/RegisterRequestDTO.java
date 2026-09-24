@@ -28,6 +28,6 @@ public class RegisterRequestDTO {
             message = "La contraseña debe tener al menos 8 caracteres, incluir letras, al menos un número y un carácter especial (@$!%*?&._-#)"
     )
     private String password;
-
+    private Long restauranteId;
     private Rol rol;
 }
