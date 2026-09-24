@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import com.restopilot.backend.modules.restaurante.entity.Restaurante;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -38,6 +39,9 @@ public class Usuario implements UserDetails {
     @Builder.Default
     @Column(name = "habilitado", nullable = false)
     private Boolean habilitado = true;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurante_id", nullable = true)
+    private Restaurante restaurante;
     @Column(name = "creado_en", nullable = false, updatable = false)
     private LocalDateTime creadoEn;
     @Column(name = "actualizado_en")

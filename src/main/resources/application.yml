@@ -1,13 +1,13 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 spring:
   application:
     name: RestoPilot API
   datasource:
-    url: jdbc:postgresql://localhost:5432/restopilot_db
-    username: postgres
-    password: Andre1808
+    url: ${DB_URL}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -19,6 +19,6 @@ spring:
 
 jwt:
   # Clave secreta HMAC en Base64
-  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   # Tiempo de vida del token 24 horas
-  expiration: 86400000
+  expiration: ${JWT_EXPIRATION:86400000}
