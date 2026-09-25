@@ -22,7 +22,7 @@ public class PlatoMapper {
         plato.setComplejidad(dto.getComplejidad());
         plato.setTiempoPreparacionMinutos(dto.getTiempoPreparacionMinutos());
         plato.setDisponible(dto.getDisponible() != null ? dto.getDisponible() : true);
-        plato.setImageUrl(dto.getImagenUrl());
+        plato.setImagenUrl(dto.getImagenUrl());
         return plato;
     }
 
@@ -43,7 +43,7 @@ public class PlatoMapper {
         dto.setComplejidad(plato.getComplejidad());
         dto.setTiempoPreparacionMinutos(plato.getTiempoPreparacionMinutos());
         dto.setDisponible(plato.getDisponible());
-        dto.setImageUrl(plato.getImageUrl());
+        plato.setImagenUrl(dto.getImagenUrl());
         dto.setCreadoEn(plato.getCreadoEn());
         dto.setActualizadoEn(plato.getActualizadoEn());
         return dto;

@@ -23,7 +23,7 @@ public class CategoriaController {
 
     @PostMapping
     public ResponseEntity<Categoria> crear(@RequestBody Categoria categoria) {
-        return ResponseEntity.status(HttpStatus.CREATED).json(categoriaService.guardar(categoria)); // Ajustado de ser necesario
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.guardar(categoria)); // Ajustado de ser necesario
     }
 
     @PutMapping("/{id}")
