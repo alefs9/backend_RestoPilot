@@ -14,6 +14,12 @@ public record PedidoRequestDTO(
         @NotNull(message = "El tipo de entrega es obligatorio")
         TipoEntrega tipoEntrega,
 
+        // Requerido solo si el tipoEntrega es SALON
+        Long mesaId,
+
+        // Requerido solo si el tipoEntrega es DELIVERY
+        String direccionEntrega,
+
         @NotEmpty(message = "El pedido debe contener al menos un detalle")
         @Valid
         List<DetallePedidoRequestDTO> detalles

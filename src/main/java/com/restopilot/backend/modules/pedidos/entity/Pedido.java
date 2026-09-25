@@ -1,7 +1,8 @@
 package com.restopilot.backend.modules.pedidos.entity;
 
 import com.restopilot.backend.modules.auth.entity.Usuario;
-import com.restopilot.backend.tenant.entity.Restaurante;
+import com.restopilot.backend.modules.restaurante.entity.Restaurante;
+import com.restopilot.backend.modules.reservas.entity.Mesa;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,4 +51,8 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePedido> detalles;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mesa_id") // Es nullable por defecto para los casos de DELIVERY/LLEVAR
+    private Mesa mesa;
 }
