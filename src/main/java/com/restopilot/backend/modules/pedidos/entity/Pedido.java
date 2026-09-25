@@ -1,7 +1,7 @@
 package com.restopilot.backend.modules.pedidos.entity;
 
 import com.restopilot.backend.modules.auth.entity.Usuario;
-import com.restopilot.backend.tenant.entity.Restaurante;
+import com.restopilot.backend.modules.restaurante.entity.Restaurante;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
