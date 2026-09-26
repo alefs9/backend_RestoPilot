@@ -4,5 +4,8 @@
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="backend_RestoPilot" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>
