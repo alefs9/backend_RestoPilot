@@ -39,22 +39,15 @@ public class PedidoService {
     private final RestauranteRepository restauranteRepository;
     private final PlatoRepository platoRepository;
     private final PedidoMapper pedidoMapper;
-
-    // TODO: Descomentar inyección cuando Cristian termine el módulo Auth/Security
-    // private final CurrentUser currentUser;
+    private final CurrentUser currentUser;
 
     @Transactional
     public PedidoResponseDTO crearPedido(PedidoRequestDTO request) {
-
-        // Simulación temporal del cliente logueado (Hardcoding)
-        // Usuario cliente = currentUser.get();
-        Usuario cliente = new Usuario();
-        cliente.setId(1L); // TODO: Borrar al integrar Auth
+        Usuario cliente = currentUser.get();
 
         Restaurante restaurante = restauranteRepository.findById(request.restauranteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante no encontrado"));
 
-        // REGLA 1: Validación operativa del local (Horarios)
         if (Boolean.FALSE.equals(restaurante.getActivo())) {
             throw new BusinessRuleException("Lo sentimos, el restaurante se encuentra inactivo actualmente.");
         }
@@ -62,8 +55,8 @@ public class PedidoService {
         LocalTime ahora = LocalTime.now();
         if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null) {
             if (ahora.isBefore(restaurante.getHoraApertura()) || ahora.isAfter(restaurante.getHoraCierre())) {
-                throw new BusinessRuleException("El restaurante está cerrado. Horario: "
-                        + restaurante.getHoraApertura() + " a " + restaurante.getHoraCierre());
+                throw new BusinessRuleException("El restaurante está fuera de su horario de atención ("
+                        + restaurante.getHoraApertura() + " a " + restaurante.getHoraCierre() + ").");
             }
         }
 
@@ -75,12 +68,10 @@ public class PedidoService {
         pedido.setFechaCreacion(LocalDateTime.now());
         pedido.setDetalles(new ArrayList<>());
 
-        // REGLA 2: Límite estricto de cancelación (Ventana IA de 5 min)
         pedido.setLimiteCancelacion(LocalDateTime.now().plusMinutes(5));
 
         BigDecimal total = BigDecimal.ZERO;
 
-        // REGLA 3: Validación de disponibilidad sin afectar inventario
         for (DetallePedidoRequestDTO detalleDto : request.detalles()) {
             Plato plato = platoRepository.findById(detalleDto.platoId())
                     .orElseThrow(() -> new ResourceNotFoundException("Plato no encontrado"));
@@ -108,33 +99,93 @@ public class PedidoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PedidoResponseDTO> getPendientesCocina(Pageable pageable) {
+    public Page<PedidoResponseDTO> getMisPedidos(Pageable pageable) {
+        Usuario cliente = currentUser.get();
+        return pedidoRepository.findByClienteId(cliente.getId(), pageable)
+                .map(pedidoMapper::toResponse);
+    }
 
-        // REGLA 4: Aislamiento SaaS - El repositorio filtra usando el ID seguro
-        // Long miRestauranteId = currentUser.getRestauranteId();
-        Long miRestauranteId = 1L; // TODO: Borrar al integrar Auth
+    @Transactional(readOnly = true)
+    public PedidoResponseDTO getById(Long id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
+        return pedidoMapper.toResponse(pedido);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PedidoResponseDTO> getPendientesCocina(Pageable pageable) {
+        Long miRestauranteId = currentUser.getRestauranteId();
 
         List<EstadoPedido> estados = List.of(EstadoPedido.PENDIENTE, EstadoPedido.EN_PREPARACION);
         List<Pedido> pedidosPendientes = pedidoRepository.findPendientesParaCocina(miRestauranteId, estados);
 
-        // REGLA 5: Motor de Priorización en Cocina (Complejidad y Tiempos de 5 a 15 min)
-        // Ordenamos en memoria priorizando los pedidos que tienen platos que toman más tiempo en prepararse.
         List<Pedido> pedidosPriorizados = pedidosPendientes.stream()
                 .sorted(Comparator.comparingInt(this::calcularTiempoMaximoPreparacion).reversed()
                         .thenComparing(Pedido::getFechaCreacion))
                 .collect(Collectors.toList());
 
-        // Paginación manual de la lista priorizada
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), pedidosPriorizados.size());
-        List<PedidoResponseDTO> pageContent = pedidosPriorizados.subList(start, end).stream()
-                .map(pedidoMapper::toResponse)
-                .collect(Collectors.toList());
+
+        List<PedidoResponseDTO> pageContent = new ArrayList<>();
+        if (start <= end) {
+            pageContent = pedidosPriorizados.subList(start, end).stream()
+                    .map(pedidoMapper::toResponse)
+                    .collect(Collectors.toList());
+        }
 
         return new PageImpl<>(pageContent, pageable, pedidosPriorizados.size());
     }
 
-    // Método auxiliar para el motor de priorización
+    @Transactional
+    public PedidoResponseDTO actualizarPedido(Long id, PedidoRequestDTO request) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
+
+        pedido.setTipoEntrega(request.tipoEntrega());
+        pedido.getDetalles().clear();
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (DetallePedidoRequestDTO detalleDto : request.detalles()) {
+            Plato plato = platoRepository.findById(detalleDto.platoId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Plato no encontrado"));
+
+            DetallePedido detalle = new DetallePedido();
+            detalle.setPlato(plato);
+            detalle.setCantidad(detalleDto.cantidad());
+            detalle.setNombrePlatoSnapshot(plato.getNombre());
+            detalle.setNotas(detalleDto.notas());
+
+            BigDecimal subtotal = plato.getPrecio().multiply(BigDecimal.valueOf(detalleDto.cantidad()));
+            detalle.setSubtotal(subtotal);
+
+            detalle.setPedido(pedido);
+            pedido.getDetalles().add(detalle);
+            total = total.add(subtotal);
+        }
+
+        pedido.setTotal(total);
+        return pedidoMapper.toResponse(pedidoRepository.save(pedido));
+    }
+
+    @Transactional
+    public PedidoResponseDTO actualizarEstado(Long id, EstadoPedido nuevoEstado) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
+
+        pedido.setEstado(nuevoEstado);
+        return pedidoMapper.toResponse(pedidoRepository.save(pedido));
+    }
+
+    @Transactional
+    public void eliminarPedido(Long id) {
+        if (!pedidoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Pedido no encontrado");
+        }
+        pedidoRepository.deleteById(id);
+    }
+
     private int calcularTiempoMaximoPreparacion(Pedido pedido) {
         return pedido.getDetalles().stream()
                 .mapToInt(d -> d.getPlato().getTiempoPreparacionMinutos())
