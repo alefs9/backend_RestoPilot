@@ -41,14 +41,14 @@ class PedidoServiceTest {
     @Mock
     private PedidoRepository pedidoRepository;
 
-    // Fingimos los repositorios que tus compañeros aún no terminan
+    // Fingimos los repositorios
     @Mock
     private RestauranteRepository restauranteRepository;
 
     @Mock
     private PedidoMapper pedidoMapper;
 
-    // Fingimos el utilitario de seguridad de Cristian
+    // Fingimos el utilitario de seguridad
     @Mock
     private CurrentUser currentUser;
 
@@ -69,7 +69,7 @@ class PedidoServiceTest {
 
         when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restauranteInactivo));
 
-        // Pedido DELIVERY sin enviar mesa (evita el problema del módulo de mesas que falta)[cite: 43]
+        // Pedido DELIVERY sin enviar mesa
         PedidoRequestDTO request = new PedidoRequestDTO(1L, TipoEntrega.DELIVERY, null, "Av. Lima 123", new ArrayList<>());
 
         // 3. Ejecutamos y validamos
