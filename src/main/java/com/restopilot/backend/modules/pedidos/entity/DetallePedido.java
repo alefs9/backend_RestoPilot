@@ -32,4 +32,10 @@ public class DetallePedido {
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
+
+    @Column(name = "nombre_plato_snapshot", nullable = false)
+    private String nombrePlatoSnapshot;
+
+    @Column(columnDefinition = "TEXT")
+    private String notas;
 }
