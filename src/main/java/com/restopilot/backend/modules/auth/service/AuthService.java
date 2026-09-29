@@ -1,6 +1,6 @@
 package com.restopilot.backend.modules.auth.service;
 
-import com.restopilot.backend.config.JwtService;
+import com.restopilot.backend.security.JwtService;
 import com.restopilot.backend.modules.auth.dto.AuthResponseDTO;
 import com.restopilot.backend.modules.auth.dto.LoginRequestDTO;
 import com.restopilot.backend.modules.auth.dto.RegisterRequestDTO;
