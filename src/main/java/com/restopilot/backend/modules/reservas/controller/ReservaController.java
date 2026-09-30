@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -57,5 +58,19 @@ public class ReservaController {
             @PathVariable Long id,
             @Valid @RequestBody ReservaRequestDTO request) {
         return reservaService.modificarReserva(id, request);
+    }
+
+    /**
+     * TSK-016 (US08): Endpoint PATCH para cancelar una reserva.
+     * Permite al cliente cancelar su propia reserva o al admin/dueno cancelar una de su restaurante.
+     * Acepta opcionalmente un motivo en el cuerpo de la petición.
+     */
+    @PatchMapping("/{id}/cancelar")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public ReservaResponseDTO cancelarReserva(
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> body) {
+        String motivo = (body != null) ? body.get("motivo") : null;
+        return reservaService.cancelarReserva(id, motivo);
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
@@ -287,5 +288,55 @@ public class ReservaService {
 
         Reserva reservaActualizada = reservaRepository.save(reserva);
         return reservaMapper.toResponse(reservaActualizada);
+    }
+
+    /**
+     * TSK-016 (US08): Cancelar una reserva (PATCH).
+     * Cambia el estado a CANCELADA liberando la mesa para nuevas reservas.
+     * Valida permisos de autoría según rol y que la reserva no esté ya cancelada o completada.
+     */
+    @Transactional
+    public ReservaResponseDTO cancelarReserva(Long id, String motivo) {
+        Usuario usuario = currentUser.get();
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva con ID " + id + " no encontrada"));
+
+        // Validar que no esté ya cancelada
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new BusinessRuleException("La reserva ya se encuentra cancelada.");
+        }
+
+        // Validar que no haya sido completada
+        if (reserva.getEstado() == EstadoReserva.COMPLETADA) {
+            throw new BusinessRuleException("No se puede cancelar una reserva que ya ha sido completada.");
+        }
+
+        // Validar permisos de autoría
+        if (usuario.getRol() == Rol.CLIENTE) {
+            if (!reserva.getUsuario().getId().equals(usuario.getId())) {
+                throw new BusinessRuleException("No tiene permisos para cancelar esta reserva.");
+            }
+            LocalDateTime fechaHoraReserva = LocalDateTime.of(reserva.getFecha(), reserva.getHoraInicio());
+            if (LocalDateTime.now().isAfter(fechaHoraReserva)) {
+                throw new BusinessRuleException("No se puede cancelar una reserva cuya fecha y hora ya han pasado.");
+            }
+        } else {
+            if (usuario.getRestaurante() == null || !reserva.getRestaurante().getId().equals(usuario.getRestaurante().getId())) {
+                throw new BusinessRuleException("No tiene permisos para cancelar reservas de otro restaurante.");
+            }
+        }
+
+        reserva.setEstado(EstadoReserva.CANCELADA);
+
+        if (motivo != null && !motivo.trim().isEmpty()) {
+            String notasActuales = (reserva.getNotas() != null && !reserva.getNotas().isBlank())
+                    ? reserva.getNotas() + " | "
+                    : "";
+            reserva.setNotas(notasActuales + "Motivo cancelación: " + motivo.trim());
+        }
+
+        Reserva reservaCancelada = reservaRepository.save(reserva);
+        return reservaMapper.toResponse(reservaCancelada);
     }
 }
