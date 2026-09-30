@@ -34,7 +34,7 @@ public class ReservaController {
      * TSK-013: Consultar disponibilidad de mesas por fecha y horario.
      */
     @GetMapping("/disponibilidad")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public List<MesaDisponibilidadDTO> consultarDisponibilidad(
             @RequestParam Long restauranteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
@@ -50,7 +50,7 @@ public class ReservaController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO registrarReserva(@Valid @RequestBody ReservaRequestDTO request) {
         return reservaService.registrarReserva(request);
     }
@@ -60,7 +60,7 @@ public class ReservaController {
      * Permite modificar mesa, fecha, horario, comensales y notas.
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO modificarReserva(
             @PathVariable Long id,
             @Valid @RequestBody ReservaRequestDTO request) {
@@ -73,7 +73,7 @@ public class ReservaController {
      * Acepta opcionalmente un motivo en el cuerpo de la petición.
      */
     @PatchMapping("/{id}/cancelar")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO cancelarReserva(
             @PathVariable Long id,
             @RequestBody(required = false) Map<String, String> body) {
@@ -86,7 +86,7 @@ public class ReservaController {
      * Retorna todas las reservas del cliente ordenadas cronológicamente (más recientes primero).
      */
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public List<ReservaResponseDTO> obtenerMisReservas() {
         return reservaService.obtenerMisReservas();
     }
@@ -96,7 +96,7 @@ public class ReservaController {
      * Permite filtrar opcionalmente por fecha y por estado.
      */
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public List<ReservaResponseDTO> obtenerReservasRestaurante(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(required = false) EstadoReserva estado) {
@@ -107,7 +107,7 @@ public class ReservaController {
      * TSK-017 (US07): Consultar detalle de una reserva específica por su ID.
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO obtenerReservaPorId(@PathVariable Long id) {
         return reservaService.obtenerReservaPorId(id);
     }
@@ -116,7 +116,7 @@ public class ReservaController {
      * TSK-018: Consultar el estado de activación SaaS del módulo de reservas del restaurante propio.
      */
     @GetMapping("/modulo/estado")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ModuloReservasStatusDTO obtenerEstadoModulo() {
         return reservaService.obtenerEstadoModulo();
     }
@@ -125,7 +125,7 @@ public class ReservaController {
      * TSK-018: Consultar si un restaurante tiene habilitado el módulo de reservas (público / cliente).
      */
     @GetMapping("/modulo/estado/restaurante/{restauranteId}")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ModuloReservasStatusDTO obtenerEstadoModuloPorRestaurante(@PathVariable Long restauranteId) {
         return reservaService.obtenerEstadoModuloPorRestaurante(restauranteId);
     }
@@ -135,7 +135,7 @@ public class ReservaController {
      * Modifica la bandera tieneAtencionFisica del Restaurante en el modelo SaaS.
      */
     @PatchMapping("/modulo/estado")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ModuloReservasStatusDTO cambiarEstadoModulo(@RequestBody Map<String, Boolean> body) {
         Boolean habilitado = body.getOrDefault("habilitado", true);
         return reservaService.cambiarEstadoModulo(habilitado);
