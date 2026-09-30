@@ -22,42 +22,42 @@ public class MesaController {
     // POST - Crear mesa (Admin/Dueno) - US16
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public MesaResponseDTO crearMesa(@Valid @RequestBody MesaRequestDTO request) {
         return mesaService.crearMesa(request);
     }
 
     // GET - Obtener todas las mesas del restaurante del usuario (Admin/Dueno)
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public List<MesaResponseDTO> obtenerMesasPorRestaurante() {
         return mesaService.obtenerMesasPorRestaurante();
     }
 
     // GET - Obtener mesas activas de un restaurante especifico (Cliente - para el plano interactivo)
     @GetMapping("/restaurante/{restauranteId}")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public List<MesaResponseDTO> obtenerMesasActivasPorRestaurante(@PathVariable Long restauranteId) {
         return mesaService.obtenerMesasActivasPorRestaurante(restauranteId);
     }
 
     // GET - Obtener mesa por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public MesaResponseDTO obtenerMesaPorId(@PathVariable Long id) {
         return mesaService.obtenerMesaPorId(id);
     }
 
     // PUT - Actualizar mesa completa (Admin/Dueno) - US16
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public MesaResponseDTO actualizarMesa(@PathVariable Long id, @Valid @RequestBody MesaRequestDTO request) {
         return mesaService.actualizarMesa(id, request);
     }
 
     // PATCH - Activar/Desactivar mesa (Admin/Dueno) - US16
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public MesaResponseDTO cambiarEstadoMesa(@PathVariable Long id, @RequestBody Map<String, Boolean> body) {
         Boolean activo = body.get("activo");
         return mesaService.cambiarEstadoMesa(id, activo);
