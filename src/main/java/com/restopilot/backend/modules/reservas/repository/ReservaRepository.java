@@ -50,6 +50,26 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("horaFin") LocalTime horaFin,
             @Param("estadosBloqueantes") List<EstadoReserva> estadosBloqueantes);
 
+    /**
+     * TSK-015: Verifica si una mesa ya tiene una reserva activa (PENDIENTE o CONFIRMADA)
+     * que se solapa con el rango horario solicitado, EXCLUYENDO una reserva específica.
+     * Esto evita que al modificar una reserva colisione consigo misma.
+     */
+    @Query("SELECT COUNT(r) > 0 FROM Reserva r " +
+           "WHERE r.mesa.id = :mesaId " +
+           "AND r.id != :reservaId " +
+           "AND r.fecha = :fecha " +
+           "AND r.estado IN :estadosBloqueantes " +
+           "AND r.horaInicio < :horaFin " +
+           "AND r.horaFin > :horaInicio")
+    boolean existsReservaSolapadaExcluyendoId(
+            @Param("mesaId") Long mesaId,
+            @Param("reservaId") Long reservaId,
+            @Param("fecha") LocalDate fecha,
+            @Param("horaInicio") LocalTime horaInicio,
+            @Param("horaFin") LocalTime horaFin,
+            @Param("estadosBloqueantes") List<EstadoReserva> estadosBloqueantes);
+
     // Buscar reservas de un restaurante por fecha (para listados del admin)
     List<Reserva> findByRestauranteIdAndFecha(Long restauranteId, LocalDate fecha);
 

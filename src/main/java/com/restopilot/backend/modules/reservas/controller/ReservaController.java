@@ -26,7 +26,7 @@ public class ReservaController {
      * TSK-013: Consultar disponibilidad de mesas por fecha y horario.
      */
     @GetMapping("/disponibilidad")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public List<MesaDisponibilidadDTO> consultarDisponibilidad(
             @RequestParam Long restauranteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
@@ -42,8 +42,20 @@ public class ReservaController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO registrarReserva(@Valid @RequestBody ReservaRequestDTO request) {
         return reservaService.registrarReserva(request);
+    }
+
+    /**
+     * TSK-015 (US08): Endpoint PUT para modificar una reserva existente.
+     * Permite modificar mesa, fecha, horario, comensales y notas.
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public ReservaResponseDTO modificarReserva(
+            @PathVariable Long id,
+            @Valid @RequestBody ReservaRequestDTO request) {
+        return reservaService.modificarReserva(id, request);
     }
 }

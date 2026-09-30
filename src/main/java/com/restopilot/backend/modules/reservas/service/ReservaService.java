@@ -2,6 +2,7 @@ package com.restopilot.backend.modules.reservas.service;
 
 import com.restopilot.backend.core.exception.BusinessRuleException;
 import com.restopilot.backend.core.exception.ResourceNotFoundException;
+import com.restopilot.backend.modules.auth.entity.Rol;
 import com.restopilot.backend.modules.auth.entity.Usuario;
 import com.restopilot.backend.modules.reservas.dto.MesaDisponibilidadDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaRequestDTO;
@@ -38,6 +39,7 @@ public class ReservaService {
 
     /**
      * TSK-013: Consultar disponibilidad de mesas por fecha y rango horario.
+     * Retorna todas las mesas activas del restaurante indicando si están disponibles.
      */
     @Transactional(readOnly = true)
     public List<MesaDisponibilidadDTO> consultarDisponibilidad(
@@ -178,5 +180,112 @@ public class ReservaService {
 
         Reserva reservaGuardada = reservaRepository.save(reserva);
         return reservaMapper.toResponse(reservaGuardada);
+    }
+
+    /**
+     * TSK-015 (US08): Endpoint PUT para modificar reserva existente.
+     * Permite cambiar mesa, fecha, horario, comensales y notas.
+     * Valida permisos: el cliente solo modifica sus reservas; admin/dueno solo las de su restaurante.
+     * Valida que no esté cancelada ni completada y que la mesa esté libre (excluyendo la reserva actual).
+     */
+    @Transactional
+    public ReservaResponseDTO modificarReserva(Long id, ReservaRequestDTO request) {
+        Usuario usuario = currentUser.get();
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva con ID " + id + " no encontrada"));
+
+        // Validar que la reserva no esté en estado definitivo (CANCELADA o COMPLETADA)
+        if (reserva.getEstado() == EstadoReserva.CANCELADA || reserva.getEstado() == EstadoReserva.COMPLETADA) {
+            throw new BusinessRuleException(
+                    "No se puede modificar una reserva que se encuentra en estado " + reserva.getEstado() + ".");
+        }
+
+        // Validar permisos de acceso según el rol
+        if (usuario.getRol() == Rol.CLIENTE) {
+            if (!reserva.getUsuario().getId().equals(usuario.getId())) {
+                throw new BusinessRuleException("No tiene permisos para modificar esta reserva.");
+            }
+        } else {
+            if (usuario.getRestaurante() == null || !reserva.getRestaurante().getId().equals(usuario.getRestaurante().getId())) {
+                throw new BusinessRuleException("No tiene permisos para modificar reservas de otro restaurante.");
+            }
+        }
+
+        Restaurante restaurante = reserva.getRestaurante();
+
+        // Validar restaurante activo y atención física
+        if (Boolean.FALSE.equals(restaurante.getActivo())) {
+            throw new BusinessRuleException("El restaurante se encuentra inactivo actualmente.");
+        }
+
+        if (Boolean.FALSE.equals(restaurante.getTieneAtencionFisica())) {
+            throw new BusinessRuleException(
+                    "El restaurante no tiene habilitada la atención física. No se pueden modificar reservas.");
+        }
+
+        // Validar fechas y horarios
+        if (request.fecha().isBefore(LocalDate.now())) {
+            throw new BusinessRuleException("No se pueden modificar reservas a fechas pasadas.");
+        }
+
+        if (!request.horaInicio().isBefore(request.horaFin())) {
+            throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
+        }
+
+        if (request.fecha().isEqual(LocalDate.now()) && request.horaInicio().isBefore(LocalTime.now())) {
+            throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
+        }
+
+        // Validar horario comercial del restaurante
+        if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null) {
+            if (request.horaInicio().isBefore(restaurante.getHoraApertura()) || request.horaFin().isAfter(restaurante.getHoraCierre())) {
+                throw new BusinessRuleException(
+                        "El horario solicitado está fuera del horario de atención del restaurante ("
+                                + restaurante.getHoraApertura() + " a " + restaurante.getHoraCierre() + ").");
+            }
+        }
+
+        // Validar mesa asignada
+        Mesa mesa = mesaRepository.findById(request.mesaId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Mesa con ID " + request.mesaId() + " no encontrada"));
+
+        if (!mesa.getRestaurante().getId().equals(restaurante.getId())) {
+            throw new BusinessRuleException("La mesa seleccionada no pertenece al restaurante de la reserva.");
+        }
+
+        if (Boolean.FALSE.equals(mesa.getActivo())) {
+            throw new BusinessRuleException("La mesa seleccionada no se encuentra activa para reservas.");
+        }
+
+        // Validar capacidad de comensales
+        if (request.numeroComensales() > mesa.getCapacidad()) {
+            throw new BusinessRuleException(
+                    "El número de comensales (" + request.numeroComensales() +
+                            ") excede la capacidad máxima de la mesa (" + mesa.getCapacidad() + " personas).");
+        }
+
+        // Validar colisión de horario excluyendo la propia reserva que se está modificando
+        List<EstadoReserva> estadosBloqueantes = List.of(
+                EstadoReserva.PENDIENTE,
+                EstadoReserva.CONFIRMADA
+        );
+
+        if (reservaRepository.existsReservaSolapadaExcluyendoId(
+                mesa.getId(), reserva.getId(), request.fecha(), request.horaInicio(), request.horaFin(), estadosBloqueantes)) {
+            throw new BusinessRuleException("La mesa seleccionada ya se encuentra reservada en el horario solicitado.");
+        }
+
+        // Actualizar datos de la reserva
+        reserva.setMesa(mesa);
+        reserva.setFecha(request.fecha());
+        reserva.setHoraInicio(request.horaInicio());
+        reserva.setHoraFin(request.horaFin());
+        reserva.setNumeroComensales(request.numeroComensales());
+        reserva.setNotas(request.notas());
+
+        Reserva reservaActualizada = reservaRepository.save(reserva);
+        return reservaMapper.toResponse(reservaActualizada);
     }
 }
