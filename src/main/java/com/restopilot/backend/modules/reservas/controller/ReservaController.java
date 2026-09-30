@@ -1,5 +1,7 @@
 package com.restopilot.backend.modules.reservas.controller;
 
+import com.restopilot.backend.core.exception.BusinessRuleException;
+import com.restopilot.backend.core.exception.ResourceNotFoundException;
 import com.restopilot.backend.modules.reservas.dto.MesaDisponibilidadDTO;
 import com.restopilot.backend.modules.reservas.dto.ModuloReservasStatusDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaRequestDTO;
@@ -10,11 +12,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,5 +139,23 @@ public class ReservaController {
     public ModuloReservasStatusDTO cambiarEstadoModulo(@RequestBody Map<String, Boolean> body) {
         Boolean habilitado = body.getOrDefault("habilitado", true);
         return reservaService.cambiarEstadoModulo(habilitado);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<Map<String, Object>> handleBusinessRuleException(BusinessRuleException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("mensaje", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", HttpStatus.NOT_FOUND.value());
+        error.put("mensaje", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }
