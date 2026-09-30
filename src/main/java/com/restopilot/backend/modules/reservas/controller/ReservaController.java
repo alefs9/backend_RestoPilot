@@ -3,6 +3,7 @@ package com.restopilot.backend.modules.reservas.controller;
 import com.restopilot.backend.modules.reservas.dto.MesaDisponibilidadDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaRequestDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaResponseDTO;
+import com.restopilot.backend.modules.reservas.entity.EstadoReserva;
 import com.restopilot.backend.modules.reservas.service.ReservaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -72,5 +73,36 @@ public class ReservaController {
             @RequestBody(required = false) Map<String, String> body) {
         String motivo = (body != null) ? body.get("motivo") : null;
         return reservaService.cancelarReserva(id, motivo);
+    }
+
+    /**
+     * TSK-017 (US07): Consultar historial de reservas del cliente autenticado.
+     * Retorna todas las reservas del cliente ordenadas cronológicamente (más recientes primero).
+     */
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public List<ReservaResponseDTO> obtenerMisReservas() {
+        return reservaService.obtenerMisReservas();
+    }
+
+    /**
+     * TSK-017 (US07): Consultar listado de reservas para gestión del restaurante (Admin/Dueño).
+     * Permite filtrar opcionalmente por fecha y por estado.
+     */
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public List<ReservaResponseDTO> obtenerReservasRestaurante(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(required = false) EstadoReserva estado) {
+        return reservaService.obtenerReservasRestaurante(fecha, estado);
+    }
+
+    /**
+     * TSK-017 (US07): Consultar detalle de una reserva específica por su ID.
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public ReservaResponseDTO obtenerReservaPorId(@PathVariable Long id) {
+        return reservaService.obtenerReservaPorId(id);
     }
 }

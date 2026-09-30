@@ -339,4 +339,65 @@ public class ReservaService {
         Reserva reservaCancelada = reservaRepository.save(reserva);
         return reservaMapper.toResponse(reservaCancelada);
     }
+
+    /**
+     * TSK-017 (US07): Consultar historial de reservas del cliente autenticado.
+     * Retorna todas las reservas realizadas por el usuario ordenadas cronológicamente (más recientes primero).
+     */
+    @Transactional(readOnly = true)
+    public List<ReservaResponseDTO> obtenerMisReservas() {
+        Usuario cliente = currentUser.get();
+        return reservaRepository.findByUsuarioIdOrderByFechaDescHoraInicioDesc(cliente.getId())
+                .stream()
+                .map(reservaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * TSK-017 (US07): Consultar listado de reservas para el restaurante (vista Admin/Dueño).
+     * Permite filtrar opcionalmente por fecha y por estado de reserva.
+     */
+    @Transactional(readOnly = true)
+    public List<ReservaResponseDTO> obtenerReservasRestaurante(LocalDate fecha, EstadoReserva estado) {
+        Long restauranteId = currentUser.getRestauranteId();
+
+        List<Reserva> reservas;
+        if (fecha != null && estado != null) {
+            reservas = reservaRepository.findByRestauranteIdAndFechaAndEstadoOrderByHoraInicioAsc(restauranteId, fecha, estado);
+        } else if (fecha != null) {
+            reservas = reservaRepository.findByRestauranteIdAndFechaOrderByHoraInicioAsc(restauranteId, fecha);
+        } else if (estado != null) {
+            reservas = reservaRepository.findByRestauranteIdAndEstadoOrderByFechaDescHoraInicioDesc(restauranteId, estado);
+        } else {
+            reservas = reservaRepository.findByRestauranteIdOrderByFechaDescHoraInicioDesc(restauranteId);
+        }
+
+        return reservas.stream()
+                .map(reservaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * TSK-017 (US07): Obtener detalle de una reserva específica por su ID.
+     * Valida permisos: el cliente solo ve sus reservas; admin/dueno solo las de su restaurante.
+     */
+    @Transactional(readOnly = true)
+    public ReservaResponseDTO obtenerReservaPorId(Long id) {
+        Usuario usuario = currentUser.get();
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva con ID " + id + " no encontrada"));
+
+        if (usuario.getRol() == Rol.CLIENTE) {
+            if (!reserva.getUsuario().getId().equals(usuario.getId())) {
+                throw new BusinessRuleException("No tiene permisos para ver esta reserva.");
+            }
+        } else {
+            if (usuario.getRestaurante() == null || !reserva.getRestaurante().getId().equals(usuario.getRestaurante().getId())) {
+                throw new BusinessRuleException("No tiene permisos para ver reservas de otro restaurante.");
+            }
+        }
+
+        return reservaMapper.toResponse(reserva);
+    }
 }

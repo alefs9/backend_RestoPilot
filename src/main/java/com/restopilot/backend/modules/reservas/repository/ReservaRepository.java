@@ -53,7 +53,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     /**
      * TSK-015: Verifica si una mesa ya tiene una reserva activa (PENDIENTE o CONFIRMADA)
      * que se solapa con el rango horario solicitado, EXCLUYENDO una reserva específica.
-     * Esto evita que al modificar una reserva colisione consigo misma.
      */
     @Query("SELECT COUNT(r) > 0 FROM Reserva r " +
            "WHERE r.mesa.id = :mesaId " +
@@ -70,12 +69,18 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("horaFin") LocalTime horaFin,
             @Param("estadosBloqueantes") List<EstadoReserva> estadosBloqueantes);
 
-    // Buscar reservas de un restaurante por fecha (para listados del admin)
-    List<Reserva> findByRestauranteIdAndFecha(Long restauranteId, LocalDate fecha);
-
-    // Buscar reservas de un usuario especifico (historial del cliente)
+    // TSK-017: Historial de reservas de un usuario específico ordenado cronológicamente (más recientes primero)
     List<Reserva> findByUsuarioIdOrderByFechaDescHoraInicioDesc(Long usuarioId);
 
-    // Buscar reservas de un restaurante por estado
-    List<Reserva> findByRestauranteIdAndEstado(Long restauranteId, EstadoReserva estado);
+    // TSK-017: Todas las reservas del restaurante ordenadas cronológicamente
+    List<Reserva> findByRestauranteIdOrderByFechaDescHoraInicioDesc(Long restauranteId);
+
+    // TSK-017: Reservas del restaurante filtradas por fecha
+    List<Reserva> findByRestauranteIdAndFechaOrderByHoraInicioAsc(Long restauranteId, LocalDate fecha);
+
+    // TSK-017: Reservas del restaurante filtradas por estado
+    List<Reserva> findByRestauranteIdAndEstadoOrderByFechaDescHoraInicioDesc(Long restauranteId, EstadoReserva estado);
+
+    // TSK-017: Reservas del restaurante filtradas por fecha y estado
+    List<Reserva> findByRestauranteIdAndFechaAndEstadoOrderByHoraInicioAsc(Long restauranteId, LocalDate fecha, EstadoReserva estado);
 }
