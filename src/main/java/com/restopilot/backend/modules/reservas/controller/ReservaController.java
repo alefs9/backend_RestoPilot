@@ -86,7 +86,7 @@ public class ReservaController {
      * Retorna todas las reservas del cliente ordenadas cronológicamente (más recientes primero).
      */
     @GetMapping("/me")
-    @PreAuthorize("hasRole('CLIENTE')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public List<ReservaResponseDTO> obtenerMisReservas() {
         return reservaService.obtenerMisReservas();
     }
