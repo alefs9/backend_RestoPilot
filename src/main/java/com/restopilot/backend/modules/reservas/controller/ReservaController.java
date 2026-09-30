@@ -1,6 +1,7 @@
 package com.restopilot.backend.modules.reservas.controller;
 
 import com.restopilot.backend.modules.reservas.dto.MesaDisponibilidadDTO;
+import com.restopilot.backend.modules.reservas.dto.ModuloReservasStatusDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaRequestDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaResponseDTO;
 import com.restopilot.backend.modules.reservas.entity.EstadoReserva;
@@ -104,5 +105,34 @@ public class ReservaController {
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO obtenerReservaPorId(@PathVariable Long id) {
         return reservaService.obtenerReservaPorId(id);
+    }
+
+    /**
+     * TSK-018: Consultar el estado de activación SaaS del módulo de reservas del restaurante propio.
+     */
+    @GetMapping("/modulo/estado")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public ModuloReservasStatusDTO obtenerEstadoModulo() {
+        return reservaService.obtenerEstadoModulo();
+    }
+
+    /**
+     * TSK-018: Consultar si un restaurante tiene habilitado el módulo de reservas (público / cliente).
+     */
+    @GetMapping("/modulo/estado/restaurante/{restauranteId}")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public ModuloReservasStatusDTO obtenerEstadoModuloPorRestaurante(@PathVariable Long restauranteId) {
+        return reservaService.obtenerEstadoModuloPorRestaurante(restauranteId);
+    }
+
+    /**
+     * TSK-018: Activar o desactivar condicionalmente el módulo completo de reservas (Admin/Dueño).
+     * Modifica la bandera tieneAtencionFisica del Restaurante en el modelo SaaS.
+     */
+    @PatchMapping("/modulo/estado")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    public ModuloReservasStatusDTO cambiarEstadoModulo(@RequestBody Map<String, Boolean> body) {
+        Boolean habilitado = body.getOrDefault("habilitado", true);
+        return reservaService.cambiarEstadoModulo(habilitado);
     }
 }

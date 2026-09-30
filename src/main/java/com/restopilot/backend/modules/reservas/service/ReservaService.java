@@ -5,6 +5,7 @@ import com.restopilot.backend.core.exception.ResourceNotFoundException;
 import com.restopilot.backend.modules.auth.entity.Rol;
 import com.restopilot.backend.modules.auth.entity.Usuario;
 import com.restopilot.backend.modules.reservas.dto.MesaDisponibilidadDTO;
+import com.restopilot.backend.modules.reservas.dto.ModuloReservasStatusDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaRequestDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaResponseDTO;
 import com.restopilot.backend.modules.reservas.entity.EstadoReserva;
@@ -342,7 +343,7 @@ public class ReservaService {
 
     /**
      * TSK-017 (US07): Consultar historial de reservas del cliente autenticado.
-     * Retorna todas las reservas realizadas por el usuario ordenadas cronológicamente (más recientes primero).
+     * Retorna todas las reservas del cliente ordenadas cronológicamente (más recientes primero).
      */
     @Transactional(readOnly = true)
     public List<ReservaResponseDTO> obtenerMisReservas() {
@@ -399,5 +400,80 @@ public class ReservaService {
         }
 
         return reservaMapper.toResponse(reserva);
+    }
+
+    /**
+     * TSK-018: Consultar el estado de activación del módulo de reservas
+     * para el restaurante del usuario autenticado (Admin/Dueño).
+     */
+    @Transactional(readOnly = true)
+    public ModuloReservasStatusDTO obtenerEstadoModulo() {
+        Long restauranteId = currentUser.getRestauranteId();
+        return obtenerEstadoModuloPorRestaurante(restauranteId);
+    }
+
+    /**
+     * TSK-018: Consultar si un restaurante específico tiene habilitado el módulo de reservas.
+     * Útil para clientes y vistas públicas (para saber si mostrar la opción de reservar).
+     */
+    @Transactional(readOnly = true)
+    public ModuloReservasStatusDTO obtenerEstadoModuloPorRestaurante(Long restauranteId) {
+        Restaurante restaurante = restauranteRepository.findById(restauranteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurante con ID " + restauranteId + " no encontrado"));
+
+        boolean habilitado = Boolean.TRUE.equals(restaurante.getTieneAtencionFisica());
+
+        List<EstadoReserva> estadosActivos = List.of(EstadoReserva.PENDIENTE, EstadoReserva.CONFIRMADA);
+        long reservasActivas = reservaRepository.countByRestauranteIdAndEstadoInAndFechaGreaterThanEqual(
+                restauranteId, estadosActivos, LocalDate.now());
+
+        String mensaje = habilitado
+                ? "El módulo de reservas se encuentra activo para este restaurante."
+                : "El módulo de reservas se encuentra deshabilitado (el restaurante opera en modalidad virtual/delivery).";
+
+        return new ModuloReservasStatusDTO(
+                restaurante.getId(),
+                restaurante.getNombre(),
+                habilitado,
+                reservasActivas,
+                mensaje
+        );
+    }
+
+    /**
+     * TSK-018: Activar o desactivar condicionalmente el módulo completo de reservas
+     * según la configuración SaaS de atención física del restaurante (Admin/Dueño).
+     */
+    @Transactional
+    public ModuloReservasStatusDTO cambiarEstadoModulo(Boolean habilitado) {
+        Long restauranteId = currentUser.getRestauranteId();
+
+        Restaurante restaurante = restauranteRepository.findById(restauranteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurante no encontrado"));
+
+        restaurante.setTieneAtencionFisica(habilitado);
+        restauranteRepository.save(restaurante);
+
+        List<EstadoReserva> estadosActivos = List.of(EstadoReserva.PENDIENTE, EstadoReserva.CONFIRMADA);
+        long reservasActivas = reservaRepository.countByRestauranteIdAndEstadoInAndFechaGreaterThanEqual(
+                restauranteId, estadosActivos, LocalDate.now());
+
+        String mensaje;
+        if (Boolean.TRUE.equals(habilitado)) {
+            mensaje = "Módulo de reservas activado exitosamente. Ahora se permite la gestión de mesas y creación de reservas.";
+        } else {
+            mensaje = "Módulo de reservas desactivado. Se bloqueará la creación y modificación de reservas.";
+            if (reservasActivas > 0) {
+                mensaje += " Atención: Existen " + reservasActivas + " reservas vigentes pendientes de gestionar.";
+            }
+        }
+
+        return new ModuloReservasStatusDTO(
+                restaurante.getId(),
+                restaurante.getNombre(),
+                habilitado,
+                reservasActivas,
+                mensaje
+        );
     }
 }
