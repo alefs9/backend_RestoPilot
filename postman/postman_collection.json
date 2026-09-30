@@ -46,7 +46,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Francesco Meza\",\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\"\n}"
+              "raw": "{\n  \"nombreCompleto\": \"Cristian Condori\",\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -128,7 +128,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
