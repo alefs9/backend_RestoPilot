@@ -46,7 +46,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Francesco Meza\",\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\"\n}"
+              "raw": "{\n  \"nombreCompleto\": \"Cristian Condori\",\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -128,7 +128,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -239,6 +239,392 @@
               "raw": "{{baseUrl}}/api/pedidos/1/pagos",
               "host": ["{{baseUrl}}"],
               "path": ["api", "pedidos", "1", "pagos"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US16 - Gestión de Mesas (Salón)",
+      "item": [
+        {
+          "name": "1. Crear Mesa (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 4,\n  \"coordenadaX\": 120.5,\n  \"coordenadaY\": 250.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mesas"]
+            }
+          }
+        },
+        {
+          "name": "2. Listar Mesas del Restaurante (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mesas"]
+            }
+          }
+        },
+        {
+          "name": "3. Listar Mesas Activas para Plano (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/restaurante/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mesas", "restaurante", "1"]
+            }
+          }
+        },
+        {
+          "name": "4. Consultar Mesa por ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mesas", "1"]
+            }
+          }
+        },
+        {
+          "name": "5. Modificar Mesa (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 6,\n  \"coordenadaX\": 150.0,\n  \"coordenadaY\": 300.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mesas", "1"]
+            }
+          }
+        },
+        {
+          "name": "6. Activar o Desactivar Mesa (200 OK)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activo\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/1/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mesas", "1", "estado"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US05 - Consulta de Disponibilidad de Mesas",
+      "item": [
+        {
+          "name": "1. Consultar Disponibilidad por Fecha y Horario (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/disponibilidad?restauranteId=1&fecha=2026-10-15&horaInicio=19:00:00&horaFin=21:00:00",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "disponibilidad"],
+              "query": [
+                {
+                  "key": "restauranteId",
+                  "value": "1"
+                },
+                {
+                  "key": "fecha",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "horaInicio",
+                  "value": "19:00:00"
+                },
+                {
+                  "key": "horaFin",
+                  "value": "21:00:00"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US06 - Registro de Reservas (Plano Interactivo)",
+      "item": [
+        {
+          "name": "1. Registrar Reserva desde Plano (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mesaId\": 1,\n  \"restauranteId\": 1,\n  \"fecha\": \"2026-10-15\",\n  \"horaInicio\": \"19:00:00\",\n  \"horaFin\": \"21:00:00\",\n  \"numeroComensales\": 4,\n  \"notas\": \"Cerca a la ventana, aniversario\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US08 - Modificación y Cancelación de Reservas",
+      "item": [
+        {
+          "name": "1. Modificar Reserva (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mesaId\": 1,\n  \"restauranteId\": 1,\n  \"fecha\": \"2026-10-15\",\n  \"horaInicio\": \"20:00:00\",\n  \"horaFin\": \"22:00:00\",\n  \"numeroComensales\": 5,\n  \"notas\": \"Horario modificado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "1"]
+            }
+          }
+        },
+        {
+          "name": "2. Cancelar Reserva y Liberar Mesa (200 OK)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Imprevisto laboral del cliente\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/1/cancelar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "1", "cancelar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US07 - Consulta e Historial de Reservas",
+      "item": [
+        {
+          "name": "1. Consultar Mis Reservas - Historial Cliente (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "me"]
+            }
+          }
+        },
+        {
+          "name": "2. Listar Reservas del Restaurante con Filtros (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas?fecha=2026-10-15&estado=PENDIENTE",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas"],
+              "query": [
+                {
+                  "key": "fecha",
+                  "value": "2026-10-15"
+                },
+                {
+                  "key": "estado",
+                  "value": "PENDIENTE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Consultar Detalle de Reserva por ID (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SaaS - Configuración de Atención Física y Reservas",
+      "item": [
+        {
+          "name": "1. Consultar Estado SaaS del Módulo (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/modulo/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "modulo", "estado"]
+            }
+          }
+        },
+        {
+          "name": "2. Consultar Estado del Módulo por Restaurante (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/modulo/estado/restaurante/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "modulo", "estado", "restaurante", "1"]
+            }
+          }
+        },
+        {
+          "name": "3. Activar o Desactivar Módulo de Reservas (200 OK)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"habilitado\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reservas/modulo/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reservas", "modulo", "estado"]
             }
           }
         }
