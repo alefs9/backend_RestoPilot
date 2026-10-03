@@ -36,28 +36,28 @@ public class PedidoController {
 
     // GET (Consultar detalle por ID - US12)
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public PedidoResponseDTO getById(@PathVariable Long id) {
         return pedidoService.getById(id);
     }
 
     // GET (Consultar cola de cocina priorizada - US15)
     @GetMapping("/pendientes")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public Page<PedidoResponseDTO> getPendientesCocina(Pageable pageable) {
         return pedidoService.getPendientesCocina(pageable);
     }
 
     // PUT (Actualizar pedido completo)
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public PedidoResponseDTO actualizarPedidoCompleto(@PathVariable Long id, @Valid @RequestBody PedidoRequestDTO request) {
         return pedidoService.actualizarPedido(id, request);
     }
 
     // PATCH / UPDATE (Actualizar solo el estado - US19)
     @PatchMapping("/{id}/estado")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public PedidoResponseDTO actualizarEstado(@PathVariable Long id, @RequestParam EstadoPedido nuevoEstado) {
         return pedidoService.actualizarEstado(id, nuevoEstado);
     }
@@ -65,7 +65,7 @@ public class PedidoController {
     // DELETE (Eliminar/Cancelar pedido de forma manual administrativa)
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public void eliminarPedido(@PathVariable Long id) {
         pedidoService.eliminarPedido(id);
     }
