@@ -61,6 +61,12 @@ public class Usuario implements UserDetails {
     // Métodos requeridos por Spring Security (UserDetails)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (rol == Rol.ADMINISTRADOR) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"),
+                    new SimpleGrantedAuthority("ROLE_ADMIN")
+            );
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
     }
     @Override

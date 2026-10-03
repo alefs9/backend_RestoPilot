@@ -14,6 +14,36 @@
       "key": "jwtToken",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "clienteToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "platoId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "categoriaId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "pedidoId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "mesaId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "reservaId",
+      "value": "1",
+      "type": "string"
     }
   ],
   "item": [
@@ -50,8 +80,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -71,8 +107,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -92,8 +134,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         }
@@ -132,8 +180,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -153,8 +207,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         }
@@ -183,8 +243,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pedidos", "1", "pagos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "pagos"
+              ]
             }
           }
         },
@@ -200,8 +267,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pedidos", "1", "pagos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "pagos"
+              ]
             }
           }
         },
@@ -225,8 +299,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pedidos", "1", "pagos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "pagos"
+              ]
             }
           }
         },
@@ -237,8 +318,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pedidos", "1", "pagos"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "1",
+                "pagos"
+              ]
             }
           }
         }
@@ -267,8 +355,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/mesas",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "mesas"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas"
+              ]
             }
           }
         },
@@ -284,8 +377,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/mesas",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "mesas"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas"
+              ]
             }
           }
         },
@@ -301,8 +399,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/mesas/restaurante/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "mesas", "restaurante", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "restaurante",
+                "1"
+              ]
             }
           }
         },
@@ -318,8 +423,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/mesas/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "mesas", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "1"
+              ]
             }
           }
         },
@@ -343,8 +454,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/mesas/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "mesas", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "1"
+              ]
             }
           }
         },
@@ -368,8 +485,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/mesas/1/estado",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "mesas", "1", "estado"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "1",
+                "estado"
+              ]
             }
           }
         }
@@ -390,8 +514,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reservas/disponibilidad?restauranteId=1&fecha=2026-10-15&horaInicio=19:00:00&horaFin=21:00:00",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "disponibilidad"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "disponibilidad"
+              ],
               "query": [
                 {
                   "key": "restauranteId",
@@ -438,8 +568,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reservas",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas"
+              ]
             }
           }
         }
@@ -468,8 +603,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reservas/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "1"
+              ]
             }
           }
         },
@@ -493,8 +634,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reservas/1/cancelar",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "1", "cancelar"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "1",
+                "cancelar"
+              ]
             }
           }
         }
@@ -515,8 +663,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reservas/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "me"
+              ]
             }
           }
         },
@@ -532,8 +686,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reservas?fecha=2026-10-15&estado=PENDIENTE",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas"
+              ],
               "query": [
                 {
                   "key": "fecha",
@@ -559,8 +718,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reservas/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "1"
+              ]
             }
           }
         }
@@ -581,8 +746,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reservas/modulo/estado",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "modulo", "estado"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "modulo",
+                "estado"
+              ]
             }
           }
         },
@@ -598,8 +770,17 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/api/reservas/modulo/estado/restaurante/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "modulo", "estado", "restaurante", "1"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "modulo",
+                "estado",
+                "restaurante",
+                "1"
+              ]
             }
           }
         },
@@ -623,8 +804,616 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/reservas/modulo/estado",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "reservas", "modulo", "estado"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reservas",
+                "modulo",
+                "estado"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US10 & US14 - Catálogo y Menú",
+      "item": [
+        {
+          "name": "1. Crear Categoría (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+                  "var data = pm.response.json();",
+                  "if (data.id) { pm.collectionVariables.set(\"categoriaId\", data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restauranteId\": 1,\n  \"nombre\": \"Platos de Fondo\",\n  \"descripcion\": \"Platos fuertes y tradicionales\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categorias"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Listar Categorías por Restaurante (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categorias/restaurante/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categorias",
+                "restaurante",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Crear Plato en Menú (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+                  "var data = pm.response.json();",
+                  "if (data.id) { pm.collectionVariables.set(\"platoId\", data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restauranteId\": 1,\n  \"categoriaId\": 1,\n  \"nombre\": \"Lomo Saltado Criollo\",\n  \"descripcion\": \"Lomo fino saltado con cebolla morada, tomate y papas nativas\",\n  \"precio\": 42.0,\n  \"ingredientes\": \"Lomo fino, cebolla, tomate, aj\\u00ed amarillo, papas\",\n  \"alergenos\": \"Soya\",\n  \"complejidad\": \"MEDIA\",\n  \"tiempoPreparacionMinutos\": 20,\n  \"disponible\": true,\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1544025162-d76694265947\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/platos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "platos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Listar Platos por Restaurante (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/platos/restaurante/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "platos",
+                "restaurante",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Consultar Plato por ID (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/platos/{{platoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "platos",
+                "{{platoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6. Cambiar Disponibilidad de Plato (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/platos/{{platoId}}/disponibilidad?disponible=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "platos",
+                "{{platoId}}",
+                "disponibilidad"
+              ],
+              "query": [
+                {
+                  "key": "disponible",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US11, US15 & US19 - Flujo de Pedidos y Cocina",
+      "item": [
+        {
+          "name": "1. Registro / Login de Cliente (201/200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) { pm.collectionVariables.set(\"clienteToken\", data.token); }",
+                  "pm.test(\"Status code is 200/201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"Cliente Frecuente\",\n  \"correo\": \"cliente_test@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\",\n  \"restauranteId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Crear Pedido en Salón - US11 (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+                  "var data = pm.response.json();",
+                  "if (data.id) { pm.collectionVariables.set(\"pedidoId\", data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clienteToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restauranteId\": 1,\n  \"tipoEntrega\": \"SALON\",\n  \"mesaId\": 1,\n  \"detalles\": [\n    {\n      \"platoId\": 1,\n      \"cantidad\": 2,\n      \"notas\": \"Bien cocido y sin sal a\\u00f1adida\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Consultar Historial de Mis Pedidos - US07 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{clienteToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Consultar Detalle de Pedido por ID - US12 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "{{pedidoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Consultar Cola de Cocina Priorizada - US15 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/pendientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "pendientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6. Actualizar Estado a EN_PREPARACION - US19 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado?nuevoEstado=EN_PREPARACION",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "{{pedidoId}}",
+                "estado"
+              ],
+              "query": [
+                {
+                  "key": "nuevoEstado",
+                  "value": "EN_PREPARACION"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "7. Actualizar Estado a LISTO - US19 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado?nuevoEstado=LISTO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pedidos",
+                "{{pedidoId}}",
+                "estado"
+              ],
+              "query": [
+                {
+                  "key": "nuevoEstado",
+                  "value": "LISTO"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "US20 - Reportes Operativos y Financieros",
+      "item": [
+        {
+          "name": "1. Consultar Reporte Consolidado Operativo - US20 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reportes/operativos?fechaInicio=2026-09-01&fechaFin=2026-10-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "operativos"
+              ],
+              "query": [
+                {
+                  "key": "fechaInicio",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "fechaFin",
+                  "value": "2026-10-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Consultar Reporte de Estado de Pagos - US20 (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reportes/pagos?fechaInicio=2026-09-01&fechaFin=2026-10-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "pagos"
+              ],
+              "query": [
+                {
+                  "key": "fechaInicio",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "fechaFin",
+                  "value": "2026-10-31"
+                }
+              ]
             }
           }
         }
