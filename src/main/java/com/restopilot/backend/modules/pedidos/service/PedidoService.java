@@ -121,7 +121,7 @@ public class PedidoService {
 
         List<Pedido> pedidosPriorizados = pedidosPendientes.stream()
                 .sorted(Comparator.comparingInt(this::calcularTiempoMaximoPreparacion).reversed()
-                        .thenComparing(Pedido::getFechaCreacion))
+                        .thenComparing(Pedido::getFechaCreacion, Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
 
         int start = (int) pageable.getOffset();
@@ -187,8 +187,13 @@ public class PedidoService {
     }
 
     private int calcularTiempoMaximoPreparacion(Pedido pedido) {
+        if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
+            return 0;
+        }
         return pedido.getDetalles().stream()
-                .mapToInt(d -> d.getPlato().getTiempoPreparacionMinutos())
+                .map(DetallePedido::getPlato)
+                .filter(plato -> plato != null && plato.getTiempoPreparacionMinutos() != null)
+                .mapToInt(Plato::getTiempoPreparacionMinutos)
                 .max()
                 .orElse(0);
     }

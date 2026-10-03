@@ -4,6 +4,32 @@
     "name": "RestoPilot API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "var path = pm.request.url.getPathWithQuery();",
+          "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+          "    pm.sendRequest({",
+          "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+          "        method: \"POST\",",
+          "        header: { \"Content-Type\": \"application/json\" },",
+          "        body: {",
+          "            mode: \"raw\",",
+          "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+          "        }",
+          "    }, function (err, res) {",
+          "        if (!err && res.code === 200) {",
+          "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+          "        }",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
   "variable": [
     {
       "key": "baseUrl",
