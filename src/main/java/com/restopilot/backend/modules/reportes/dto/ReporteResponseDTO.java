@@ -12,10 +12,3 @@ public record ReporteResponseDTO(
         Double ocupacionMesasPorcentaje,
         EstadoPagosDTO estadoPagos
 ) {}
-
-record EstadoPagosDTO(
-        BigDecimal montoTotal,
-        Integer pedidosPagados,
-        Integer pagosPendientes,
-        Map<String, Integer> metodosPagoUtilizados
-) {}
