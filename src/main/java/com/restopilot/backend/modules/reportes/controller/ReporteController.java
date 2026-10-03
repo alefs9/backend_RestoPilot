@@ -19,7 +19,7 @@ public class ReporteController {
 
     // Escenario 1 y 2: Consulta del reporte consolidado global
     @GetMapping("/operativos")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<ReporteResponseDTO> obtenerReporteConsolidado(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -28,7 +28,7 @@ public class ReporteController {
 
     // Escenario 3 y 4: Consulta de un reporte específico (Estado de pagos)
     @GetMapping("/pagos")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADMINISTRADOR', 'DUENO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<ReporteResponseDTO> obtenerReportePagos(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
