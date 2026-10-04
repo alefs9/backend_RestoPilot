@@ -102,7 +102,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Cristian Condori\",\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
+              "raw": "{\n  \"nombreCompleto\": \"Nuevo Administrador\",\n  \"correo\": \"admin_{{$timestamp}}@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -119,6 +119,17 @@
         },
         {
           "name": "2. Error Correo Duplicado (409 Conflict)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 409 Conflict\", function () { pm.response.to.have.status(409); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -129,7 +140,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Francesco Meza\",\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\"\n}"
+              "raw": "{\n  \"nombreCompleto\": \"Cristian Condori\",\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -1108,7 +1119,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Cliente Frecuente\",\n  \"correo\": \"cliente_test@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\",\n  \"restauranteId\": 1\n}"
+              "raw": "{\n  \"nombreCompleto\": \"Cliente Frecuente\",\n  \"correo\": \"cliente_{{$timestamp}}@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\",\n  \"restauranteId\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
