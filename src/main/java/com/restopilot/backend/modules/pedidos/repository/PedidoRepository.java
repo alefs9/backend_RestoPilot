@@ -12,6 +12,10 @@ import java.util.List;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Pedido p where p.id = :id")
+    java.util.Optional<Pedido> findByIdForUpdate(@Param("id") Long id);
+
     // US07: Permite al cliente consultar su historial de pedidos
     Page<Pedido> findByClienteId(Long clienteId, Pageable pageable);
 

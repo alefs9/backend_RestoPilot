@@ -37,6 +37,9 @@ public class ReservaService {
     private final MesaRepository mesaRepository;
     private final RestauranteRepository restauranteRepository;
     private final ReservaMapper reservaMapper;
+    private final java.time.Clock clock;
+    private final com.restopilot.backend.security.AccesoRestaurante acceso;
+    private final com.restopilot.backend.modules.notificaciones.service.NotificacionService notificaciones;
     private final CurrentUser currentUser;
 
     /**
@@ -46,6 +49,16 @@ public class ReservaService {
     @Transactional(readOnly = true)
     public List<MesaDisponibilidadDTO> consultarDisponibilidad(
             Long restauranteId, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+        return consultarDisponibilidad(restauranteId, fecha, horaInicio, horaFin, 1);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MesaDisponibilidadDTO> consultarDisponibilidad(
+            Long restauranteId, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Integer comensales) {
+
+        if (comensales == null || comensales < 1) {
+            throw new BusinessRuleException("El número de comensales debe ser mayor a cero.");
+        }
 
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante con ID " + restauranteId + " no encontrado"));
@@ -59,7 +72,7 @@ public class ReservaService {
             throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
         }
 
-        if (fecha.isBefore(LocalDate.now())) {
+        if (fecha.isBefore(LocalDate.now(clock))) {
             throw new BusinessRuleException("No se puede consultar disponibilidad para una fecha pasada.");
         }
 
@@ -73,10 +86,6 @@ public class ReservaService {
 
         List<Mesa> mesasActivas = mesaRepository.findByRestauranteIdAndActivoTrue(restauranteId);
 
-        if (mesasActivas.isEmpty()) {
-            throw new ResourceNotFoundException("El restaurante no tiene mesas activas configuradas.");
-        }
-
         List<EstadoReserva> estadosBloqueantes = List.of(
                 EstadoReserva.PENDIENTE,
                 EstadoReserva.CONFIRMADA
@@ -88,6 +97,7 @@ public class ReservaService {
         Set<Long> mesasOcupadasSet = new HashSet<>(mesasOcupadasIds);
 
         return mesasActivas.stream()
+                .filter(mesa -> mesa.getCapacidad() >= comensales)
                 .map(mesa -> new MesaDisponibilidadDTO(
                         mesa.getId(),
                         mesa.getNumero(),
@@ -106,6 +116,7 @@ public class ReservaService {
     @Transactional
     public ReservaResponseDTO registrarReserva(ReservaRequestDTO request) {
         Usuario cliente = currentUser.get();
+        if (cliente.getRol() != Rol.CLIENTE) acceso.exigirGestion(request.restauranteId());
 
         Restaurante restaurante = restauranteRepository.findById(request.restauranteId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -120,7 +131,7 @@ public class ReservaService {
                     "El restaurante no tiene habilitada la atención física. No se pueden realizar reservas.");
         }
 
-        if (request.fecha().isBefore(LocalDate.now())) {
+        if (request.fecha().isBefore(LocalDate.now(clock))) {
             throw new BusinessRuleException("No se pueden registrar reservas en fechas pasadas.");
         }
 
@@ -128,7 +139,7 @@ public class ReservaService {
             throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
         }
 
-        if (request.fecha().isEqual(LocalDate.now()) && request.horaInicio().isBefore(LocalTime.now())) {
+        if (request.fecha().isEqual(LocalDate.now(clock)) && request.horaInicio().isBefore(LocalTime.now(clock))) {
             throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
         }
 
@@ -140,7 +151,7 @@ public class ReservaService {
             }
         }
 
-        Mesa mesa = mesaRepository.findById(request.mesaId())
+        Mesa mesa = mesaRepository.findByIdForUpdate(request.mesaId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Mesa con ID " + request.mesaId() + " no encontrada"));
 
@@ -198,7 +209,8 @@ public class ReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva con ID " + id + " no encontrada"));
 
         // Validar que la reserva no esté en estado definitivo (CANCELADA o COMPLETADA)
-        if (reserva.getEstado() == EstadoReserva.CANCELADA || reserva.getEstado() == EstadoReserva.COMPLETADA) {
+        if (reserva.getEstado() == EstadoReserva.CANCELADA || reserva.getEstado() == EstadoReserva.COMPLETADA
+                || reserva.getEstado() == EstadoReserva.RECHAZADA) {
             throw new BusinessRuleException(
                     "No se puede modificar una reserva que se encuentra en estado " + reserva.getEstado() + ".");
         }
@@ -215,6 +227,9 @@ public class ReservaService {
         }
 
         Restaurante restaurante = reserva.getRestaurante();
+        if (!restaurante.getId().equals(request.restauranteId())) {
+            throw new BusinessRuleException("No se puede cambiar el restaurante de una reserva.");
+        }
 
         // Validar restaurante activo y atención física
         if (Boolean.FALSE.equals(restaurante.getActivo())) {
@@ -227,7 +242,7 @@ public class ReservaService {
         }
 
         // Validar fechas y horarios
-        if (request.fecha().isBefore(LocalDate.now())) {
+        if (request.fecha().isBefore(LocalDate.now(clock))) {
             throw new BusinessRuleException("No se pueden modificar reservas a fechas pasadas.");
         }
 
@@ -235,7 +250,7 @@ public class ReservaService {
             throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
         }
 
-        if (request.fecha().isEqual(LocalDate.now()) && request.horaInicio().isBefore(LocalTime.now())) {
+        if (request.fecha().isEqual(LocalDate.now(clock)) && request.horaInicio().isBefore(LocalTime.now(clock))) {
             throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
         }
 
@@ -249,7 +264,7 @@ public class ReservaService {
         }
 
         // Validar mesa asignada
-        Mesa mesa = mesaRepository.findById(request.mesaId())
+        Mesa mesa = mesaRepository.findByIdForUpdate(request.mesaId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Mesa con ID " + request.mesaId() + " no encontrada"));
 
@@ -286,6 +301,8 @@ public class ReservaService {
         reserva.setHoraFin(request.horaFin());
         reserva.setNumeroComensales(request.numeroComensales());
         reserva.setNotas(request.notas());
+        // Reprogramar exige una nueva evaluación del restaurante.
+        reserva.setEstado(EstadoReserva.PENDIENTE);
 
         Reserva reservaActualizada = reservaRepository.save(reserva);
         return reservaMapper.toResponse(reservaActualizada);
@@ -299,6 +316,7 @@ public class ReservaService {
     @Transactional
     public ReservaResponseDTO cancelarReserva(Long id, String motivo) {
         Usuario usuario = currentUser.get();
+        if (motivo != null && motivo.length() > 300) throw new BusinessRuleException("El motivo no puede superar 300 caracteres.");
 
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva con ID " + id + " no encontrada"));
@@ -309,7 +327,7 @@ public class ReservaService {
         }
 
         // Validar que no haya sido completada
-        if (reserva.getEstado() == EstadoReserva.COMPLETADA) {
+        if (reserva.getEstado() == EstadoReserva.COMPLETADA || reserva.getEstado() == EstadoReserva.RECHAZADA) {
             throw new BusinessRuleException("No se puede cancelar una reserva que ya ha sido completada.");
         }
 
@@ -319,8 +337,8 @@ public class ReservaService {
                 throw new BusinessRuleException("No tiene permisos para cancelar esta reserva.");
             }
             LocalDateTime fechaHoraReserva = LocalDateTime.of(reserva.getFecha(), reserva.getHoraInicio());
-            if (LocalDateTime.now().isAfter(fechaHoraReserva)) {
-                throw new BusinessRuleException("No se puede cancelar una reserva cuya fecha y hora ya han pasado.");
+            if (!LocalDateTime.now(clock).isBefore(fechaHoraReserva.minusHours(2))) {
+                throw new BusinessRuleException("La cancelación requiere más de 2 horas de anticipación. Comuníquese vía telefónica con recepción.");
             }
         } else {
             if (usuario.getRestaurante() == null || !reserva.getRestaurante().getId().equals(usuario.getRestaurante().getId())) {
@@ -334,11 +352,43 @@ public class ReservaService {
             String notasActuales = (reserva.getNotas() != null && !reserva.getNotas().isBlank())
                     ? reserva.getNotas() + " | "
                     : "";
-            reserva.setNotas(notasActuales + "Motivo cancelación: " + motivo.trim());
+            String notas = notasActuales + "Motivo cancelación: " + motivo.trim();
+            if (notas.length() > 500) throw new BusinessRuleException("Las notas y el motivo no pueden superar 500 caracteres.");
+            reserva.setNotas(notas);
         }
 
         Reserva reservaCancelada = reservaRepository.save(reserva);
         return reservaMapper.toResponse(reservaCancelada);
+    }
+
+    /** US17: Solo el restaurante propietario puede decidir sobre una solicitud pendiente. */
+    @Transactional
+    public ReservaResponseDTO procesarReserva(Long id,
+            com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada."));
+        acceso.exigirGestion(reserva.getRestaurante().getId());
+        if (reserva.getEstado() != EstadoReserva.PENDIENTE) {
+            throw new BusinessRuleException("La reserva ya fue gestionada.");
+        }
+        if (request.estado() != EstadoReserva.CONFIRMADA && request.estado() != EstadoReserva.RECHAZADA) {
+            throw new BusinessRuleException("Solo se permite confirmar o rechazar una solicitud pendiente.");
+        }
+        if (request.estado() == EstadoReserva.RECHAZADA && (request.motivo() == null || request.motivo().isBlank())) {
+            throw new BusinessRuleException("Debe indicar el motivo del rechazo.");
+        }
+        if (request.estado() == EstadoReserva.CONFIRMADA
+                && (!Boolean.TRUE.equals(reserva.getRestaurante().getActivo())
+                || !Boolean.TRUE.equals(reserva.getRestaurante().getTieneAtencionFisica())
+                || !LocalDateTime.of(reserva.getFecha(), reserva.getHoraInicio()).isAfter(LocalDateTime.now(clock)))) {
+            throw new BusinessRuleException("No se puede confirmar una reserva pasada o de un restaurante sin atención física activa.");
+        }
+        reserva.setEstado(request.estado());
+        reserva.setMotivoRechazo(request.estado() == EstadoReserva.RECHAZADA ? request.motivo().trim() : null);
+        reservaRepository.saveAndFlush(reserva);
+        notificaciones.enviar(reserva.getUsuario().getId(), "Reserva #" + id + ": " + request.estado()
+                + (reserva.getMotivoRechazo() == null ? "" : ". Motivo: " + reserva.getMotivoRechazo()));
+        return reservaMapper.toResponse(reserva);
     }
 
     /**
@@ -425,7 +475,7 @@ public class ReservaService {
 
         List<EstadoReserva> estadosActivos = List.of(EstadoReserva.PENDIENTE, EstadoReserva.CONFIRMADA);
         long reservasActivas = reservaRepository.countByRestauranteIdAndEstadoInAndFechaGreaterThanEqual(
-                restauranteId, estadosActivos, LocalDate.now());
+                restauranteId, estadosActivos, LocalDate.now(clock));
 
         String mensaje = habilitado
                 ? "El módulo de reservas se encuentra activo para este restaurante."
@@ -456,7 +506,7 @@ public class ReservaService {
 
         List<EstadoReserva> estadosActivos = List.of(EstadoReserva.PENDIENTE, EstadoReserva.CONFIRMADA);
         long reservasActivas = reservaRepository.countByRestauranteIdAndEstadoInAndFechaGreaterThanEqual(
-                restauranteId, estadosActivos, LocalDate.now());
+                restauranteId, estadosActivos, LocalDate.now(clock));
 
         String mensaje;
         if (Boolean.TRUE.equals(habilitado)) {

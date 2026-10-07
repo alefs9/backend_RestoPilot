@@ -15,6 +15,13 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler({org.springframework.dao.OptimisticLockingFailureException.class,
+            org.springframework.dao.PessimisticLockingFailureException.class})
+    public ResponseEntity<Map<String, Object>> handleConcurrentChange(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("status", 409,
+                "mensaje", "El registro fue procesado por otra solicitud. Actualice e intente nuevamente."));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, Object> error = new HashMap<>();

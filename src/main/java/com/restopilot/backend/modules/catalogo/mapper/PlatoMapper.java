@@ -43,7 +43,7 @@ public class PlatoMapper {
         dto.setComplejidad(plato.getComplejidad());
         dto.setTiempoPreparacionMinutos(plato.getTiempoPreparacionMinutos());
         dto.setDisponible(plato.getDisponible());
-        plato.setImagenUrl(dto.getImagenUrl());
+        dto.setImagenUrl(plato.getImagenUrl());
         dto.setCreadoEn(plato.getCreadoEn());
         dto.setActualizadoEn(plato.getActualizadoEn());
         return dto;

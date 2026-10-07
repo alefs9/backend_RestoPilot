@@ -10,6 +10,10 @@ import java.util.Optional;
 @Repository
 public interface MesaRepository extends JpaRepository<Mesa, Long> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select m from Mesa m where m.id = :id")
+    Optional<Mesa> findByIdForUpdate(@org.springframework.data.repository.query.Param("id") Long id);
+
     // Buscar todas las mesas activas de un restaurante (para el plano interactivo)
     List<Mesa> findByRestauranteIdAndActivoTrue(Long restauranteId);
 

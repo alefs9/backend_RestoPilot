@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/pedidos/{pedidoId}/pagos")
@@ -20,6 +21,7 @@ public class PagoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<PagoResponseDTO> registrarPago(
             @PathVariable Long pedidoId,
             @Valid @RequestBody PagoRequestDTO request

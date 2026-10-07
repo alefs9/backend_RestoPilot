@@ -53,7 +53,11 @@ public class AuthService {
             );
         }
 
-        Rol rolAsignado = (request.getRol() != null) ? request.getRol() : Rol.CLIENTE;
+        if (request.getRol() != null && request.getRol() != Rol.CLIENTE) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "El registro público solo permite crear cuentas de cliente.");
+        }
+        Rol rolAsignado = Rol.CLIENTE;
 
         Usuario usuario = Usuario.builder()
                 .nombreCompleto(request.getNombreCompleto().trim())

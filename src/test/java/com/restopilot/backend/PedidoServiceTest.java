@@ -52,8 +52,23 @@ class PedidoServiceTest {
     @Mock
     private CurrentUser currentUser;
 
-    @InjectMocks
+    @Mock
+    private com.restopilot.backend.security.AccesoRestaurante acceso;
+
+    private java.time.Clock clock = java.time.Clock.fixed(java.time.Instant.parse("2026-10-07T17:00:00Z"), java.time.ZoneId.of("America/Lima"));
+
     private PedidoService pedidoService;
+
+    @Mock private com.restopilot.backend.modules.catalogo.repository.PlatoRepository platos;
+    @Mock private com.restopilot.backend.modules.reservas.repository.MesaRepository mesas;
+    @Mock private com.restopilot.backend.modules.pagos.service.PagoService pagos;
+    @Mock private com.restopilot.backend.modules.notificaciones.service.NotificacionService notificaciones;
+
+    @org.junit.jupiter.api.BeforeEach
+    void configurarServicio() {
+        pedidoService = new PedidoService(pedidoRepository, restauranteRepository, platos, pedidoMapper,
+                currentUser, acceso, mesas, pagos, notificaciones, clock);
+    }
 
     @Test
     @DisplayName("Debe lanzar excepción si el restaurante está inactivo")
@@ -90,8 +105,8 @@ class PedidoServiceTest {
         restauranteCerrado.setId(1L);
         restauranteCerrado.setActivo(true);
         // Forzamos un horario en el que siempre estará cerrado al ejecutar la prueba
-        restauranteCerrado.setHoraApertura(LocalTime.now().plusHours(1));
-        restauranteCerrado.setHoraCierre(LocalTime.now().plusHours(5));
+        restauranteCerrado.setHoraApertura(LocalTime.now(clock).plusHours(1));
+        restauranteCerrado.setHoraCierre(LocalTime.now(clock).plusHours(5));
 
         when(restauranteRepository.findById(1L)).thenReturn(Optional.of(restauranteCerrado));
 
