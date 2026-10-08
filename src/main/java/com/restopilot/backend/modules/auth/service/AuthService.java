@@ -78,6 +78,7 @@ public class AuthService {
                 .nombreCompleto(guardado.getNombreCompleto())
                 .correo(guardado.getCorreo())
                 .rol(guardado.getRol())
+                .restauranteId(guardado.getRestaurante() == null ? null : guardado.getRestaurante().getId())
                 .build();
     }
 
@@ -114,6 +115,7 @@ public class AuthService {
                 .nombreCompleto(usuario.getNombreCompleto())
                 .correo(usuario.getCorreo())
                 .rol(usuario.getRol())
+                .restauranteId(usuario.getRestaurante() == null ? null : usuario.getRestaurante().getId())
                 .build();
     }
 }

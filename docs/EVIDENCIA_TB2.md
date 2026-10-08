@@ -2,7 +2,7 @@
 
 Fecha de verificación: 7 de octubre de 2026. Se corrigieron los pendientes identificados al contrastar el Sprint Backlog con el código local. El alcance es la implementación del backend; Angular, IA y pasarela de pagos quedan fuera del Sprint 1. US18 conserva pagos administrativos.
 
-## Resultado verificado
+## Resultado verificado de las correcciones iniciales
 
 Comando ejecutado desde el repositorio:
 
@@ -74,3 +74,11 @@ No se ejecutó una verificación sobre PostgreSQL, una migración sobre la base 
 - Las notificaciones son mensajes persistidos consultables por el cliente; no son correos, SMS ni actualizaciones push del frontend.
 
 Estos cambios deben comunicarse al equipo que implemente las pantallas para que consuma el contrato actualizado.
+
+## Incremento US21 y US22
+
+Después del commit inicial 8ab73ca se incorporaron el alta transaccional del dueño con su restaurante y la creación de administradores autorizada por ese dueño. Los detalles están en ALTA_DUENOS_ADMINISTRADORES.md.
+
+La suite completa se volvió a ejecutar el 7 de octubre de 2026: **39 pruebas, 0 fallos, 0 errores y 0 omitidas; BUILD SUCCESS**. Incluye las 25 pruebas anteriores y 14 de AltaPersonalIntegrationTest. Estas últimas comprueban altas válidas, correos duplicados, campos inválidos, horario, asignaciones prohibidas, reversión real de operaciones fallidas, login del administrador y aislamiento por restaurante. Se utilizó H2 temporal, sin modificar PostgreSQL.
+
+Los archivos del segundo incremento están preparados para un commit separado; el hash de ese segundo commit debe añadirse después de crearlo. No se creó automáticamente un commit del nuevo flujo.

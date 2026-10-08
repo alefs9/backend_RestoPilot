@@ -18,6 +18,7 @@ Este nivel responde quién utiliza RestoPilot y para qué. No se explican todav�
 flowchart LR
     C[Cliente] -->|Consulta carta, registra pedidos y reservas, consulta notificaciones| R[RestoPilot]
     A[Administrador o dueño] -->|Gestiona carta, mesas, solicitudes, estados y pagos; consulta reportes| R
+    D[Dueño] -->|Registra su restaurante e incorpora administradores| R
     R -.->|Integración futura, fuera del Sprint 1| IA[Proveedor externo de IA]
 ```
 
@@ -51,6 +52,9 @@ flowchart TB
     CTRL --> PED[PedidoService]
     CTRL --> PAG[PagoService]
     CTRL --> REP[ReporteService]
+    CTRL --> ALTA[AltaRestauranteService y UsuarioService]
+    ALTA --> CUENTA[RegistroCuentaService]
+    CUENTA --> REPOS
     CAT --> ACC[CurrentUser y AccesoRestaurante]
     RES --> ACC
     PED --> ACC
@@ -160,6 +164,8 @@ Los pedidos nuevos generan un pago PENDIENTE en la misma transacción; la cardin
 | Regla | Código principal | Ejemplo y evidencia |
 |---|---|---|
 | El registro público crea clientes, no administradores | `modules/auth/service/AuthService.register` | Enviar rol ADMINISTRADOR devuelve 403; prueba HTTP de autorregistro. |
+| El dueño se registra mediante un flujo que crea su restaurante nuevo | `OwnerRegistrationController`, `AltaRestauranteService.registrar` | Cuenta y negocio se guardan juntos; un fallo revierte ambos. Ver US21 en ALTA_DUENOS_ADMINISTRADORES.md. |
+| Solo el dueño incorpora administradores de su restaurante | `UsuarioController`, `UsuarioService.crearAdministrador`, `RegistroCuentaService` | Rol y restaurante asignados por el servidor; no se entrega token del empleado al dueño. Ver US22. |
 | Un administrador gestiona solamente su restaurante | `security/AccesoRestaurante.exigirGestion`, anotaciones `@PreAuthorize` | Otro administrador no puede cambiar el estado de nuestro pedido ni procesar nuestra reserva. |
 | La carta se filtra por restaurante y categoría | `PlatoController.listar`, `PlatoService.listar`, `PlatoRepository.findByRestauranteIdAndCategoriaId` | Una categoría sin platos devuelve lista vacía. El frontend futuro mostrará el mensaje correspondiente. |
 | Complejidad permitida BAJA, MEDIA o ALTA; preparación entre 5 y 15 minutos | `PlatoService.validarDatos` | Se rechazan 16 minutos y complejidad desconocida. |

@@ -24,6 +24,8 @@ Las pruebas de integración utilizan H2 en memoria con modo PostgreSQL y un relo
 
 - `docs/SUSTENTACION_TB2.md`: reglas, componentes del código, cuatro diagramas y guion de explicación.
 - `docs/EVIDENCIA_TB2.md`: alcance de las verificaciones y trazabilidad del Sprint Backlog.
+- `docs/ALTA_DUENOS_ADMINISTRADORES.md`: US21/US22, contratos, reglas y componentes del nuevo registro.
 - `postman/TB2-reglas-negocio.postman_collection.json`: demostración de escenarios válidos y rechazos.
+- `postman/US21-US22-altas.postman_collection.json`: alta de dueño/restaurante y de administradores, con casos de rechazo.
 
 US18 registra pagos recibidos por otros medios; no se integra una pasarela. Las notificaciones están disponibles en `/api/notificaciones/me`. La interfaz Angular y el agente IA pertenecen a una fase posterior.
