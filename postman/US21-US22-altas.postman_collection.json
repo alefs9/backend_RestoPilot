@@ -1,0 +1,645 @@
+{
+  "info": {
+    "name": "RestoPilot US21 y US22 — alta de dueño y administradores",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden. Crea dos restaurantes con sus dueños, un administrador y un cliente. No necesita usuarios de demostración previos. US18 sigue siendo pagos administrativos. Configurar baseUrl para una base de demostración."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 US21 Registro dueño y restaurante",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register-owner",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{ownerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if (pm.response.code === 201) { const r=pm.response.json();pm.collectionVariables.set(\"ownerToken\",r.token);pm.collectionVariables.set(\"restauranteId\",r.restauranteId); }",
+              "pm.test(\"Rol DUENO y restaurante asignado\", () => { const r=pm.response.json();pm.expect(r.rol).to.eql(\"DUENO\");pm.expect(r.restauranteId).to.be.a(\"number\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 US21 Correo duplicado sin crear negocio",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register-owner",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{ownerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 US21 Registrar otro restaurante",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register-owner",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{otroOwnerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"otroRestauranteId\",pm.response.json().restauranteId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 US21 No permite reclamar restaurante existente",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register-owner",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{intentoCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  },\n  \"restauranteId\": \"{{restauranteId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 US21 Horario inválido",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register-owner",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{intentoCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"22:00\",\n    \"horaCierre\": \"09:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 US22 Dueño incorpora administrador",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ownerToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Rol y restaurante del dueño\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"ADMINISTRADOR\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"restauranteId\")));pm.expect(r).not.to.have.property(\"token\");pm.expect(r).not.to.have.property(\"password\");pm.expect(r).not.to.have.property(\"passwordHash\");});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 US22 Duplicado de administrador",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ownerToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 US22 No permite elegir otro restaurante",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ownerToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{intentoCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restauranteId\": \"{{otroRestauranteId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Login del administrador",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/login",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"{{adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "if(pm.response.code===200)pm.collectionVariables.set(\"adminToken\",pm.response.json().token);",
+              "pm.test(\"Login reconoce rol y restaurante\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"ADMINISTRADOR\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"restauranteId\")));});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 US22 Administrador no crea otros administradores",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{intentoCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Administrador gestiona su restaurante",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/categorias",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"restauranteId\": \"{{restauranteId}}\",\n  \"nombre\": \"Carta del dueño\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Administrador no gestiona restaurante ajeno",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/categorias",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{adminToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"restauranteId\": \"{{otroRestauranteId}}\",\n  \"nombre\": \"Carta ajena\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Registro cliente continúa funcionando",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/register",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Cliente TB2\",\n  \"correo\": \"{{clienteCorreo}}\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "if(pm.response.code===201)pm.collectionVariables.set(\"clienteToken\",pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 US22 Cliente no crea administradores",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{clienteToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{intentoCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 US22 Sin autenticación no crea administradores",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{intentoCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 US22 Datos incompletos",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/usuarios/administradores",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ownerToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if(pm.info.requestName.startsWith(\"01 \")) {",
+          " const id=String(Date.now());pm.collectionVariables.set(\"runId\",id);",
+          " for(const [key,prefix] of [[\"ownerCorreo\",\"owner\"],[\"otroOwnerCorreo\",\"owner2\"],[\"adminCorreo\",\"admin\"],[\"clienteCorreo\",\"cliente\"],[\"intentoCorreo\",\"intento\"]])pm.collectionVariables.set(key,prefix+\"-\"+id+\"@example.com\");",
+          " for(const key of [\"ownerToken\",\"adminToken\",\"clienteToken\",\"restauranteId\",\"otroRestauranteId\"])pm.collectionVariables.unset(key);",
+          "}"
+        ]
+      }
+    }
+  ]
+}

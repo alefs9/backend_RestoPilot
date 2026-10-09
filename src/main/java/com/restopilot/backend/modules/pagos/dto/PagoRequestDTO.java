@@ -23,6 +23,7 @@ public class PagoRequestDTO {
     private MetodoPago metodo;
 
     // Código de referencia (número de operación para Yape, Plin o Voucher de tarjeta)
+    @jakarta.validation.constraints.Size(max = 100, message = "La referencia no puede superar 100 caracteres")
     private String codigoReferencia;
 
     // Opcional: si no se especifica, se asume PAGADO al registrarlo en este endpoint

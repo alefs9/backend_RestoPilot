@@ -15,6 +15,30 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleIntegrityConflict(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("status", 409,
+                "mensaje", "El registro entra en conflicto con los datos existentes. Revise el correo u otros valores únicos."));
+    }
+
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleServiceValidation(jakarta.validation.ConstraintViolationException ex) {
+        return ResponseEntity.badRequest().body(Map.of("status", 400, "mensaje", "Los datos de registro no son válidos.",
+                "detalles", ex.getConstraintViolations().stream().map(v -> v.getMessage()).sorted().toList()));
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleMalformedRequest(Exception ex) {
+        return ResponseEntity.badRequest().body(Map.of("status", 400, "mensaje", "El formato de los datos enviados no es válido."));
+    }
+
+    @ExceptionHandler({org.springframework.dao.OptimisticLockingFailureException.class,
+            org.springframework.dao.PessimisticLockingFailureException.class})
+    public ResponseEntity<Map<String, Object>> handleConcurrentChange(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("status", 409,
+                "mensaje", "El registro fue procesado por otra solicitud. Actualice e intente nuevamente."));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, Object> error = new HashMap<>();
@@ -22,6 +46,8 @@ public class GlobalExceptionHandler {
         error.put("status", HttpStatus.BAD_REQUEST.value());
         error.put("error", "Bad Request");
         error.put("mensaje", "Debe completar todos los campos obligatorios.");
+        error.put("detalles", ex.getBindingResult().getFieldErrors().stream()
+                .map(field -> field.getField() + ": " + field.getDefaultMessage()).toList());
         return ResponseEntity.badRequest().body(error);
     }
 

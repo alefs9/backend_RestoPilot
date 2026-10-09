@@ -53,7 +53,11 @@ public class AuthService {
             );
         }
 
-        Rol rolAsignado = (request.getRol() != null) ? request.getRol() : Rol.CLIENTE;
+        if (request.getRol() != null && request.getRol() != Rol.CLIENTE) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "El registro público solo permite crear cuentas de cliente.");
+        }
+        Rol rolAsignado = Rol.CLIENTE;
 
         Usuario usuario = Usuario.builder()
                 .nombreCompleto(request.getNombreCompleto().trim())
@@ -74,6 +78,7 @@ public class AuthService {
                 .nombreCompleto(guardado.getNombreCompleto())
                 .correo(guardado.getCorreo())
                 .rol(guardado.getRol())
+                .restauranteId(guardado.getRestaurante() == null ? null : guardado.getRestaurante().getId())
                 .build();
     }
 
@@ -110,6 +115,7 @@ public class AuthService {
                 .nombreCompleto(usuario.getNombreCompleto())
                 .correo(usuario.getCorreo())
                 .rol(usuario.getRol())
+                .restauranteId(usuario.getRestaurante() == null ? null : usuario.getRestaurante().getId())
                 .build();
     }
 }

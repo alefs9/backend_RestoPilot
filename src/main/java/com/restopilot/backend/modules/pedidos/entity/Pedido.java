@@ -55,4 +55,7 @@ public class Pedido {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mesa_id") // Es nullable por defecto para los casos de DELIVERY/LLEVAR
     private Mesa mesa;
+
+    @Column(name = "direccion_entrega", length = 255)
+    private String direccionEntrega;
 }

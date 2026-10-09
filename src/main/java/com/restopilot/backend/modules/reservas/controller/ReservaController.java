@@ -39,9 +39,17 @@ public class ReservaController {
             @RequestParam Long restauranteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin,
+            @RequestParam(defaultValue = "1") Integer numeroComensales) {
 
-        return reservaService.consultarDisponibilidad(restauranteId, fecha, horaInicio, horaFin);
+        return reservaService.consultarDisponibilidad(restauranteId, fecha, horaInicio, horaFin, numeroComensales);
+    }
+
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public ReservaResponseDTO procesarReserva(@PathVariable Long id,
+            @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+        return reservaService.procesarReserva(id, request);
     }
 
     /**

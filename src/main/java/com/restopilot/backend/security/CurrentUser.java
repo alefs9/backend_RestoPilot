@@ -11,7 +11,7 @@ public class CurrentUser {
     public Usuario get() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new RuntimeException("Usuario no autenticado en el sistema");
+            throw new org.springframework.security.access.AccessDeniedException("Usuario no autenticado en el sistema");
         }
         return (Usuario) authentication.getPrincipal();
     }
@@ -19,7 +19,7 @@ public class CurrentUser {
     public Long getRestauranteId() {
         Usuario usuario = get();
         if (usuario.getRestaurante() == null) {
-            throw new RuntimeException("El usuario no tiene un restaurante asignado");
+            throw new org.springframework.security.access.AccessDeniedException("El usuario no tiene un restaurante asignado");
         }
         return usuario.getRestaurante().getId();
     }

@@ -16,4 +16,5 @@ public class AuthResponseDTO {
     private String nombreCompleto;
     private String correo;
     private Rol rol;
+    private Long restauranteId;
 }

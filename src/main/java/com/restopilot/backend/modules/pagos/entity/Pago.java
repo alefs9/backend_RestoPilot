@@ -19,14 +19,14 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pedido_id", nullable = false)
+    @Column(name = "pedido_id", nullable = false, unique = true)
     private Long pedidoId;
 
     @Column(name = "monto", nullable = false, precision = 10, scale = 2)
     private BigDecimal monto;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "metodo", nullable = false, length = 30)
+    @Column(name = "metodo", length = 30)
     private MetodoPago metodo;
 
     @Enumerated(EnumType.STRING)

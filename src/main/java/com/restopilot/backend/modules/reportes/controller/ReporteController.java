@@ -22,8 +22,9 @@ public class ReporteController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<ReporteResponseDTO> obtenerReporteConsolidado(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        return ResponseEntity.ok(reporteService.generarReporteConsolidado(fechaInicio, fechaFin));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
+            @RequestParam(defaultValue = "CONSOLIDADO") com.restopilot.backend.modules.reportes.dto.TipoReporte tipo) {
+        return ResponseEntity.ok(reporteService.generarReporte(fechaInicio, fechaFin, tipo));
     }
 
     // Escenario 3 y 4: Consulta de un reporte específico (Estado de pagos)

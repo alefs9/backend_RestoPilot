@@ -23,5 +23,6 @@ public record ReservaResponseDTO(
         Integer numeroComensales,
         EstadoReserva estado,
         String notas,
-        LocalDateTime creadoEn
+        LocalDateTime creadoEn,
+        String motivoRechazo
 ) {}
