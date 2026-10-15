@@ -51,10 +51,10 @@ Las tareas corregidas pueden registrarse como Done para su alcance backend con e
 
 1. Revisar `docs/sql/actualizacion_tb2.sql` y ejecutarlo en la base de demostración antes de arrancar esta versión sobre un esquema existente. La migración no se ejecutó durante este trabajo. Si encuentra pagos duplicados u huérfanos, se detiene para revisión; no borra registros.
 2. Iniciar el backend con `.\mvnw.cmd spring-boot:run` y las variables habituales de la base de demostración.
-3. Importar `postman/TB2-reglas-negocio.postman_collection.json` en Postman.
-4. Configurar baseUrl, restauranteId y credenciales del administrador de ese restaurante. Los valores de ejemplo coinciden con DataInitializer.
+3. Importar `postman/postman_collection.json` en Postman y ejecutar en orden las cuatro etapas de `02 Flujos de usuario` (dueño prepara, cliente solicita, dueño atiende y cliente consulta); los rechazos y permisos de US21/US22 están en `01 API por funcionalidad`.
+4. Configurar baseUrl. El recorrido crea su propio restaurante, dueño y cliente; guarda tokens e identificadores en variables flujo_.
 5. Comprobar que el restaurante esté abierto y habilite delivery y atención física. Las peticiones de pedido respetan esas reglas; no deben deshabilitarse para lograr un resultado verde.
-6. Ejecutar en orden mediante Collection Runner. Se crean datos de prueba y se conservan para el historial; cada ejecución genera nombres y correo nuevos.
+6. Ejecutar la carpeta completa 02 Flujos de usuario en una sola ejecución de Collection Runner, con una iteración y las cuatro etapas en orden. Se crean datos de prueba y se conservan para el historial; cada ejecución genera nombres y correos nuevos.
 7. Guardar las capturas del resultado del Runner, de ejemplos válidos y de los rechazos para incorporarlas a Development Evidence.
 
 La consulta de prioridad solicita hasta 1000 registros. Si la base contiene una cola mayor, preparar un restaurante de demostración con menos pedidos para que ambos ejemplos estén en la página consultada.

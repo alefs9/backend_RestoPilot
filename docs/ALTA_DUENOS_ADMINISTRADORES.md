@@ -149,7 +149,7 @@ AltaPersonalIntegrationTest utiliza una base H2 temporal, MockMvc, seguridad rea
 
 Resultado verificado el 7 de octubre de 2026: **BUILD SUCCESS, 39 pruebas, 0 fallos y 0 errores**. Son 25 pruebas del incremento anterior y 14 pruebas nuevas de US21/US22. Se ejecutaron en H2; queda pendiente repetir la demostración en PostgreSQL. La colección nueva contiene 16 peticiones con comprobaciones de respuesta para ejecutar en Postman.
 
-Importar postman/US21-US22-altas.postman_collection.json y ejecutar en orden. La colección crea dueños, restaurantes, un administrador y un cliente de demostración y comprueba los rechazos. Guarda los registros para inspección; se genera un correo distinto por ejecución. Usar una base de demostración y configurar baseUrl. No necesita las cuentas fijas de DataInitializer.
+Importar postman/postman_collection.json y ejecutar en orden la carpeta `01 API por funcionalidad > US21 & US22 - Alta de dueños y administradores`. La colección crea dueños, restaurantes, un administrador y un cliente de demostración y comprueba los rechazos. Guarda los registros para inspección; se genera un correo distinto por ejecución. Usar una base de demostración y configurar baseUrl. No necesita las cuentas fijas de DataInitializer.
 
 Este incremento no añade tablas ni columnas; reutiliza el esquema actual. La actualización SQL del commit anterior sigue siendo necesaria si esa corrección todavía no se ha aplicado a la base compartida. Las pruebas aquí descritas no ejecutan esa migración ni se conectan a PostgreSQL.
 
