@@ -2,34 +2,9 @@
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
     "name": "RestoPilot API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "API por funcionalidad incluidas US21/US22 y recorrido compartido dividido por rol: dueño prepara, cliente solicita, dueño atiende y cliente consulta resultados. Ejecutar 02 Flujos de usuario completo en orden. Configurar baseUrl; las etapas comparten variables flujo_. Usar una base de demostración."
   },
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          "var path = pm.request.url.getPathWithQuery();",
-          "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
-          "    pm.sendRequest({",
-          "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
-          "        method: \"POST\",",
-          "        header: { \"Content-Type\": \"application/json\" },",
-          "        body: {",
-          "            mode: \"raw\",",
-          "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
-          "        }",
-          "    }, function (err, res) {",
-          "        if (!err && res.code === 200) {",
-          "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
-          "        }",
-          "    });",
-          "}"
-        ]
-      }
-    }
-  ],
   "variable": [
     {
       "key": "baseUrl",
@@ -74,1385 +49,3305 @@
   ],
   "item": [
     {
-      "name": "US01 - Registro de Usuario",
+      "name": "01 API por funcionalidad",
       "item": [
         {
-          "name": "1. Registro Exitoso (201 Created)",
+          "name": "US01 - Registro de Usuario",
+          "item": [
+            {
+              "name": "1. Registro Exitoso (201 Created)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.token) {",
+                      "    pm.collectionVariables.set('jwtToken', jsonData.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Nuevo Administrador\",\n  \"correo\": \"admin_{{$timestamp}}@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Error Correo Duplicado (409 Conflict)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 409 Conflict\", function () { pm.response.to.have.status(409); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Cristian Condori\",\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Error Campos Vacios (400 Bad Request)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"\",\n  \"correo\": \"invalido\",\n  \"password\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              }
+            }
+          ],
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "    pm.collectionVariables.set('jwtToken', jsonData.token);",
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
                   "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US02 - Inicio de Sesión",
+          "item": [
+            {
+              "name": "1. Login Exitoso (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.token) {",
+                      "    pm.collectionVariables.set('jwtToken', jsonData.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
-                "type": "text/javascript"
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Error Credenciales Incorrectas (401 Unauthorized)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Erronea123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
               }
             }
           ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Nuevo Administrador\",\n  \"correo\": \"admin_{{$timestamp}}@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Error Correo Duplicado (409 Conflict)",
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status code is 409 Conflict\", function () { pm.response.to.have.status(409); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Cristian Condori\",\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"ADMINISTRADOR\",\n  \"restauranteId\": 1\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Error Campos Vacios (400 Bad Request)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"\",\n  \"correo\": \"invalido\",\n  \"password\": \"\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US02 - Inicio de Sesión",
-      "item": [
-        {
-          "name": "1. Login Exitoso (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "    pm.collectionVariables.set('jwtToken', jsonData.token);",
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
                   "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US21 & US22 - Alta de dueños y administradores",
+          "description": "Ejecutar en orden. Crea dos restaurantes con sus dueños, un administrador y un cliente. No necesita usuarios de demostración previos. US18 sigue siendo pagos administrativos. Configurar baseUrl para una base de demostración.",
+          "item": [
+            {
+              "name": "01 US21 Registro dueño y restaurante",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register-owner",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"correo\": \"cristian@restopilot.com\",\n  \"password\": \"Password123!\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Error Credenciales Incorrectas (401 Unauthorized)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"correo\": \"francesco@restopilot.com\",\n  \"password\": \"Erronea123!\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US18 - Pagos de Pedidos",
-      "item": [
-        {
-          "name": "1. Registrar Pago de Pedido (201 Created)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{altas_ownerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{altas_runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
               },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"monto\": 85.50,\n  \"metodo\": \"YAPE\",\n  \"codigoReferencia\": \"YAPE-984712\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "1",
-                "pagos"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Consultar Pago de Pedido (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "1",
-                "pagos"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Error Pago Inamovible Duplicado (409 Conflict)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"monto\": 85.50,\n  \"metodo\": \"YAPE\",\n  \"codigoReferencia\": \"YAPE-984712\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "1",
-                "pagos"
-              ]
-            }
-          }
-        },
-        {
-          "name": "4. Error Sin Token JWT (403 Forbidden)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/1/pagos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "1",
-                "pagos"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US16 - Gestión de Mesas (Salón)",
-      "item": [
-        {
-          "name": "1. Crear Mesa (201 Created)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 4,\n  \"coordenadaX\": 120.5,\n  \"coordenadaY\": 250.0\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/mesas",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "mesas"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Listar Mesas del Restaurante (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/mesas",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "mesas"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Listar Mesas Activas para Plano (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/mesas/restaurante/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "mesas",
-                "restaurante",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "4. Consultar Mesa por ID (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/mesas/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "mesas",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "5. Modificar Mesa (200 OK)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 6,\n  \"coordenadaX\": 150.0,\n  \"coordenadaY\": 300.0\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/mesas/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "mesas",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "6. Activar o Desactivar Mesa (200 OK)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"activo\": false\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/mesas/1/estado",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "mesas",
-                "1",
-                "estado"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US05 - Consulta de Disponibilidad de Mesas",
-      "item": [
-        {
-          "name": "1. Consultar Disponibilidad por Fecha y Horario (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/disponibilidad?restauranteId=1&fecha=2026-10-15&horaInicio=19:00:00&horaFin=21:00:00",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "disponibilidad"
-              ],
-              "query": [
+              "event": [
                 {
-                  "key": "restauranteId",
-                  "value": "1"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) { const r=pm.response.json();pm.collectionVariables.set(\"altas_ownerToken\",r.token);pm.collectionVariables.set(\"altas_restauranteId\",r.restauranteId); }",
+                      "pm.test(\"Rol DUENO y restaurante asignado\", () => { const r=pm.response.json();pm.expect(r.rol).to.eql(\"DUENO\");pm.expect(r.restauranteId).to.be.a(\"number\"); });"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02 US21 Correo duplicado sin crear negocio",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register-owner",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{altas_ownerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{altas_runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03 US21 Registrar otro restaurante",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register-owner",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{altas_otroOwnerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{altas_runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if(pm.response.code===201)pm.collectionVariables.set(\"altas_otroRestauranteId\",pm.response.json().restauranteId);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04 US21 No permite reclamar restaurante existente",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register-owner",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{altas_intentoCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{altas_runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"09:00\",\n    \"horaCierre\": \"22:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  },\n  \"restauranteId\": \"{{altas_restauranteId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05 US21 Horario inválido",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register-owner",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Dueño TB2\",\n  \"correo\": \"{{altas_intentoCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante TB2 {{altas_runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"22:00\",\n    \"horaCierre\": \"09:00\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06 US22 Dueño incorpora administrador",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
                 },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{altas_adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
                 {
-                  "key": "fecha",
-                  "value": "2026-10-15"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "pm.test(\"Rol y restaurante del dueño\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"ADMINISTRADOR\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"altas_restauranteId\")));pm.expect(r).not.to.have.property(\"token\");pm.expect(r).not.to.have.property(\"password\");pm.expect(r).not.to.have.property(\"passwordHash\");});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "07 US22 Duplicado de administrador",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
                 },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{altas_adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
                 {
-                  "key": "horaInicio",
-                  "value": "19:00:00"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "08 US22 No permite elegir otro restaurante",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
                 },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{altas_intentoCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restauranteId\": \"{{altas_otroRestauranteId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
                 {
-                  "key": "horaFin",
-                  "value": "21:00:00"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                    ]
+                  }
                 }
               ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US06 - Registro de Reservas (Plano Interactivo)",
-      "item": [
-        {
-          "name": "1. Registrar Reserva desde Plano (201 Created)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"mesaId\": 1,\n  \"restauranteId\": 1,\n  \"fecha\": \"2026-10-15\",\n  \"horaInicio\": \"19:00:00\",\n  \"horaFin\": \"21:00:00\",\n  \"numeroComensales\": 4,\n  \"notas\": \"Cerca a la ventana, aniversario\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US08 - Modificación y Cancelación de Reservas",
-      "item": [
-        {
-          "name": "1. Modificar Reserva (200 OK)",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
+            {
+              "name": "09 Login del administrador",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/login",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"correo\": \"{{altas_adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
               },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"mesaId\": 1,\n  \"restauranteId\": 1,\n  \"fecha\": \"2026-10-15\",\n  \"horaInicio\": \"20:00:00\",\n  \"horaFin\": \"22:00:00\",\n  \"numeroComensales\": 5,\n  \"notas\": \"Horario modificado\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Cancelar Reserva y Liberar Mesa (200 OK)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"motivo\": \"Imprevisto laboral del cliente\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/1/cancelar",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "1",
-                "cancelar"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US07 - Consulta e Historial de Reservas",
-      "item": [
-        {
-          "name": "1. Consultar Mis Reservas - Historial Cliente (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "me"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Listar Reservas del Restaurante con Filtros (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas?fecha=2026-10-15&estado=PENDIENTE",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas"
-              ],
-              "query": [
+              "event": [
                 {
-                  "key": "fecha",
-                  "value": "2026-10-15"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "if(pm.response.code===200)pm.collectionVariables.set(\"altas_adminToken\",pm.response.json().token);",
+                      "pm.test(\"Login reconoce rol y restaurante\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"ADMINISTRADOR\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"altas_restauranteId\")));});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "10 US22 Administrador no crea otros administradores",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_adminToken}}",
+                      "type": "string"
+                    }
+                  ]
                 },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{altas_intentoCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
                 {
-                  "key": "estado",
-                  "value": "PENDIENTE"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                    ]
+                  }
                 }
               ]
-            }
-          }
-        },
-        {
-          "name": "3. Consultar Detalle de Reserva por ID (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "1"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "SaaS - Configuración de Atención Física y Reservas",
-      "item": [
-        {
-          "name": "1. Consultar Estado SaaS del Módulo (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/modulo/estado",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "modulo",
-                "estado"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Consultar Estado del Módulo por Restaurante (200 OK)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/modulo/estado/restaurante/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "modulo",
-                "estado",
-                "restaurante",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Activar o Desactivar Módulo de Reservas (200 OK)",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"habilitado\": true\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/reservas/modulo/estado",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reservas",
-                "modulo",
-                "estado"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US10 & US14 - Catálogo y Menú",
-      "item": [
-        {
-          "name": "1. Crear Categoría (201 Created)",
-          "event": [
             {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
-                  "var data = pm.response.json();",
-                  "if (data.id) { pm.collectionVariables.set(\"categoriaId\", data.id); }"
+              "name": "11 Administrador gestiona su restaurante",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/categorias",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"restauranteId\": 1,\n  \"nombre\": \"Platos de Fondo\",\n  \"descripcion\": \"Platos fuertes y tradicionales\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/categorias",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categorias"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Listar Categorías por Restaurante (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/categorias/restaurante/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categorias",
-                "restaurante",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Crear Plato en Menú (201 Created)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
-                  "var data = pm.response.json();",
-                  "if (data.id) { pm.collectionVariables.set(\"platoId\", data.id); }"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"restauranteId\": 1,\n  \"categoriaId\": 1,\n  \"nombre\": \"Lomo Saltado Criollo\",\n  \"descripcion\": \"Lomo fino saltado con cebolla morada, tomate y papas nativas\",\n  \"precio\": 42.0,\n  \"ingredientes\": \"Lomo fino, cebolla, tomate, aj\\u00ed amarillo, papas\",\n  \"alergenos\": \"Soya\",\n  \"complejidad\": \"MEDIA\",\n  \"tiempoPreparacionMinutos\": 20,\n  \"disponible\": true,\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1544025162-d76694265947\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/platos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "platos"
-              ]
-            }
-          }
-        },
-        {
-          "name": "4. Listar Platos por Restaurante (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/platos/restaurante/1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "platos",
-                "restaurante",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "5. Consultar Plato por ID (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/platos/{{platoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "platos",
-                "{{platoId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "6. Cambiar Disponibilidad de Plato (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/platos/{{platoId}}/disponibilidad?disponible=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "platos",
-                "{{platoId}}",
-                "disponibilidad"
-              ],
-              "query": [
-                {
-                  "key": "disponible",
-                  "value": "true"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US11, US15 & US19 - Flujo de Pedidos y Cocina",
-      "item": [
-        {
-          "name": "1. Registro / Login de Cliente (201/200)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var data = pm.response.json();",
-                  "if (data.token) { pm.collectionVariables.set(\"clienteToken\", data.token); }",
-                  "pm.test(\"Status code is 200/201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombreCompleto\": \"Cliente Frecuente\",\n  \"correo\": \"cliente_{{$timestamp}}@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\",\n  \"restauranteId\": 1\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "2. Crear Pedido en Salón - US11 (201 Created)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
-                  "var data = pm.response.json();",
-                  "if (data.id) { pm.collectionVariables.set(\"pedidoId\", data.id); }"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{clienteToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"restauranteId\": 1,\n  \"tipoEntrega\": \"SALON\",\n  \"mesaId\": 1,\n  \"detalles\": [\n    {\n      \"platoId\": 1,\n      \"cantidad\": 2,\n      \"notas\": \"Bien cocido y sin sal a\\u00f1adida\"\n    }\n  ]\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos"
-              ]
-            }
-          }
-        },
-        {
-          "name": "3. Consultar Historial de Mis Pedidos - US07 (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{clienteToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "me"
-              ]
-            }
-          }
-        },
-        {
-          "name": "4. Consultar Detalle de Pedido por ID - US12 (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "{{pedidoId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "5. Consultar Cola de Cocina Priorizada - US15 (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/pendientes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "pendientes"
-              ]
-            }
-          }
-        },
-        {
-          "name": "6. Actualizar Estado a EN_PREPARACION - US19 (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado?nuevoEstado=EN_PREPARACION",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "{{pedidoId}}",
-                "estado"
-              ],
-              "query": [
-                {
-                  "key": "nuevoEstado",
-                  "value": "EN_PREPARACION"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "7. Actualizar Estado a LISTO - US19 (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado?nuevoEstado=LISTO",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "pedidos",
-                "{{pedidoId}}",
-                "estado"
-              ],
-              "query": [
-                {
-                  "key": "nuevoEstado",
-                  "value": "LISTO"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "US20 - Reportes Operativos y Financieros",
-      "item": [
-        {
-          "name": "1. Consultar Reporte Consolidado Operativo - US20 (200 OK)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reportes/operativos?fechaInicio=2026-09-01&fechaFin=2026-10-31",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reportes",
-                "operativos"
-              ],
-              "query": [
-                {
-                  "key": "fechaInicio",
-                  "value": "2026-09-01"
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_adminToken}}",
+                      "type": "string"
+                    }
+                  ]
                 },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": \"{{altas_restauranteId}}\",\n  \"nombre\": \"Carta del dueño\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
                 {
-                  "key": "fechaFin",
-                  "value": "2026-10-31"
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "12 Administrador no gestiona restaurante ajeno",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/categorias",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": \"{{altas_otroRestauranteId}}\",\n  \"nombre\": \"Carta ajena\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "13 Registro cliente continúa funcionando",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Cliente TB2\",\n  \"correo\": \"{{altas_clienteCorreo}}\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if(pm.response.code===201)pm.collectionVariables.set(\"altas_clienteToken\",pm.response.json().token);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "14 US22 Cliente no crea administradores",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_clienteToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{altas_intentoCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "15 US22 Sin autenticación no crea administradores",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador TB2\",\n  \"correo\": \"{{altas_intentoCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "16 US22 Datos incompletos",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{altas_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                    ]
+                  }
                 }
               ]
             }
-          }
-        },
-        {
-          "name": "2. Consultar Reporte de Estado de Pagos - US20 (200 OK)",
+          ],
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                  "if(pm.info.requestName.startsWith(\"01 \")) {",
+                  " const id=String(Date.now());pm.collectionVariables.set(\"altas_runId\",id);",
+                  " for(const [key,prefix] of [[\"altas_ownerCorreo\",\"owner\"],[\"altas_otroOwnerCorreo\",\"owner2\"],[\"altas_adminCorreo\",\"admin\"],[\"altas_clienteCorreo\",\"cliente\"],[\"altas_intentoCorreo\",\"intento\"]])pm.collectionVariables.set(key,prefix+\"-\"+id+\"@example.com\");",
+                  " for(const key of [\"altas_ownerToken\",\"altas_adminToken\",\"altas_clienteToken\",\"altas_restauranteId\",\"altas_otroRestauranteId\"])pm.collectionVariables.unset(key);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US18 - Pagos de Pedidos",
+          "item": [
+            {
+              "name": "1. Registrar Pago de Pedido (201 Created)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
                 ],
-                "type": "text/javascript"
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"monto\": 85.50,\n  \"metodo\": \"YAPE\",\n  \"codigoReferencia\": \"YAPE-984712\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/1/pagos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "1",
+                    "pagos"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Consultar Pago de Pedido (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/1/pagos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "1",
+                    "pagos"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Error Pago Inamovible Duplicado (409 Conflict)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"monto\": 85.50,\n  \"metodo\": \"YAPE\",\n  \"codigoReferencia\": \"YAPE-984712\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/1/pagos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "1",
+                    "pagos"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "4. Error Sin Token JWT (403 Forbidden)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/1/pagos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "1",
+                    "pagos"
+                  ]
+                }
               }
             }
           ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwtToken}}"
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
               }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/reportes/pagos?fechaInicio=2026-09-01&fechaFin=2026-10-31",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "reportes",
-                "pagos"
-              ],
-              "query": [
-                {
-                  "key": "fechaInicio",
-                  "value": "2026-09-01"
+            }
+          ]
+        },
+        {
+          "name": "US16 - Gestión de Mesas (Salón)",
+          "item": [
+            {
+              "name": "1. Crear Mesa (201 Created)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 4,\n  \"coordenadaX\": 120.5,\n  \"coordenadaY\": 250.0\n}"
                 },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mesas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mesas"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Listar Mesas del Restaurante (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/mesas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mesas"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Listar Mesas Activas para Plano (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/mesas/restaurante/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mesas",
+                    "restaurante",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "4. Consultar Mesa por ID (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/mesas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mesas",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "5. Modificar Mesa (200 OK)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 6,\n  \"coordenadaX\": 150.0,\n  \"coordenadaY\": 300.0\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mesas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mesas",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "6. Activar o Desactivar Mesa (200 OK)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"activo\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/mesas/1/estado",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "mesas",
+                    "1",
+                    "estado"
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US05 - Consulta de Disponibilidad de Mesas",
+          "item": [
+            {
+              "name": "1. Consultar Disponibilidad por Fecha y Horario (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/disponibilidad?restauranteId=1&fecha=2026-10-15&horaInicio=19:00:00&horaFin=21:00:00",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "disponibilidad"
+                  ],
+                  "query": [
+                    {
+                      "key": "restauranteId",
+                      "value": "1"
+                    },
+                    {
+                      "key": "fecha",
+                      "value": "2026-10-15"
+                    },
+                    {
+                      "key": "horaInicio",
+                      "value": "19:00:00"
+                    },
+                    {
+                      "key": "horaFin",
+                      "value": "21:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US06 - Registro de Reservas (Plano Interactivo)",
+          "item": [
+            {
+              "name": "1. Registrar Reserva desde Plano (201 Created)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"mesaId\": 1,\n  \"restauranteId\": 1,\n  \"fecha\": \"2026-10-15\",\n  \"horaInicio\": \"19:00:00\",\n  \"horaFin\": \"21:00:00\",\n  \"numeroComensales\": 4,\n  \"notas\": \"Cerca a la ventana, aniversario\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas"
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US08 - Modificación y Cancelación de Reservas",
+          "item": [
+            {
+              "name": "1. Modificar Reserva (200 OK)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"mesaId\": 1,\n  \"restauranteId\": 1,\n  \"fecha\": \"2026-10-15\",\n  \"horaInicio\": \"20:00:00\",\n  \"horaFin\": \"22:00:00\",\n  \"numeroComensales\": 5,\n  \"notas\": \"Horario modificado\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Cancelar Reserva y Liberar Mesa (200 OK)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"motivo\": \"Imprevisto laboral del cliente\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/1/cancelar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "1",
+                    "cancelar"
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US07 - Consulta e Historial de Reservas",
+          "item": [
+            {
+              "name": "1. Consultar Mis Reservas - Historial Cliente (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "me"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Listar Reservas del Restaurante con Filtros (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas?fecha=2026-10-15&estado=PENDIENTE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas"
+                  ],
+                  "query": [
+                    {
+                      "key": "fecha",
+                      "value": "2026-10-15"
+                    },
+                    {
+                      "key": "estado",
+                      "value": "PENDIENTE"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Consultar Detalle de Reserva por ID (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "1"
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SaaS - Configuración de Atención Física y Reservas",
+          "item": [
+            {
+              "name": "1. Consultar Estado SaaS del Módulo (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/modulo/estado",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "modulo",
+                    "estado"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Consultar Estado del Módulo por Restaurante (200 OK)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/modulo/estado/restaurante/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "modulo",
+                    "estado",
+                    "restaurante",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Activar o Desactivar Módulo de Reservas (200 OK)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"habilitado\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/reservas/modulo/estado",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reservas",
+                    "modulo",
+                    "estado"
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US10 & US14 - Catálogo y Menú",
+          "item": [
+            {
+              "name": "1. Crear Categoría (201 Created)",
+              "event": [
                 {
-                  "key": "fechaFin",
-                  "value": "2026-10-31"
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+                      "var data = pm.response.json();",
+                      "if (data.id) { pm.collectionVariables.set(\"categoriaId\", data.id); }"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": 1,\n  \"nombre\": \"Platos de Fondo\",\n  \"descripcion\": \"Platos fuertes y tradicionales\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Listar Categorías por Restaurante (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categorias/restaurante/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categorias",
+                    "restaurante",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Crear Plato en Menú (201 Created)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+                      "var data = pm.response.json();",
+                      "if (data.id) { pm.collectionVariables.set(\"platoId\", data.id); }"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": 1,\n  \"categoriaId\": 1,\n  \"nombre\": \"Lomo Saltado Criollo\",\n  \"descripcion\": \"Lomo fino saltado con cebolla morada, tomate y papas nativas\",\n  \"precio\": 42.0,\n  \"ingredientes\": \"Lomo fino, cebolla, tomate, aj\\u00ed amarillo, papas\",\n  \"alergenos\": \"Soya\",\n  \"complejidad\": \"MEDIA\",\n  \"tiempoPreparacionMinutos\": 20,\n  \"disponible\": true,\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1544025162-d76694265947\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/platos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "platos"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "4. Listar Platos por Restaurante (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/platos/restaurante/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "platos",
+                    "restaurante",
+                    "1"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "5. Consultar Plato por ID (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/platos/{{platoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "platos",
+                    "{{platoId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "6. Cambiar Disponibilidad de Plato (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/platos/{{platoId}}/disponibilidad?disponible=true",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "platos",
+                    "{{platoId}}",
+                    "disponibilidad"
+                  ],
+                  "query": [
+                    {
+                      "key": "disponible",
+                      "value": "true"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US11, US15 & US19 - Flujo de Pedidos y Cocina",
+          "item": [
+            {
+              "name": "1. Registro / Login de Cliente (201/200)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var data = pm.response.json();",
+                      "if (data.token) { pm.collectionVariables.set(\"clienteToken\", data.token); }",
+                      "pm.test(\"Status code is 200/201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Cliente Frecuente\",\n  \"correo\": \"cliente_{{$timestamp}}@restopilot.com\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\",\n  \"restauranteId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Crear Pedido en Salón - US11 (201 Created)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 201 Created\", function () { pm.response.to.have.status(201); });",
+                      "var data = pm.response.json();",
+                      "if (data.id) { pm.collectionVariables.set(\"pedidoId\", data.id); }"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clienteToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": 1,\n  \"tipoEntrega\": \"SALON\",\n  \"mesaId\": 1,\n  \"detalles\": [\n    {\n      \"platoId\": 1,\n      \"cantidad\": 2,\n      \"notas\": \"Bien cocido y sin sal a\\u00f1adida\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "3. Consultar Historial de Mis Pedidos - US07 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{clienteToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "me"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "4. Consultar Detalle de Pedido por ID - US12 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "{{pedidoId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "5. Consultar Cola de Cocina Priorizada - US15 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/pendientes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "pendientes"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "6. Actualizar Estado a EN_PREPARACION - US19 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado?nuevoEstado=EN_PREPARACION",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "{{pedidoId}}",
+                    "estado"
+                  ],
+                  "query": [
+                    {
+                      "key": "nuevoEstado",
+                      "value": "EN_PREPARACION"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "7. Actualizar Estado a LISTO - US19 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado?nuevoEstado=LISTO",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pedidos",
+                    "{{pedidoId}}",
+                    "estado"
+                  ],
+                  "query": [
+                    {
+                      "key": "nuevoEstado",
+                      "value": "LISTO"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "US20 - Reportes Operativos y Financieros",
+          "item": [
+            {
+              "name": "1. Consultar Reporte Consolidado Operativo - US20 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reportes/operativos?fechaInicio=2026-09-01&fechaFin=2026-10-31",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reportes",
+                    "operativos"
+                  ],
+                  "query": [
+                    {
+                      "key": "fechaInicio",
+                      "value": "2026-09-01"
+                    },
+                    {
+                      "key": "fechaFin",
+                      "value": "2026-10-31"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "2. Consultar Reporte de Estado de Pagos - US20 (200 OK)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () { pm.response.to.have.status(200); });"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwtToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/reportes/pagos?fechaInicio=2026-09-01&fechaFin=2026-10-31",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "reportes",
+                    "pagos"
+                  ],
+                  "query": [
+                    {
+                      "key": "fechaInicio",
+                      "value": "2026-09-01"
+                    },
+                    {
+                      "key": "fechaFin",
+                      "value": "2026-10-31"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var path = pm.request.url.getPathWithQuery();",
+                  "if (!path.includes(\"/api/auth/\") && !pm.collectionVariables.get(\"jwtToken\")) {",
+                  "    pm.sendRequest({",
+                  "        url: pm.collectionVariables.get(\"baseUrl\") + \"/api/auth/login\",",
+                  "        method: \"POST\",",
+                  "        header: { \"Content-Type\": \"application/json\" },",
+                  "        body: {",
+                  "            mode: \"raw\",",
+                  "            raw: JSON.stringify({ correo: \"cristian@restopilot.com\", password: \"Password123!\" })",
+                  "        }",
+                  "    }, function (err, res) {",
+                  "        if (!err && res.code === 200) {",
+                  "            pm.collectionVariables.set(\"jwtToken\", res.json().token);",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Flujos de usuario",
+      "description": "Recorrido compartido por etapas: ejecutar 01 → 02 → 03 → 04, o la carpeta completa en Collection Runner. Las etapas separan las acciones reales por rol y comparten variables flujo_. Solo baseUrl requiere configuración. Los datos se conservan.",
+      "item": [
+        {
+          "name": "01 Dueño - Abrir y preparar el negocio",
+          "description": "Primera etapa. Registra dueño y restaurante, inicia sesión, incorpora administrador, publica carta y crea mesa. Inicializa las variables flujo_.",
+          "item": [
+            {
+              "name": "01 Dueño - Registrar dueño y restaurante",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/register-owner",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Dueño flujo\",\n  \"correo\": \"{{flujo_ownerCorreo}}\",\n  \"password\": \"Password123!\",\n  \"restaurante\": {\n    \"nombre\": \"Restaurante flujo {{flujo_runId}}\",\n    \"direccion\": \"Av. Lima 123\",\n    \"telefono\": \"987654321\",\n    \"horaApertura\": \"00:00\",\n    \"horaCierre\": \"23:59\",\n    \"tieneAtencionFisica\": true,\n    \"aceptaDelivery\": true\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) { const r=pm.response.json();pm.collectionVariables.set(\"flujo_ownerToken\",r.token);pm.collectionVariables.set(\"flujo_restauranteId\",r.restauranteId); }",
+                      "pm.test(\"Rol DUENO y restaurante asignado\", () => { const r=pm.response.json();pm.expect(r.rol).to.eql(\"DUENO\");pm.expect(r.restauranteId).to.be.a(\"number\"); });"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02 Dueño - Iniciar sesión",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/login",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"correo\": \"{{flujo_ownerCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Sesión del dueño\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"DUENO\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"flujo_restauranteId\")));pm.collectionVariables.set(\"flujo_ownerToken\",r.token);});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03 Dueño - Incorporar administrador",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/usuarios/administradores",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Administrador flujo\",\n  \"correo\": \"{{flujo_adminCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "pm.test(\"Rol y restaurante del dueño\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"ADMINISTRADOR\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"flujo_restauranteId\")));pm.expect(r).not.to.have.property(\"token\");pm.expect(r).not.to.have.property(\"password\");pm.expect(r).not.to.have.property(\"passwordHash\");});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04 Dueño - Crear categoría",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/categorias",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": \"{{flujo_restauranteId}}\",\n  \"nombre\": \"Carta flujo {{flujo_runId}}\",\n  \"descripcion\": \"Prueba de reglas\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) pm.collectionVariables.set(\"flujo_categoriaId\", pm.response.json().id);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05 Dueño - Publicar plato",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/platos",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": \"{{flujo_restauranteId}}\",\n  \"categoriaId\": \"{{flujo_categoriaId}}\",\n  \"nombre\": \"Lomo flujo {{flujo_runId}}\",\n  \"precio\": 20,\n  \"complejidad\": \"MEDIA\",\n  \"tiempoPreparacionMinutos\": 15,\n  \"disponible\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) pm.collectionVariables.set(\"flujo_platoId\", pm.response.json().id);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06 Dueño - Crear mesa",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/mesas",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"numero\": \"{{flujo_numeroMesa}}\",\n  \"capacidad\": 4,\n  \"coordenadaX\": 100,\n  \"coordenadaY\": 80\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) pm.collectionVariables.set(\"flujo_mesaId\", pm.response.json().id);"
+                    ]
+                  }
                 }
               ]
             }
-          }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.info.requestName === \"01 Dueño - Registrar dueño y restaurante\") {",
+                  "  for (const key of Object.keys(pm.collectionVariables.toObject())) if (key.startsWith(\"flujo_\")) pm.collectionVariables.unset(key);",
+                  "  const id=String(Date.now());",
+                  "  pm.collectionVariables.set(\"flujo_runId\",id);",
+                  "  for (const role of [\"owner\", \"admin\", \"cliente\"]) pm.collectionVariables.set(\"flujo_\"+role+\"Correo\", \"flujo_\"+role+\"-\"+id+\"@example.com\");",
+                  "  pm.collectionVariables.set(\"flujo_numeroMesa\", \"1\");",
+                  "  const parts=new Intl.DateTimeFormat(\"en-CA\",{timeZone:\"America/Lima\",year:\"numeric\",month:\"2-digit\",day:\"2-digit\"}).formatToParts(new Date());",
+                  "  const val=t=>parts.find(p=>p.type===t).value; const today=val(\"year\")+\"-\"+val(\"month\")+\"-\"+val(\"day\");",
+                  "  pm.collectionVariables.set(\"flujo_fechaHoy\",today);",
+                  "  const tomorrow=new Date(today+\"T12:00:00Z\");tomorrow.setUTCDate(tomorrow.getUTCDate()+1);",
+                  "  pm.collectionVariables.set(\"flujo_fechaReserva\",tomorrow.toISOString().slice(0,10));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Cliente - Reservar y realizar un pedido",
+          "description": "Segunda etapa. Requiere la etapa 01. Solo usa autenticación de cliente: registro, login, carta, disponibilidad, solicitud de reserva, pedido delivery, pago pendiente e historial.",
+          "item": [
+            {
+              "name": "01 Cliente - Registrarse",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/auth/register",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCompleto\": \"Cliente sustentación flujo\",\n  \"correo\": \"{{flujo_clienteCorreo}}\",\n  \"password\": \"Password123!\",\n  \"rol\": \"CLIENTE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) pm.collectionVariables.set(\"flujo_tokenCliente\", pm.response.json().token);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02 Cliente - Iniciar sesión",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/auth/login",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"correo\": \"{{flujo_clienteCorreo}}\", \"password\": \"Password123!\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Sesión de cliente\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"CLIENTE\");pm.expect(r.token).to.be.a(\"string\").and.not.empty;pm.collectionVariables.set(\"flujo_tokenCliente\",r.token);});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03 Cliente - Consultar carta",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/platos?restauranteId={{flujo_restauranteId}}&categoriaId={{flujo_categoriaId}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Plato publicado visible\", () => pm.expect(pm.response.json().some(p => String(p.id) === String(pm.collectionVariables.get(\"flujo_platoId\")))).to.eql(true));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04 Cliente - Consultar disponibilidad",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/reservas/disponibilidad?restauranteId={{flujo_restauranteId}}&fecha={{flujo_fechaReserva}}&horaInicio=15:00&horaFin=16:00&numeroComensales=2",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Mesa disponible para reservar\", () => {const m=pm.response.json().find(m=>String(m.mesaId)===String(pm.collectionVariables.get(\"flujo_mesaId\")));pm.expect(m.disponible).to.eql(true);});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05 Cliente - Solicitar reserva",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/reservas",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"mesaId\": \"{{flujo_mesaId}}\",\n  \"restauranteId\": \"{{flujo_restauranteId}}\",\n  \"fecha\": \"{{flujo_fechaReserva}}\",\n  \"horaInicio\": \"15:00\",\n  \"horaFin\": \"16:00\",\n  \"numeroComensales\": 2,\n  \"notas\": \"Sustentación flujo\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) pm.collectionVariables.set(\"flujo_reservaId\", pm.response.json().id);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06 Cliente - Crear pedido delivery",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/pedidos",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restauranteId\": \"{{flujo_restauranteId}}\",\n  \"tipoEntrega\": \"DELIVERY\",\n  \"direccionEntrega\": \"Av. Primavera 123\",\n  \"detalles\": [\n    {\n      \"platoId\": \"{{flujo_platoId}}\",\n      \"cantidad\": 2,\n      \"notas\": \"Sin ají\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "if (pm.response.code === 201) pm.collectionVariables.set(\"flujo_pedidoId\", pm.response.json().id);",
+                      "pm.test(\"Total S/40 y precio histórico S/20\", () => {const p=pm.response.json();pm.expect(p.total).to.eql(40);pm.expect(p.detalles[0].precioUnitario).to.eql(20);pm.expect(p.direccionEntrega).to.eql(\"Av. Primavera 123\");});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "07 Cliente - Consultar pago pendiente",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}/pagos",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Pago PENDIENTE\", () => pm.expect(pm.response.json().estado).to.eql(\"PENDIENTE\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/pedidos/me",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Pedido presente en historial\", () => pm.expect(pm.response.json().content.some(p => String(p.id) === String(pm.collectionVariables.get(\"flujo_pedidoId\")))).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "name": "08 Cliente - Consultar historial de pedidos"
+            }
+          ]
+        },
+        {
+          "name": "03 Dueño - Atender y registrar el cobro",
+          "description": "Tercera etapa. Requiere las solicitudes de la etapa 02. Solo usa autenticación de dueño: login, confirmación de reserva, preparación, entrega, registro del pago recibido y reporte.",
+          "item": [
+            {
+              "name": "01 Dueño - Iniciar sesión",
+              "request": {
+                "method": "POST",
+                "url": "{{baseUrl}}/api/auth/login",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"correo\": \"{{flujo_ownerCorreo}}\",\n  \"password\": \"Password123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Sesión del dueño\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"DUENO\");pm.expect(String(r.restauranteId)).to.eql(String(pm.collectionVariables.get(\"flujo_restauranteId\")));pm.collectionVariables.set(\"flujo_ownerToken\",r.token);});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02 Dueño - Confirmar reserva",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/reservas/{{flujo_reservaId}}/estado",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"estado\": \"CONFIRMADA\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Reserva confirmada\", () => pm.expect(pm.response.json().estado).to.eql(\"CONFIRMADA\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03 Dueño - Preparar pedido",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}/estado?nuevoEstado=EN_PREPARACION",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Estado EN_PREPARACION\", () => pm.expect(pm.response.json().estado).to.eql(\"EN_PREPARACION\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04 Dueño - Marcar pedido listo",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}/estado?nuevoEstado=LISTO",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Estado LISTO\", () => pm.expect(pm.response.json().estado).to.eql(\"LISTO\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05 Dueño - Entregar pedido",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}/estado?nuevoEstado=ENTREGADO",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Estado ENTREGADO\", () => pm.expect(pm.response.json().estado).to.eql(\"ENTREGADO\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06 Dueño - Registrar pago recibido",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}/pagos",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"monto\": 40,\n  \"metodo\": \"EFECTIVO\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                      "pm.test(\"Pago PAGADO\", () => pm.expect(pm.response.json().estado).to.eql(\"PAGADO\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "07 Dueño - Revisar ventas y pagos en reporte",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/reportes/operativos?fechaInicio={{flujo_fechaHoy}}&fechaFin={{flujo_fechaHoy}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_ownerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Indicadores presentes\", () => {const r=pm.response.json();pm.expect(r.estadoPagos.montoTotal).to.be.at.least(40);pm.expect(r.platosMasVendidos.some(p=>p.includes(\"Lomo flujo\"))).to.eql(true);});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "04 Cliente - Consultar el resultado de la atención",
+          "description": "Cuarta etapa. Requiere la atención de la etapa 03. Solo usa autenticación de cliente: login, reserva confirmada, pago confirmado, pedido entregado y notificaciones.",
+          "item": [
+            {
+              "name": "01 Cliente - Iniciar sesión",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/auth/login",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"correo\": \"{{flujo_clienteCorreo}}\", \"password\": \"Password123!\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Sesión de cliente\", () => {const r=pm.response.json();pm.expect(r.rol).to.eql(\"CLIENTE\");pm.expect(r.token).to.be.a(\"string\").and.not.empty;pm.collectionVariables.set(\"flujo_tokenCliente\",r.token);});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/reservas/{{flujo_reservaId}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Reserva propia confirmada\", () => {const r=pm.response.json();pm.expect(String(r.id)).to.eql(String(pm.collectionVariables.get(\"flujo_reservaId\")));pm.expect(r.estado).to.eql(\"CONFIRMADA\");});"
+                    ]
+                  }
+                }
+              ],
+              "name": "02 Cliente - Ver reserva confirmada"
+            },
+            {
+              "name": "03 Cliente - Verificar pago confirmado",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}/pagos",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Pago PAGADO\", () => pm.expect(pm.response.json().estado).to.eql(\"PAGADO\"));"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/api/pedidos/{{flujo_pedidoId}}",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Pedido propio entregado\", () => {const r=pm.response.json();pm.expect(String(r.id)).to.eql(String(pm.collectionVariables.get(\"flujo_pedidoId\")));pm.expect(r.estado).to.eql(\"ENTREGADO\");});"
+                    ]
+                  }
+                }
+              ],
+              "name": "04 Cliente - Consultar pedido entregado"
+            },
+            {
+              "name": "05 Cliente - Recibir notificaciones",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/notificaciones/me",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{flujo_tokenCliente}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                      "pm.test(\"Al menos cuatro notificaciones\", () => pm.expect(pm.response.json().totalElements).to.be.at.least(4));"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }
