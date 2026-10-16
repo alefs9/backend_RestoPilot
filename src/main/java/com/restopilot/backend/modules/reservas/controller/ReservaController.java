@@ -31,18 +31,33 @@ public class ReservaController {
     private final ReservaService reservaService;
 
     /**
-     * TSK-013: Consultar disponibilidad de mesas por fecha y horario.
+     * TSK-013 (US05): Consultar disponibilidad de mesas por fecha y horario.
      */
     @GetMapping("/disponibilidad")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
-    public List<MesaDisponibilidadDTO> consultarDisponibilidad(
+    public ResponseEntity<Map<String, Object>> consultarDisponibilidad(
             @RequestParam Long restauranteId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin,
             @RequestParam(defaultValue = "1") Integer numeroComensales) {
 
-        return reservaService.consultarDisponibilidad(restauranteId, fecha, horaInicio, horaFin, numeroComensales);
+        List<MesaDisponibilidadDTO> mesas =
+                reservaService.consultarDisponibilidad(restauranteId, fecha, horaInicio, horaFin, numeroComensales);
+
+        boolean hayDisponibles = mesas.stream().anyMatch(MesaDisponibilidadDTO::disponible);
+
+        String mensaje;
+        if (mesas.isEmpty() || !hayDisponibles) {
+            mensaje = "No hay mesas disponibles para la fecha y horario solicitados.";
+        } else {
+            mensaje = "Mesas disponibles encontradas correctamente.";
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "mensaje", mensaje,
+                "mesas", mesas
+        ));
     }
 
     @PatchMapping("/{id}/estado")
@@ -95,8 +110,15 @@ public class ReservaController {
      */
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
-    public List<ReservaResponseDTO> obtenerMisReservas() {
-        return reservaService.obtenerMisReservas();
+    public ResponseEntity<Map<String, Object>> obtenerMisReservas() {
+        List<ReservaResponseDTO> reservas = reservaService.obtenerMisReservas();
+        String mensaje = reservas.isEmpty()
+                ? "No se encontraron reservas en el historial."
+                : "Historial de reservas obtenido correctamente.";
+        return ResponseEntity.ok(Map.of(
+                "mensaje", mensaje,
+                "reservas", reservas
+        ));
     }
 
     /**
@@ -105,10 +127,17 @@ public class ReservaController {
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
-    public List<ReservaResponseDTO> obtenerReservasRestaurante(
+    public ResponseEntity<Map<String, Object>> obtenerReservasRestaurante(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(required = false) EstadoReserva estado) {
-        return reservaService.obtenerReservasRestaurante(fecha, estado);
+        List<ReservaResponseDTO> reservas = reservaService.obtenerReservasRestaurante(fecha, estado);
+        String mensaje = reservas.isEmpty()
+                ? "No se encontraron reservas para el restaurante."
+                : "Reservas obtenidas correctamente.";
+        return ResponseEntity.ok(Map.of(
+                "mensaje", mensaje,
+                "reservas", reservas
+        ));
     }
 
     /**

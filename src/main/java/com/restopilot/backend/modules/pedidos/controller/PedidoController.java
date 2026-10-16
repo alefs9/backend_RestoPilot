@@ -9,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -30,8 +33,17 @@ public class PedidoController {
     // GET (Consultar historial del cliente - US07)
     @GetMapping("/me")
     @PreAuthorize("hasRole('CLIENTE')")
-    public Page<PedidoResponseDTO> getMisPedidos(Pageable pageable) {
-        return pedidoService.getMisPedidos(pageable);
+    public ResponseEntity<Map<String, Object>> getMisPedidos(Pageable pageable) {
+        Page<PedidoResponseDTO> pedidos = pedidoService.getMisPedidos(pageable);
+        String mensaje = pedidos.isEmpty()
+                ? "No se encontraron pedidos en el historial."
+                : "Historial de pedidos obtenido correctamente.";
+        return ResponseEntity.ok(Map.of(
+                "mensaje", mensaje,
+                "pedidos", pedidos.getContent(),
+                "totalElementos", pedidos.getTotalElements(),
+                "totalPaginas", pedidos.getTotalPages()
+        ));
     }
 
     // GET (Consultar detalle por ID - US12)
