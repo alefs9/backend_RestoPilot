@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import com.restopilot.backend.modules.restaurante.entity.Restaurante;
 import com.restopilot.backend.modules.restaurante.repository.RestauranteRepository;
+import com.restopilot.backend.security.PasswordUtf8;
 
 @Service
 public class AuthService {
@@ -34,7 +35,7 @@ public class AuthService {
     }
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
-
+        PasswordUtf8.validar(request.getPassword());
         Restaurante restaurante = null;
         if (request.getRestauranteId() != null) {
             restaurante = restauranteRepository.findById(request.getRestauranteId())
@@ -84,6 +85,7 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponseDTO login(LoginRequestDTO request) {
+        PasswordUtf8.validar(request.getPassword());
         String correoLimpio = request.getCorreo().trim().toLowerCase();
 
         Usuario usuario = usuarioRepository.findByCorreo(correoLimpio)
