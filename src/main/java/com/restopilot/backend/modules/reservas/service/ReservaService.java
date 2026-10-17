@@ -482,4 +482,15 @@ public class ReservaService {
                 mensaje
         );
     }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponseDTO> obtenerMisReservas() {
+        Usuario cliente = currentUser.get();
+
+        return reservaRepository
+                .findByUsuarioIdOrderByFechaDescHoraInicioDesc(cliente.getId())
+                .stream()
+                .map(reservaMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }

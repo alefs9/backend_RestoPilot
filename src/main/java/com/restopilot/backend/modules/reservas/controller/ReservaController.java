@@ -2,8 +2,10 @@ package com.restopilot.backend.modules.reservas.controller;
 
 import com.restopilot.backend.core.exception.BusinessRuleException;
 import com.restopilot.backend.core.exception.ResourceNotFoundException;
+import com.restopilot.backend.modules.reservas.dto.EstadoModuloRequestDTO;
 import com.restopilot.backend.modules.reservas.dto.MesaDisponibilidadDTO;
 import com.restopilot.backend.modules.reservas.dto.ModuloReservasStatusDTO;
+import com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaRequestDTO;
 import com.restopilot.backend.modules.reservas.dto.ReservaResponseDTO;
 import com.restopilot.backend.modules.reservas.entity.EstadoReserva;
@@ -31,28 +33,35 @@ public class ReservaController {
     private final ReservaService reservaService;
 
     /**
-     * TSK-013 (US05): Consultar disponibilidad de mesas por fecha y horario.
+     * US05: Consultar disponibilidad por restaurante, fecha y horario.
      */
     @GetMapping("/disponibilidad")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<Map<String, Object>> consultarDisponibilidad(
             @RequestParam Long restauranteId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaInicio,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horaFin,
             @RequestParam(defaultValue = "1") Integer numeroComensales) {
 
         List<MesaDisponibilidadDTO> mesas =
-                reservaService.consultarDisponibilidad(restauranteId, fecha, horaInicio, horaFin, numeroComensales);
+                reservaService.consultarDisponibilidad(
+                        restauranteId,
+                        fecha,
+                        horaInicio,
+                        horaFin,
+                        numeroComensales
+                );
 
-        boolean hayDisponibles = mesas.stream().anyMatch(MesaDisponibilidadDTO::disponible);
+        boolean hayDisponibles = mesas.stream()
+                .anyMatch(MesaDisponibilidadDTO::disponible);
 
-        String mensaje;
-        if (mesas.isEmpty() || !hayDisponibles) {
-            mensaje = "No hay disponibilidad para el horario seleccionado.";
-        } else {
-            mensaje = "Mesas disponibles encontradas correctamente.";
-        }
+        String mensaje = hayDisponibles
+                ? "Mesas disponibles encontradas correctamente."
+                : "No hay disponibilidad para el horario seleccionado.";
 
         return ResponseEntity.ok(Map.of(
                 "mensaje", mensaje,
@@ -60,61 +69,69 @@ public class ReservaController {
         ));
     }
 
+    /**
+     * US17: Confirmar o rechazar una reserva pendiente.
+     */
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
-    public ReservaResponseDTO procesarReserva(@PathVariable Long id,
-                                              @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+    public ReservaResponseDTO procesarReserva(
+            @PathVariable Long id,
+            @Valid @RequestBody ProcesarReservaRequestDTO request) {
+
         return reservaService.procesarReserva(id, request);
     }
 
     /**
-     * TSK-014 (US06): Crear endpoint POST para registrar reservas originadas
-     * desde el plano visual interactivo del salón.
+     * US06: Registrar una reserva.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
-    public ReservaResponseDTO registrarReserva(@Valid @RequestBody ReservaRequestDTO request) {
+    public ReservaResponseDTO registrarReserva(
+            @Valid @RequestBody ReservaRequestDTO request) {
+
         return reservaService.registrarReserva(request);
     }
 
     /**
-     * TSK-015 (US08): Endpoint PUT para modificar una reserva existente.
-     * Permite modificar mesa, fecha, horario, comensales y notas.
+     * US08: Modificar una reserva existente.
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO modificarReserva(
             @PathVariable Long id,
             @Valid @RequestBody ReservaRequestDTO request) {
-        return reservaService.modificarReserva(id, request).conMensaje("Reserva modificada con éxito.");
+
+        return reservaService.modificarReserva(id, request)
+                .conMensaje("Reserva modificada con éxito.");
     }
 
     /**
-     * TSK-016 (US08): Endpoint PATCH para cancelar una reserva.
-     * Permite al cliente cancelar su propia reserva o al admin/dueno cancelar una de su restaurante.
-     * Acepta opcionalmente un motivo en el cuerpo de la petición.
+     * US09: Cancelar una reserva con motivo opcional.
      */
     @PatchMapping("/{id}/cancelar")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO cancelarReserva(
             @PathVariable Long id,
             @RequestBody(required = false) Map<String, String> body) {
-        String motivo = (body != null) ? body.get("motivo") : null;
+
+        String motivo = body != null ? body.get("motivo") : null;
         return reservaService.cancelarReserva(id, motivo);
     }
 
     /**
-     * TSK-017 (US07): Consultar historial de reservas del cliente autenticado.
-     * Retorna todas las reservas del cliente ordenadas cronológicamente (más recientes primero).
+     * US07: Consultar las reservas del usuario autenticado.
      */
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<Map<String, Object>> obtenerMisReservas() {
-        List<ReservaResponseDTO> reservas = reservaService.obtenerMisReservas();
+        List<ReservaResponseDTO> reservas =
+                reservaService.obtenerMisReservas();
+
         String mensaje = reservas.isEmpty()
                 ? "No se encontraron reservas en el historial."
                 : "Historial de reservas obtenido correctamente.";
+
         return ResponseEntity.ok(Map.of(
                 "mensaje", mensaje,
                 "reservas", reservas
@@ -122,18 +139,22 @@ public class ReservaController {
     }
 
     /**
-     * TSK-017 (US07): Consultar listado de reservas para gestión del restaurante (Admin/Dueño).
-     * Permite filtrar opcionalmente por fecha y por estado.
+     * Listado administrativo del restaurante propio.
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<Map<String, Object>> obtenerReservasRestaurante(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
             @RequestParam(required = false) EstadoReserva estado) {
-        List<ReservaResponseDTO> reservas = reservaService.obtenerReservasRestaurante(fecha, estado);
+
+        List<ReservaResponseDTO> reservas =
+                reservaService.obtenerReservasRestaurante(fecha, estado);
+
         String mensaje = reservas.isEmpty()
                 ? "No se encontraron reservas para el restaurante."
                 : "Reservas obtenidas correctamente.";
+
         return ResponseEntity.ok(Map.of(
                 "mensaje", mensaje,
                 "reservas", reservas
@@ -141,7 +162,7 @@ public class ReservaController {
     }
 
     /**
-     * TSK-017 (US07): Consultar detalle de una reserva específica por su ID.
+     * Consultar el detalle de una reserva.
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
@@ -150,50 +171,57 @@ public class ReservaController {
     }
 
     /**
-     * TSK-018: Consultar el estado de activación SaaS del módulo de reservas del restaurante propio.
+     * Consultar el estado del módulo del restaurante propio.
      */
-    @PatchMapping("/modulo/estado")
+    @GetMapping("/modulo/estado")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
-    public ModuloReservasStatusDTO cambiarEstadoModulo(
-            @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.EstadoModuloRequestDTO body) {
-        return reservaService.cambiarEstadoModulo(body.habilitado());
+    public ModuloReservasStatusDTO obtenerEstadoModulo() {
+        return reservaService.obtenerEstadoModulo();
     }
 
     /**
-     * TSK-018: Consultar si un restaurante tiene habilitado el módulo de reservas (público / cliente).
+     * Consultar el estado del módulo de un restaurante específico.
      */
     @GetMapping("/modulo/estado/restaurante/{restauranteId}")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
-    public ModuloReservasStatusDTO obtenerEstadoModuloPorRestaurante(@PathVariable Long restauranteId) {
+    public ModuloReservasStatusDTO obtenerEstadoModuloPorRestaurante(
+            @PathVariable Long restauranteId) {
+
         return reservaService.obtenerEstadoModuloPorRestaurante(restauranteId);
     }
 
     /**
-     * TSK-018: Activar o desactivar condicionalmente el módulo completo de reservas (Admin/Dueño).
-     * Modifica la bandera tieneAtencionFisica del Restaurante en el modelo SaaS.
+     * Activar o desactivar el módulo del restaurante propio.
      */
     @PatchMapping("/modulo/estado")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
-    public ModuloReservasStatusDTO cambiarEstadoModulo(@RequestBody Map<String, Boolean> body) {
-        Boolean habilitado = body.getOrDefault("habilitado", true);
-        return reservaService.cambiarEstadoModulo(habilitado);
+    public ModuloReservasStatusDTO cambiarEstadoModulo(
+            @Valid @RequestBody EstadoModuloRequestDTO body) {
+
+        return reservaService.cambiarEstadoModulo(body.habilitado());
     }
 
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<Map<String, Object>> handleBusinessRuleException(BusinessRuleException ex) {
+    public ResponseEntity<Map<String, Object>> handleBusinessRuleException(
+            BusinessRuleException ex) {
+
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("status", HttpStatus.BAD_REQUEST.value());
         error.put("mensaje", ex.getMessage());
+
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+    public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
+            ResourceNotFoundException ex) {
+
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
         error.put("status", HttpStatus.NOT_FOUND.value());
         error.put("mensaje", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }
