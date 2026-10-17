@@ -1,0 +1,10 @@
+{
+  "checkEstados": "CHECK (((estado)::text = ANY ((ARRAY['PENDIENTE'::character varying, 'CONFIRMADA'::character varying, 'RECHAZADA'::character varying, 'CANCELADA'::character varying, 'COMPLETADA'::character varying, 'EXPIRADA'::character varying])::text[])))",
+  "columnasCiclo": [
+    "completada_en",
+    "expirada_en",
+    "llegada_registrada_en"
+  ],
+  "finalizacionesNuevasSinLlegada": 0,
+  "notificacionesCompletadaDuplicadas": 0
+}

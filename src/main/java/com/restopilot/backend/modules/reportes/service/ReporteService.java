@@ -56,11 +56,16 @@ public class ReporteService {
                 demanda.put(String.format("%02d:00 - %02d:00", hora, hora + 1), Math.toIntExact(((Number) fila[1]).longValue()));
             }
         }
-        Integer atenciones = todos || tipo == TipoReporte.ATENCIONES ? Math.toIntExact(repository.pedidosAtendidos(restauranteId, desde, hasta)
-                + repository.reservasAtendidas(restauranteId, inicio, fin)) : null;
+        boolean incluirAtenciones = todos || tipo == TipoReporte.ATENCIONES;
+        Integer pedidosAtendidos = incluirAtenciones
+                ? Math.toIntExact(repository.pedidosAtendidos(restauranteId, desde, hasta)) : null;
+        Integer reservasCompletadas = incluirAtenciones
+                ? Math.toIntExact(repository.reservasAtendidas(restauranteId, inicio, fin)) : null;
+        // Campo histórico: son operaciones, no visitas únicas. Consumidores nuevos usan los dos campos anteriores.
+        Integer atenciones = incluirAtenciones ? Math.addExact(pedidosAtendidos, reservasCompletadas) : null;
         Double ocupacion = todos || tipo == TipoReporte.OCUPACION ? calcularOcupacion(restauranteId, inicio, fin) : null;
         EstadoPagosDTO pagos = todos || tipo == TipoReporte.PAGOS ? calcularPagos(restauranteId, desde, hasta) : null;
-        return new ReporteResponseDTO("Reporte generado exitosamente.", platos, demanda, atenciones, ocupacion, pagos);
+        return new ReporteResponseDTO("Reporte generado exitosamente.", platos, demanda, atenciones, ocupacion, pagos, pedidosAtendidos, reservasCompletadas);
     }
 
     private EstadoPagosDTO calcularPagos(Long restauranteId, LocalDateTime inicio, LocalDateTime fin) {

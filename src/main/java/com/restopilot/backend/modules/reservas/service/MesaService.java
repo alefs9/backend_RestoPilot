@@ -28,6 +28,7 @@ public class MesaService {
     private final CurrentUser currentUser;
     private final com.restopilot.backend.modules.reservas.repository.ReservaRepository reservaRepository;
     private final java.time.Clock clock;
+    private final ExpiracionReservasService expiracion;
 
     // Crear nueva mesa (Admin/Dueno)
     @Transactional
@@ -96,6 +97,7 @@ public class MesaService {
     // Actualizar mesa (Admin/Dueno)
     @Transactional
     public MesaResponseDTO actualizarMesa(Long mesaId, MesaRequestDTO request) {
+        expiracion.expirarVencidas();
         Long restauranteId = currentUser.getRestauranteId();
 
         Mesa mesa = mesaRepository.findByIdForUpdate(mesaId)
@@ -132,6 +134,7 @@ public class MesaService {
     // Activar/Desactivar mesa (Admin/Dueno)
     @Transactional
     public MesaResponseDTO cambiarEstadoMesa(Long mesaId, Boolean activo) {
+        expiracion.expirarVencidas();
         Long restauranteId = currentUser.getRestauranteId();
 
         Mesa mesa = mesaRepository.findByIdForUpdate(mesaId)

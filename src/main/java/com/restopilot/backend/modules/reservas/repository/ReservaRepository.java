@@ -90,4 +90,11 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     // TSK-018: Contar reservas activas vigentes (futuras o de hoy) para advertencias al desactivar el módulo
     long countByRestauranteIdAndEstadoInAndFechaGreaterThanEqual(
             Long restauranteId, List<EstadoReserva> estados, LocalDate fecha);
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Reserva r where r.id = :id")
+    java.util.Optional<Reserva> findByIdForUpdate(@Param("id") Long id);
+
+    @Query("select r.id from Reserva r where r.estado in (com.restopilot.backend.modules.reservas.entity.EstadoReserva.PENDIENTE, com.restopilot.backend.modules.reservas.entity.EstadoReserva.CONFIRMADA) and r.fecha <= :fecha order by r.id")
+    List<Long> findCandidatasExpiracion(@Param("fecha") LocalDate fecha);
+
 }

@@ -12,6 +12,9 @@ try {
     Get-Content -Raw -Encoding UTF8 $sql |
         & docker exec -i $Container psql -X -v ON_ERROR_STOP=1 -U restopilot_audit -d restopilot_audit
     if ($LASTEXITCODE -ne 0) { throw 'La migración falló; no continuar.' }
+    Get-Content -Raw -Encoding UTF8 (Join-Path $raiz 'docs/sql/ciclo_reservas.sql') |
+        & docker exec -i $Container psql -X -v ON_ERROR_STOP=1 -U restopilot_audit -d restopilot_audit
+    if ($LASTEXITCODE -ne 0) { throw 'Falló la migración del ciclo de reservas.' }
 } finally {
     Pop-Location
 }

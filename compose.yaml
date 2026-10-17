@@ -12,6 +12,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET en .env}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
       DEMO_ENABLED: "false"
+      RESERVAS_EXPIRACION_ENABLED: ${RESERVAS_EXPIRACION_ENABLED:-true}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

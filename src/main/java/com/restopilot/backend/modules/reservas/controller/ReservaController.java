@@ -31,6 +31,7 @@ import java.util.Map;
 public class ReservaController {
 
     private final ReservaService reservaService;
+    private final com.restopilot.backend.modules.reservas.service.AtencionReservaService atencionReservaService;
 
     /**
      * US05: Consultar disponibilidad por restaurante, fecha y horario.
@@ -224,4 +225,16 @@ public class ReservaController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+    @PatchMapping("/{id}/llegada")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public ReservaResponseDTO registrarLlegada(@PathVariable Long id) {
+        return atencionReservaService.registrarLlegada(id);
+    }
+
+    @PatchMapping("/{id}/completar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public ReservaResponseDTO completarReserva(@PathVariable Long id) {
+        return atencionReservaService.completar(id);
+    }
+
 }

@@ -60,11 +60,15 @@ public class Reserva {
     @Column(name = "numero_comensales", nullable = false)
     private Integer numeroComensales;
 
-    // Estado actual de la reserva (PENDIENTE, CONFIRMADA, CANCELADA, COMPLETADA)
+    // Estado de solicitud/atención; terminales: RECHAZADA, CANCELADA, COMPLETADA y EXPIRADA
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column(name = "estado", nullable = false, length = 20)
     private EstadoReserva estado = EstadoReserva.PENDIENTE;
+
+    private LocalDateTime llegadaRegistradaEn;
+    private LocalDateTime completadaEn;
+    private LocalDateTime expiradaEn;
 
     // Notas adicionales del cliente (ej: "Cumpleaños", "Ventana", "Alergias")
     @Column(name = "notas", length = 500)
