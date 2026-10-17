@@ -42,6 +42,34 @@ public class ReservaService {
     private final com.restopilot.backend.modules.notificaciones.service.NotificacionService notificaciones;
     private final CurrentUser currentUser;
 
+    /** Validación común de consulta, registro y reprogramación; no sustituye el bloqueo de mesa. */
+    private void validarRestauranteYHorario(Restaurante restaurante, LocalDate fecha,
+                                            LocalTime horaInicio, LocalTime horaFin) {
+        if (Boolean.FALSE.equals(restaurante.getActivo())) {
+            throw new BusinessRuleException("El restaurante se encuentra inactivo actualmente.");
+        }
+        if (Boolean.FALSE.equals(restaurante.getTieneAtencionFisica())) {
+            throw new BusinessRuleException("El restaurante no tiene habilitada la atención física.");
+        }
+        if (fecha == null || horaInicio == null || horaFin == null) {
+            throw new BusinessRuleException("La fecha y las horas son obligatorias.");
+        }
+        LocalDateTime ahora = LocalDateTime.now(clock);
+        if (fecha.isBefore(ahora.toLocalDate())) {
+            throw new BusinessRuleException("No se permiten fechas pasadas.");
+        }
+        if (!horaInicio.isBefore(horaFin)) {
+            throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
+        }
+        if (fecha.equals(ahora.toLocalDate()) && horaInicio.isBefore(ahora.toLocalTime())) {
+            throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
+        }
+        if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null
+                && (horaInicio.isBefore(restaurante.getHoraApertura()) || horaFin.isAfter(restaurante.getHoraCierre()))) {
+            throw new BusinessRuleException("El horario solicitado está fuera del horario de atención del restaurante.");
+        }
+    }
+
     /**
      * TSK-013: Consultar disponibilidad de mesas por fecha y rango horario.
      * Retorna todas las mesas activas del restaurante indicando si están disponibles.
@@ -63,26 +91,7 @@ public class ReservaService {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante con ID " + restauranteId + " no encontrado"));
 
-        if (Boolean.FALSE.equals(restaurante.getTieneAtencionFisica())) {
-            throw new BusinessRuleException(
-                    "El restaurante no tiene habilitada la atención física. No se pueden consultar mesas.");
-        }
-
-        if (!horaInicio.isBefore(horaFin)) {
-            throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
-        }
-
-        if (fecha.isBefore(LocalDate.now(clock))) {
-            throw new BusinessRuleException("No se puede consultar disponibilidad para una fecha pasada.");
-        }
-
-        if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null) {
-            if (horaInicio.isBefore(restaurante.getHoraApertura()) || horaFin.isAfter(restaurante.getHoraCierre())) {
-                throw new BusinessRuleException(
-                        "El horario solicitado está fuera del horario de atención del restaurante ("
-                                + restaurante.getHoraApertura() + " - " + restaurante.getHoraCierre() + ").");
-            }
-        }
+        validarRestauranteYHorario(restaurante, fecha, horaInicio, horaFin);
 
         List<Mesa> mesasActivas = mesaRepository.findByRestauranteIdAndActivoTrue(restauranteId);
 
@@ -122,34 +131,7 @@ public class ReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Restaurante con ID " + request.restauranteId() + " no encontrado"));
 
-        if (Boolean.FALSE.equals(restaurante.getActivo())) {
-            throw new BusinessRuleException("El restaurante se encuentra inactivo actualmente.");
-        }
-
-        if (Boolean.FALSE.equals(restaurante.getTieneAtencionFisica())) {
-            throw new BusinessRuleException(
-                    "El restaurante no tiene habilitada la atención física. No se pueden realizar reservas.");
-        }
-
-        if (request.fecha().isBefore(LocalDate.now(clock))) {
-            throw new BusinessRuleException("No se pueden registrar reservas en fechas pasadas.");
-        }
-
-        if (!request.horaInicio().isBefore(request.horaFin())) {
-            throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
-        }
-
-        if (request.fecha().isEqual(LocalDate.now(clock)) && request.horaInicio().isBefore(LocalTime.now(clock))) {
-            throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
-        }
-
-        if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null) {
-            if (request.horaInicio().isBefore(restaurante.getHoraApertura()) || request.horaFin().isAfter(restaurante.getHoraCierre())) {
-                throw new BusinessRuleException(
-                        "El horario solicitado está fuera del horario de atención del restaurante ("
-                                + restaurante.getHoraApertura() + " a " + restaurante.getHoraCierre() + ").");
-            }
-        }
+        validarRestauranteYHorario(restaurante, request.fecha(), request.horaInicio(), request.horaFin());
 
         Mesa mesa = mesaRepository.findByIdForUpdate(request.mesaId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -231,37 +213,7 @@ public class ReservaService {
             throw new BusinessRuleException("No se puede cambiar el restaurante de una reserva.");
         }
 
-        // Validar restaurante activo y atención física
-        if (Boolean.FALSE.equals(restaurante.getActivo())) {
-            throw new BusinessRuleException("El restaurante se encuentra inactivo actualmente.");
-        }
-
-        if (Boolean.FALSE.equals(restaurante.getTieneAtencionFisica())) {
-            throw new BusinessRuleException(
-                    "El restaurante no tiene habilitada la atención física. No se pueden modificar reservas.");
-        }
-
-        // Validar fechas y horarios
-        if (request.fecha().isBefore(LocalDate.now(clock))) {
-            throw new BusinessRuleException("No se pueden modificar reservas a fechas pasadas.");
-        }
-
-        if (!request.horaInicio().isBefore(request.horaFin())) {
-            throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
-        }
-
-        if (request.fecha().isEqual(LocalDate.now(clock)) && request.horaInicio().isBefore(LocalTime.now(clock))) {
-            throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
-        }
-
-        // Validar horario comercial del restaurante
-        if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null) {
-            if (request.horaInicio().isBefore(restaurante.getHoraApertura()) || request.horaFin().isAfter(restaurante.getHoraCierre())) {
-                throw new BusinessRuleException(
-                        "El horario solicitado está fuera del horario de atención del restaurante ("
-                                + restaurante.getHoraApertura() + " a " + restaurante.getHoraCierre() + ").");
-            }
-        }
+        validarRestauranteYHorario(restaurante, request.fecha(), request.horaInicio(), request.horaFin());
 
         // Validar mesa asignada
         Mesa mesa = mesaRepository.findByIdForUpdate(request.mesaId())
@@ -364,7 +316,7 @@ public class ReservaService {
     /** US17: Solo el restaurante propietario puede decidir sobre una solicitud pendiente. */
     @Transactional
     public ReservaResponseDTO procesarReserva(Long id,
-            com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+                                              com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada."));
         acceso.exigirGestion(reserva.getRestaurante().getId());
