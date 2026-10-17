@@ -4,6 +4,7 @@ import com.restopilot.backend.modules.auth.dto.CuentaRequestDTO;
 import com.restopilot.backend.modules.auth.entity.*;
 import com.restopilot.backend.modules.auth.repository.UsuarioRepository;
 import com.restopilot.backend.modules.restaurante.entity.Restaurante;
+import com.restopilot.backend.security.PasswordUtf8;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,7 @@ public class RegistroCuentaService {
     }
 
     public Usuario guardar(CuentaRequestDTO datos, String correo, Rol rol, Restaurante restaurante) {
+        PasswordUtf8.validar(datos.getPassword());
         // La restricción única del correo también protege solicitudes simultáneas.
         return repository.saveAndFlush(Usuario.builder().nombreCompleto(datos.getNombreCompleto().trim())
                 .correo(correo).passwordHash(passwordEncoder.encode(datos.getPassword()))

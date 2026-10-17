@@ -41,6 +41,7 @@ public class ReservaService {
     private final com.restopilot.backend.security.AccesoRestaurante acceso;
     private final com.restopilot.backend.modules.notificaciones.service.NotificacionService notificaciones;
     private final CurrentUser currentUser;
+    private final ExpiracionReservasService expiracion;
 
     /** Validación común de consulta, registro y reprogramación; no sustituye el bloqueo de mesa. */
     private void validarRestauranteYHorario(Restaurante restaurante, LocalDate fecha,
@@ -83,6 +84,7 @@ public class ReservaService {
     @Transactional(readOnly = true)
     public List<MesaDisponibilidadDTO> consultarDisponibilidad(
             Long restauranteId, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Integer comensales) {
+        expiracion.expirarVencidas();
 
         if (comensales == null || comensales < 1) {
             throw new BusinessRuleException("El número de comensales debe ser mayor a cero.");
@@ -124,6 +126,7 @@ public class ReservaService {
      */
     @Transactional
     public ReservaResponseDTO registrarReserva(ReservaRequestDTO request) {
+        expiracion.expirarVencidas();
         Usuario cliente = currentUser.get();
         if (cliente.getRol() != Rol.CLIENTE) acceso.exigirGestion(request.restauranteId());
 
@@ -185,6 +188,7 @@ public class ReservaService {
      */
     @Transactional
     public ReservaResponseDTO modificarReserva(Long id, ReservaRequestDTO request) {
+        expiracion.expirarVencidas();
         Usuario usuario = currentUser.get();
 
         Reserva reserva = reservaRepository.findById(id)
@@ -192,7 +196,7 @@ public class ReservaService {
 
         // Validar que la reserva no esté en estado definitivo (CANCELADA o COMPLETADA)
         if (reserva.getEstado() == EstadoReserva.CANCELADA || reserva.getEstado() == EstadoReserva.COMPLETADA
-                || reserva.getEstado() == EstadoReserva.RECHAZADA) {
+                || reserva.getEstado() == EstadoReserva.RECHAZADA || reserva.getEstado() == EstadoReserva.EXPIRADA) {
             throw new BusinessRuleException(
                     "No se puede modificar una reserva que se encuentra en estado " + reserva.getEstado() + ".");
         }
@@ -208,6 +212,9 @@ public class ReservaService {
             }
         }
 
+        if (reserva.getLlegadaRegistradaEn() != null) {
+            throw new BusinessRuleException("No se puede reprogramar una reserva con llegada registrada.");
+        }
         Restaurante restaurante = reserva.getRestaurante();
         if (!restaurante.getId().equals(request.restauranteId())) {
             throw new BusinessRuleException("No se puede cambiar el restaurante de una reserva.");
@@ -267,6 +274,7 @@ public class ReservaService {
      */
     @Transactional
     public ReservaResponseDTO cancelarReserva(Long id, String motivo) {
+        expiracion.expirarVencidas();
         Usuario usuario = currentUser.get();
         if (motivo != null && motivo.length() > 300) throw new BusinessRuleException("El motivo no puede superar 300 caracteres.");
 
@@ -279,8 +287,12 @@ public class ReservaService {
         }
 
         // Validar que no haya sido completada
-        if (reserva.getEstado() == EstadoReserva.COMPLETADA || reserva.getEstado() == EstadoReserva.RECHAZADA) {
+        if (reserva.getEstado() == EstadoReserva.COMPLETADA || reserva.getEstado() == EstadoReserva.RECHAZADA || reserva.getEstado() == EstadoReserva.EXPIRADA) {
             throw new BusinessRuleException("No se puede cancelar una reserva que ya ha sido completada.");
+        }
+
+        if (reserva.getLlegadaRegistradaEn() != null) {
+            throw new BusinessRuleException("No se puede cancelar una reserva con llegada registrada.");
         }
 
         // Validar permisos de autoría
@@ -316,7 +328,8 @@ public class ReservaService {
     /** US17: Solo el restaurante propietario puede decidir sobre una solicitud pendiente. */
     @Transactional
     public ReservaResponseDTO procesarReserva(Long id,
-                                              com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+            com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+        expiracion.expirarVencidas();
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada."));
         acceso.exigirGestion(reserva.getRestaurante().getId());
@@ -326,14 +339,27 @@ public class ReservaService {
         if (request.estado() != EstadoReserva.CONFIRMADA && request.estado() != EstadoReserva.RECHAZADA) {
             throw new BusinessRuleException("Solo se permite confirmar o rechazar una solicitud pendiente.");
         }
-        if (request.estado() == EstadoReserva.RECHAZADA && (request.motivo() == null || request.motivo().isBlank())) {
+        if (request.estado() == EstadoReserva.RECHAZADA
+                && (request.motivo() == null || request.motivo().isBlank())) {
             throw new BusinessRuleException("Debe indicar el motivo del rechazo.");
         }
-        if (request.estado() == EstadoReserva.CONFIRMADA
-                && (!Boolean.TRUE.equals(reserva.getRestaurante().getActivo())
-                || !Boolean.TRUE.equals(reserva.getRestaurante().getTieneAtencionFisica())
-                || !LocalDateTime.of(reserva.getFecha(), reserva.getHoraInicio()).isAfter(LocalDateTime.now(clock)))) {
-            throw new BusinessRuleException("No se puede confirmar una reserva pasada o de un restaurante sin atención física activa.");
+        if (request.estado() == EstadoReserva.CONFIRMADA) {
+            Mesa mesa = mesaRepository.findByIdForUpdate(reserva.getMesa().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada."));
+            if (!mesa.getRestaurante().getId().equals(reserva.getRestaurante().getId())) {
+                throw new BusinessRuleException("La mesa no pertenece al restaurante de la reserva.");
+            }
+            if (!Boolean.TRUE.equals(mesa.getActivo())) {
+                throw new BusinessRuleException("No se puede confirmar una reserva con mesa inactiva.");
+            }
+            if (mesa.getCapacidad() < reserva.getNumeroComensales()) {
+                throw new BusinessRuleException("La capacidad de la mesa es insuficiente.");
+            }
+            validarRestauranteYHorario(reserva.getRestaurante(), reserva.getFecha(),
+                    reserva.getHoraInicio(), reserva.getHoraFin());
+            if (!LocalDateTime.of(reserva.getFecha(), reserva.getHoraInicio()).isAfter(LocalDateTime.now(clock))) {
+                throw new BusinessRuleException("Solo se pueden confirmar reservas futuras.");
+            }
         }
         reserva.setEstado(request.estado());
         reserva.setMotivoRechazo(request.estado() == EstadoReserva.RECHAZADA ? request.motivo().trim() : null);
@@ -344,24 +370,12 @@ public class ReservaService {
     }
 
     /**
-     * TSK-017 (US07): Consultar historial de reservas del cliente autenticado.
-     * Retorna todas las reservas del cliente ordenadas cronológicamente (más recientes primero).
-     */
-    @Transactional(readOnly = true)
-    public List<ReservaResponseDTO> obtenerMisReservas() {
-        Usuario cliente = currentUser.get();
-        return reservaRepository.findByUsuarioIdOrderByFechaDescHoraInicioDesc(cliente.getId())
-                .stream()
-                .map(reservaMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * TSK-017 (US07): Consultar listado de reservas para el restaurante (vista Admin/Dueño).
      * Permite filtrar opcionalmente por fecha y por estado de reserva.
      */
     @Transactional(readOnly = true)
     public List<ReservaResponseDTO> obtenerReservasRestaurante(LocalDate fecha, EstadoReserva estado) {
+        expiracion.expirarVencidas();
         Long restauranteId = currentUser.getRestauranteId();
 
         List<Reserva> reservas;
@@ -386,6 +400,7 @@ public class ReservaService {
      */
     @Transactional(readOnly = true)
     public ReservaResponseDTO obtenerReservaPorId(Long id) {
+        expiracion.expirarVencidas();
         Usuario usuario = currentUser.get();
 
         Reserva reserva = reservaRepository.findById(id)
@@ -448,6 +463,10 @@ public class ReservaService {
      */
     @Transactional
     public ModuloReservasStatusDTO cambiarEstadoModulo(Boolean habilitado) {
+        if (habilitado == null) {
+            throw new BusinessRuleException("El campo habilitado es obligatorio.");
+        }
+        
         Long restauranteId = currentUser.getRestauranteId();
 
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
@@ -477,5 +496,17 @@ public class ReservaService {
                 reservasActivas,
                 mensaje
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponseDTO> obtenerMisReservas() {
+        expiracion.expirarVencidas();
+        Usuario cliente = currentUser.get();
+
+        return reservaRepository
+                .findByUsuarioIdOrderByFechaDescHoraInicioDesc(cliente.getId())
+                .stream()
+                .map(reservaMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

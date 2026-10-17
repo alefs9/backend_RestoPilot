@@ -9,5 +9,6 @@ public enum EstadoReserva {
     CONFIRMADA,    // Reserva confirmada por el restaurante
     RECHAZADA,     // Solicitud rechazada; no bloquea la mesa
     CANCELADA,     // Reserva cancelada (por el cliente o el restaurante)
+    EXPIRADA,     // Venció sin confirmación o sin llegada; conserva historial y libera mesa
     COMPLETADA     // Los comensales asistieron y terminaron
 }

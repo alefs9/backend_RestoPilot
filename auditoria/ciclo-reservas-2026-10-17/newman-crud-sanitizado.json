@@ -1,0 +1,754 @@
+{
+  "target": "http://localhost:18082",
+  "database": "restopilot_audit",
+  "schema": "public",
+  "backendImage": "sha256:59299a1b649e3d8d219f659f00501c39a1c168c39ac3186128f24a932ce3ebd1",
+  "stats": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 38,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 77,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 38,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 38,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 38,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 117,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 76,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "fixtureErrors": [],
+  "failures": [],
+  "requests": [
+    {
+      "name": "01 Registrar dueño y restaurante",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Rol dueño",
+          "failed": false
+        },
+        {
+          "name": "Captura ownerToken",
+          "failed": false
+        },
+        {
+          "name": "Captura restauranteId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "02 Registrar segundo dueño",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura otroToken",
+          "failed": false
+        },
+        {
+          "name": "Captura otroRestauranteId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "03 Incorporar administrador",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Empleado sin secretos",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "04 Login administrador",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Captura adminToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "05 Registrar cliente",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura clienteToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "06 Registrar otro cliente",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura otroClienteToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "07 Crear categoría",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura categoriaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "08 Crear categoría vacía",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura categoriaVaciaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "09 Publicar plato",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura platoId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "10 Crear mesa para reservas",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Mensaje de alta",
+          "failed": false
+        },
+        {
+          "name": "Captura mesaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "11 Crear mesa para gestión",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura mesaGestionId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD categorias del restaurante",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Categoria preparada presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD categorias vacias",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Array vacio",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD editar categoria propia",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "nombre esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD cliente no edita categoria",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD cliente no elimina categoria",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD ajeno no edita categoria",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD ajeno no elimina categoria",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD editar categoria inexistente",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD eliminar categoria propia sin platos",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 204",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD categoria eliminada no se lista",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "No existe categoria eliminada",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD eliminar categoria otra vez",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD crear plato para eliminar",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD cliente no elimina plato",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD ajeno no elimina plato",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD eliminar plato propio sin pedidos",
+      "status": 204,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 204",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD plato eliminado es 404",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD eliminar plato otra vez",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD crear pedido editable",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "total esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD editar pedido propio pendiente",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "total esperado",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD cliente no edita pedido",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD ajeno no edita pedido",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD editar pedido con plato inexistente",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD fallo de edicion conserva pedido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "total esperado",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD pedido no cambia restaurante",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD iniciar preparacion del pedido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD pedido en preparacion no editable",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CRUD editar pedido inexistente",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    }
+  ],
+  "exitCode": 0
+}

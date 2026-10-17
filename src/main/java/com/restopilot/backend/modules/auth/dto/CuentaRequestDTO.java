@@ -18,8 +18,14 @@ public abstract class CuentaRequestDTO {
     private String correo;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 8, max = 72, message = "La contraseña debe tener entre 8 y 72 caracteres")
+    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&._\\-#]).{8,}$",
             message = "La contraseña debe incluir letras, un número y un carácter especial")
     private String password;
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @jakarta.validation.constraints.AssertTrue(message = "La contraseña no puede superar 72 bytes UTF-8")
+    public boolean isPasswordDentroDelLimiteUtf8() {
+        return com.restopilot.backend.security.PasswordUtf8.dentroDelLimite(password);
+    }
+
 }

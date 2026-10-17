@@ -19,7 +19,7 @@ BEGIN
         RAISE EXCEPTION 'Hay pagos duplicados; requiere revisión manual';
     END IF;
     IF EXISTS(SELECT 1 FROM reservas WHERE estado NOT IN
-        ('PENDIENTE','CONFIRMADA','RECHAZADA','CANCELADA','COMPLETADA')) THEN
+        ('PENDIENTE','CONFIRMADA','RECHAZADA','CANCELADA','COMPLETADA','EXPIRADA')) THEN
         RAISE EXCEPTION 'Hay estados de reserva no reconocidos; requiere revisión manual';
     END IF;
     IF NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.pagos'::regclass
@@ -36,7 +36,7 @@ BEGIN
         EXECUTE format('ALTER TABLE public.reservas DROP CONSTRAINT %I', c.conname);
     END LOOP;
     ALTER TABLE reservas ADD CONSTRAINT reservas_estado_check CHECK
-        (estado IN ('PENDIENTE','CONFIRMADA','RECHAZADA','CANCELADA','COMPLETADA'));
+        (estado IN ('PENDIENTE','CONFIRMADA','RECHAZADA','CANCELADA','COMPLETADA','EXPIRADA'));
     IF NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='public.pagos'::regclass
         AND contype='u' AND conkey=ARRAY[(SELECT attnum FROM pg_attribute
             WHERE attrelid='public.pagos'::regclass AND attname='pedido_id')]) THEN

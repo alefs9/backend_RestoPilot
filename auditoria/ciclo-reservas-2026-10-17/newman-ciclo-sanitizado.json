@@ -1,0 +1,1838 @@
+{
+  "target": "http://localhost:18082",
+  "database": "restopilot_audit",
+  "schema": "public",
+  "backendImage": "sha256:59299a1b649e3d8d219f659f00501c39a1c168c39ac3186128f24a932ce3ebd1",
+  "stats": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 92,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 277,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 92,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 94,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 92,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 294,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 184,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 93,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "fixtureErrors": [],
+  "failures": [],
+  "requests": [
+    {
+      "name": "01 Registrar dueño y restaurante",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Rol dueño",
+          "failed": false
+        },
+        {
+          "name": "Captura ownerToken",
+          "failed": false
+        },
+        {
+          "name": "Captura restauranteId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "02 Registrar segundo dueño",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura otroToken",
+          "failed": false
+        },
+        {
+          "name": "Captura otroRestauranteId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "03 Incorporar administrador",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Empleado sin secretos",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "04 Login administrador",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Captura adminToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "05 Registrar cliente",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura clienteToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "06 Registrar otro cliente",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura otroClienteToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "07 Crear categoría",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura categoriaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "08 Crear categoría vacía",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura categoriaVaciaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "09 Publicar plato",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura platoId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "10 Crear mesa para reservas",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Mensaje de alta",
+          "failed": false
+        },
+        {
+          "name": "Captura mesaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "11 Crear mesa para gestión",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura mesaGestionId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 crear solicitud futura",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 PENDIENTE no admite llegada",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 PENDIENTE no admite completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 confirmar futura",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 sin llegada no completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 llegada anticipada registrada",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Llegada registrada",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 antes de inicio no completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 no duplicar llegada",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 cliente no llegada",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 otro local no llegada",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 anonimo no llegada",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 inexistente llegada",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 cliente no completar",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 otro local no completar",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 anonimo no completar",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 inexistente completar",
+      "status": 404,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 404",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 atendida no se reprograma",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 atendida no se cancela",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 crear rechazada",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 marcar rechazada",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 rechazada no llegada",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 rechazada no completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 crear cancelada",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 marcar cancelada",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 cancelada no llegada",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C00 cancelada no completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 crear mesa fixture",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 crear reserva fixture",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CICLO FIXTURE C01 confirmar",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 comprobar fixture horario iniciado",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Fixture con fecha real de Lima",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 registrar llegada",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 completar manualmente",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Tiempos preservados",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 completar repetido rechazado",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 no cancelar terminal",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 no reabrir terminal",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 lectura posterior COMPLETADA",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C01 solo una notificacion de finalizacion",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "No duplicar notificacion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 crear mesa fixture",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 crear reserva fixture",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CICLO FIXTURE C02 confirmar",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 comprobar fixture horario iniciado",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Fixture con fecha real de Lima",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 registrar llegada",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 completar manualmente",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Tiempos preservados",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 completar repetido rechazado",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 no cancelar terminal",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 no reabrir terminal",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 lectura posterior COMPLETADA",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C02 solo una notificacion de finalizacion",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "No duplicar notificacion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 crear mesa fixture",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 crear reserva fixture",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CICLO FIXTURE C03 confirmar",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 comprobar fixture horario iniciado",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Fixture con fecha real de Lima",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 registrar llegada",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 completar simultaneamente",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Sin error transporte 1",
+          "failed": false
+        },
+        {
+          "name": "Sin error transporte 0",
+          "failed": false
+        },
+        {
+          "name": "Una sola finalizacion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 completar simultaneamente",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Sin error transporte 1",
+          "failed": false
+        },
+        {
+          "name": "Sin error transporte 0",
+          "failed": false
+        },
+        {
+          "name": "Una sola finalizacion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 completar simultaneamente",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Sin error transporte 1",
+          "failed": false
+        },
+        {
+          "name": "Sin error transporte 0",
+          "failed": false
+        },
+        {
+          "name": "Una sola finalizacion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 completar repetido rechazado",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 no cancelar terminal",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 no reabrir terminal",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 lectura posterior COMPLETADA",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C03 solo una notificacion de finalizacion",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "No duplicar notificacion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C04 reporte propio separa pedidos y reservas",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "pedidosAtendidos esperado",
+          "failed": false
+        },
+        {
+          "name": "reservasCompletadas esperado",
+          "failed": false
+        },
+        {
+          "name": "volumenAtenciones esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C04 reporte ajeno no incluye atenciones propias",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "pedidosAtendidos esperado",
+          "failed": false
+        },
+        {
+          "name": "reservasCompletadas esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "C04 fuera del rango no suma completadas",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "pedidosAtendidos esperado",
+          "failed": false
+        },
+        {
+          "name": "reservasCompletadas esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P crear mesa",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CICLO FIXTURE EXP_P crear",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P lectura expira y conserva registro",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Expiracion registrada",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P terminal no llegada",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P terminal no completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P terminal no cancelar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P se conserva en historial",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Historial conserva EXPIRADA",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P mesa sin compromiso puede desactivarse",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_P no duplicar notificacion expiracion",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Una notificacion de expiracion",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C crear mesa",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C crear reserva",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "ID capturado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "CICLO FIXTURE EXP_C confirmar",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C lectura expira y conserva registro",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "Expiracion registrada",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C terminal no llegada",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C terminal no completar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C terminal no cancelar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C se conserva en historial",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Historial conserva EXPIRADA",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C mesa sin compromiso puede desactivarse",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "EXP_C no duplicar notificacion expiracion",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Una notificacion de expiracion",
+          "failed": false
+        }
+      ]
+    }
+  ],
+  "exitCode": 0
+}

@@ -262,6 +262,8 @@ class ReglasNegocioIntegrationTest {
         assertEquals(List.of("Lomo (2 unidades)"), resultado.platosMasVendidos());
         assertEquals(2, resultado.horariosMayorDemanda().get("12:00 - 13:00"));
         assertEquals(1, resultado.volumenAtenciones());
+        assertEquals(1, resultado.pedidosAtendidos());
+        assertEquals(0, resultado.reservasCompletadas());
         assertEquals(8.33, resultado.ocupacionMesasPorcentaje());
         assertEquals(new BigDecimal("40.00"), resultado.estadoPagos().montoTotal());
         assertEquals(1, resultado.estadoPagos().pedidosPagados());

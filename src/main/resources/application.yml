@@ -26,3 +26,7 @@ jwt:
 restopilot:
   demo:
     enabled: ${DEMO_ENABLED:false}
+  reservas:
+    expiracion:
+      enabled: ${RESERVAS_EXPIRACION_ENABLED:true}
+      intervalo-ms: 30000
