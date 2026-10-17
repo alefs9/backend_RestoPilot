@@ -46,6 +46,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(properties = {
+        "jwt.secret=dGVzdC1vbmx5LXNlY3JldC1mb3ItcmVzdG9waWxvdC0yMDI2LXRlc3Rz",
+        "restopilot.demo.enabled=false",
         "spring.datasource.url=jdbc:h2:mem:reglas;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.username=sa", "spring.datasource.password=",
         "spring.datasource.driver-class-name=org.h2.Driver",
@@ -280,60 +282,107 @@ class ReglasNegocioIntegrationTest {
         mvc.perform(post("/api/platos").header("Authorization", "Bearer " + jwt.generateToken(cliente))
                 .contentType("application/json").content("{}")) .andExpect(status().isForbidden());
         mvc.perform(post("/api/auth/register").contentType("application/json")
-                .content("{\"nombreCompleto\":\"Intruso\",\"correo\":\"intruso@test.com\",\"password\":\"Password123!\",\"rol\":\"ADMINISTRADOR\"}"))
+                        .content("{\"nombreCompleto\":\"Intruso\",\"correo\":\"intruso@test.com\",\"password\":\"Password123!\",\"rol\":\"ADMINISTRADOR\"}"))
                 .andExpect(status().isForbidden());
     }
     @Test void apiExponeFiltroConfirmacionYNotificaciones() throws Exception {
         SecurityContextHolder.clearContext();
         mvc.perform(get("/api/platos").param("restauranteId", restaurante.getId().toString())
-                .param("categoriaId", categoria.getId().toString()).header("Authorization", "Bearer " + jwt.generateToken(cliente)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$[0].nombre").value("Lomo"));
+                        .param("categoriaId", categoria.getId().toString()).header("Authorization", "Bearer " + jwt.generateToken(cliente)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.platos[0].nombre").value("Lomo"));
         Reserva r = reservar(LocalTime.of(15, 0), LocalTime.of(16, 0));
         SecurityContextHolder.clearContext();
         mvc.perform(patch("/api/reservas/{id}/estado", r.getId()).header("Authorization", "Bearer " + jwt.generateToken(admin))
-                .contentType("application/json").content("{\"estado\":\"CONFIRMADA\"}"))
+                        .contentType("application/json").content("{\"estado\":\"CONFIRMADA\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.estado").value("CONFIRMADA"));
         mvc.perform(get("/api/notificaciones/me").header("Authorization", "Bearer " + jwt.generateToken(cliente)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
     }
 
-    @Test void coleccionPostmanValidaSus27PeticionesContraLaApi() throws Exception {
-        // Comprueba contratos y secuencia de la colección sin conectar una base externa.
-        var json = new com.fasterxml.jackson.databind.ObjectMapper();
-        var coleccion = json.readTree(java.nio.file.Files.readString(java.nio.file.Path.of("postman/TB2-reglas-negocio.postman_collection.json")));
-        Map<String, String> variables = new HashMap<>();
-        for (var variable : coleccion.get("variable")) variables.put(variable.get("key").asText(), variable.get("value").asText());
-        variables.put("restauranteId", "1");
-        variables.put("runId", "integracion");
-        variables.put("clienteCorreo", "coleccion@test.com");
-        variables.put("numeroMesa", "100001");
-        variables.put("fechaHoy", fecha.toString());
-        variables.put("fechaReserva", fecha.plusDays(1).toString());
-        for (var item : coleccion.get("item")) {
-            SecurityContextHolder.clearContext();
-            var request = item.get("request");
-            String url = sustituir(request.get("url").asText(), variables).replace(variables.get("baseUrl"), "");
-            var builder = org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request(
-                    org.springframework.http.HttpMethod.valueOf(request.get("method").asText()), java.net.URI.create(url));
-            if (request.has("auth")) builder.header("Authorization", "Bearer " + sustituir(request.get("auth").get("bearer").get(0).get("value").asText(), variables));
-            if (request.has("body")) builder.contentType("application/json").content(sustituir(request.get("body").get("raw").asText(), variables));
-            var scripts = item.get("event").get(0).get("script").get("exec");
-            var expected = java.util.regex.Pattern.compile("HTTP (\\d+)").matcher(scripts.get(0).asText());
-            assertTrue(expected.find());
-            var response = mvc.perform(builder).andReturn().getResponse();
-            assertEquals(Integer.parseInt(expected.group(1)), response.getStatus(), item.get("name").asText() + ": " + response.getContentAsString());
-            for (var script : scripts) {
-                var capture = java.util.regex.Pattern.compile("collectionVariables.set\\(\"([^\"]+)\"").matcher(script.asText());
-                if (capture.find()) {
-                    String key = capture.group(1);
-                    variables.put(key, json.readTree(response.getContentAsString()).get(key.startsWith("token") ? "token" : "id").asText());
-                }
-            }
-        }
+    @Test void contratosDeCatalogoDisponibilidadEHistorial() throws Exception {
+        SecurityContextHolder.clearContext();
+        String token = jwt.generateToken(cliente);
+        mvc.perform(get("/api/platos").param("restauranteId", restaurante.getId().toString())
+                        .param("categoriaId", categoria.getId().toString()).header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.platos").isArray());
+        mvc.perform(get("/api/reservas/disponibilidad").param("restauranteId", restaurante.getId().toString())
+                        .param("fecha", fecha.toString()).param("horaInicio", "15:00").param("horaFin", "16:00")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.mesas[0].disponible").value(true));
+        mvc.perform(get("/api/pedidos/me").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.pedidos").isEmpty())
+                .andExpect(jsonPath("$.totalElementos").value(0));
+        mvc.perform(get("/api/reservas/me").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.reservas").isEmpty());
     }
 
-    private String sustituir(String texto, Map<String, String> variables) {
-        for (var entry : variables.entrySet()) texto = texto.replace("{{" + entry.getKey() + "}}", entry.getValue());
-        return texto;
+    @Test void entradasInvalidasResponden400YPlatoInexistente404() throws Exception {
+        Long id = crearPedido();
+        SecurityContextHolder.clearContext();
+        String token = jwt.generateToken(admin);
+        mvc.perform(get("/api/platos/999999").header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.mensaje").value("Plato no encontrado."));
+        mvc.perform(patch("/api/pedidos/{id}/estado", id).param("nuevoEstado", "INVALIDO")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.mensaje").value("El valor de un parámetro no es válido."));
+        for (String ruta : List.of("/api/reportes/operativos", "/api/reportes/pagos")) {
+            mvc.perform(get(ruta).param("fechaInicio", "no-fecha").param("fechaFin", fecha.toString())
+                            .header("Authorization", "Bearer " + token))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.mensaje").value("El valor de un parámetro no es válido."));
+        }
+        mvc.perform(get("/api/reportes/operativos").param("fechaFin", fecha.toString())
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.mensaje").value("Falta un parámetro obligatorio."));
+        assertEquals(EstadoPedido.PENDIENTE, pedidoRepository.findById(id).orElseThrow().getEstado());
+        assertEquals(0, notificaciones.count());
+    }
+
+    @Test void disponibilidadRechazaHoraPasadaYRestauranteInactivo() {
+        assertThrows(BusinessRuleException.class, () -> reservas.consultarDisponibilidad(
+                restaurante.getId(), fecha, LocalTime.of(9, 0), LocalTime.of(10, 0), 2));
+        assertThrows(BusinessRuleException.class, () -> reservar(LocalTime.of(9, 0), LocalTime.of(10, 0)));
+        restaurante.setActivo(false); restauranteRepository.saveAndFlush(restaurante);
+        assertThrows(BusinessRuleException.class, () -> reservas.consultarDisponibilidad(
+                restaurante.getId(), fecha, LocalTime.of(15, 0), LocalTime.of(16, 0), 2));
+        assertThrows(BusinessRuleException.class, () -> reservar(LocalTime.of(15, 0), LocalTime.of(16, 0)));
+        assertEquals(0, reservaRepository.count());
+        restaurante.setActivo(true); restauranteRepository.saveAndFlush(restaurante);
+        assertTrue(reservas.consultarDisponibilidad(restaurante.getId(), fecha,
+                LocalTime.of(15, 0), LocalTime.of(16, 0), 2).getFirst().disponible());
+    }
+
+    @Test void catalogoVacioYDisponibilidadSinCapacidadMantienenContrato() throws Exception {
+        SecurityContextHolder.clearContext(); String token = jwt.generateToken(cliente);
+        mvc.perform(get("/api/platos").param("restauranteId", otroRestaurante.getId().toString())
+                        .param("categoriaId", "999999").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.platos").isEmpty())
+                .andExpect(jsonPath("$.mensaje").value("No hay platos disponibles en esta categoría."));
+        mvc.perform(get("/api/reservas/disponibilidad").param("restauranteId", restaurante.getId().toString())
+                        .param("fecha", fecha.toString()).param("horaInicio", "15:00").param("horaFin", "16:00")
+                        .param("numeroComensales", "5").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.mesas").isEmpty())
+                .andExpect(jsonPath("$.mensaje").value("No hay disponibilidad para el horario seleccionado."));
+    }
+
+    @Test void mensajesDeExitoConservanIdsEnRaiz() throws Exception {
+        Reserva reserva = reservar(LocalTime.of(15, 0), LocalTime.of(16, 0));
+        SecurityContextHolder.clearContext(); String token = jwt.generateToken(admin);
+        String body = "{\"numero\":42,\"capacidad\":6,\"coordenadaX\":1,\"coordenadaY\":2}";
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        String alta = mvc.perform(post("/api/mesas").contentType("application/json").content(body)
+                        .header("Authorization", "Bearer " + token)).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.mensaje").value("Mesa registrada con éxito."))
+                .andExpect(jsonPath("$.id").isNumber()).andReturn().getResponse().getContentAsString();
+        long mesaId = mapper.readTree(alta).get("id").asLong();
+        mvc.perform(put("/api/mesas/{id}", mesaId).contentType("application/json").content(body)
+                        .header("Authorization", "Bearer " + token)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje").value("Mesa actualizada con éxito."));
+        String cambio = "{\"mesaId\":" + mesa.getId() + ",\"restauranteId\":" + restaurante.getId()
+                + ",\"fecha\":\"2026-10-07\",\"horaInicio\":\"16:00\",\"horaFin\":\"17:00\",\"numeroComensales\":3}";
+        mvc.perform(put("/api/reservas/{id}", reserva.getId()).contentType("application/json").content(cambio)
+                        .header("Authorization", "Bearer " + token)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(reserva.getId()))
+                .andExpect(jsonPath("$.mensaje").value("Reserva modificada con éxito."));
+        assertEquals(3, reservaRepository.findById(reserva.getId()).orElseThrow().getNumeroComensales());
     }
 }
