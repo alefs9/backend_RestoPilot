@@ -14,5 +14,6 @@ public interface ReservaMapper {
     @Mapping(target = "restauranteNombre", source = "restaurante.nombre")
     @Mapping(target = "clienteId", source = "usuario.id")
     @Mapping(target = "clienteNombre", source = "usuario.nombreCompleto")
+    @Mapping(target = "mensaje", ignore = true)
     ReservaResponseDTO toResponse(Reserva reserva);
 }

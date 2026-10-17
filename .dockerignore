@@ -1,6 +1,10 @@
 .git
 .idea
-target/
+.vscode
+target
 .env
-*.md
-postman/
+.env.*
+!.env.example
+postman
+auditoria
+*.log

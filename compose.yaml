@@ -1,0 +1,18 @@
+name: restopilot
+
+services:
+  backend:
+    build: .
+    restart: unless-stopped
+    environment:
+      PORT: 8081
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/restopilot_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD en .env}
+      JWT_SECRET: ${JWT_SECRET:?Configura JWT_SECRET en .env}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      DEMO_ENABLED: "false"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-18082}:8081"

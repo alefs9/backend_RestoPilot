@@ -14,6 +14,28 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(com.restopilot.backend.modules.catalogo.exception.PlatoNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePlatoNotFound(Exception ex) {
+        return error(HttpStatus.NOT_FOUND, "Plato no encontrado.");
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidParameter(Exception ex) {
+        return error(HttpStatus.BAD_REQUEST, "El valor de un parámetro no es válido.");
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingParameter(Exception ex) {
+        return error(HttpStatus.BAD_REQUEST, "Falta un parámetro obligatorio.");
+    }
+
+    private ResponseEntity<Map<String, Object>> error(HttpStatus status, String mensaje) {
+        return ResponseEntity.status(status).body(Map.of("timestamp", LocalDateTime.now(),
+                "status", status.value(), "error", status.getReasonPhrase(), "mensaje", mensaje));
+    }
+
 
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleIntegrityConflict(Exception ex) {
@@ -97,7 +119,12 @@ public class GlobalExceptionHandler {
         error.put("timestamp", LocalDateTime.now());
         error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         error.put("error", "Internal Server Error");
-        error.put("mensaje", ex.getMessage() != null ? ex.getMessage() : "Error interno del servidor");
+        // No registrar el mensaje/cuerpo de una excepción que podría contener credenciales.
+        // El identificador permite correlacionar el incidente sin exponer datos técnicos al cliente.
+        String incidente = java.util.UUID.randomUUID().toString();
+        log.error("Error inesperado. Incidente={} tipo={}", incidente, ex.getClass().getName());
+        error.put("incidente", incidente);
+        error.put("mensaje", "No se pudo completar la operación. Intente nuevamente.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

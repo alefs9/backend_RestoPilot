@@ -1,15 +1,18 @@
 # Etapa de construcción
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
-COPY mvnw .
+COPY --chmod=0755 mvnw ./mvnw
 COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
-RUN ./mvnw install -DskipTests
+RUN ./mvnw -B package -DskipTests
 
 # Etapa de ejecución
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
+RUN addgroup -S restopilot && adduser -S restopilot -G restopilot
+COPY --from=build --chown=restopilot:restopilot /app/target/*.jar app.jar
+USER restopilot
+ENV PORT=8081
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

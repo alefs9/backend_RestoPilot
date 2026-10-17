@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalTime;
 
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "restopilot.demo.enabled", havingValue = "true", matchIfMissing = false)
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 

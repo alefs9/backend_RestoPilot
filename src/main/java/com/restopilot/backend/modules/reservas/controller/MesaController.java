@@ -24,7 +24,7 @@ public class MesaController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public MesaResponseDTO crearMesa(@Valid @RequestBody MesaRequestDTO request) {
-        return mesaService.crearMesa(request);
+        return mesaService.crearMesa(request).conMensaje("Mesa registrada con éxito.");
     }
 
     // GET - Obtener todas las mesas del restaurante del usuario (Admin/Dueno)
@@ -52,7 +52,7 @@ public class MesaController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public MesaResponseDTO actualizarMesa(@PathVariable Long id, @Valid @RequestBody MesaRequestDTO request) {
-        return mesaService.actualizarMesa(id, request);
+        return mesaService.actualizarMesa(id, request).conMensaje("Mesa actualizada con éxito.");
     }
 
     // PATCH - Activar/Desactivar mesa (Admin/Dueno) - US16

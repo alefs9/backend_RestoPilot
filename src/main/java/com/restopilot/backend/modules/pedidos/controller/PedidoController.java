@@ -35,7 +35,7 @@ public class PedidoController {
     @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<Map<String, Object>> getMisPedidos(Pageable pageable) {
         Page<PedidoResponseDTO> pedidos = pedidoService.getMisPedidos(pageable);
-        String mensaje = pedidos.isEmpty()
+        String mensaje = pedidos.getTotalElements() == 0
                 ? "No se encontraron pedidos en el historial."
                 : "Historial de pedidos obtenido correctamente.";
         return ResponseEntity.ok(Map.of(

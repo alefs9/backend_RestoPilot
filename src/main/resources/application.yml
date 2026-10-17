@@ -12,13 +12,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
 
 jwt:
   # Clave secreta HMAC en Base64
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  secret: ${JWT_SECRET}
   # Tiempo de vida del token 24 horas
   expiration: ${JWT_EXPIRATION:86400000}
+
+restopilot:
+  demo:
+    enabled: ${DEMO_ENABLED:false}

@@ -10,5 +10,6 @@ public interface MesaMapper {
 
     @Mapping(target = "restauranteId", source = "restaurante.id")
     @Mapping(target = "restauranteNombre", source = "restaurante.nombre")
+    @Mapping(target = "mensaje", ignore = true)
     MesaResponseDTO toResponse(Mesa mesa);
 }

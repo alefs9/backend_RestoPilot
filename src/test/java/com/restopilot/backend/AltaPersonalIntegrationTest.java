@@ -24,6 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(properties = {
+        "jwt.secret=dGVzdC1vbmx5LXNlY3JldC1mb3ItcmVzdG9waWxvdC0yMDI2LXRlc3Rz",
+        "restopilot.demo.enabled=false",
         "spring.datasource.url=jdbc:h2:mem:altas;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.username=sa", "spring.datasource.password=",
         "spring.datasource.driver-class-name=org.h2.Driver",
@@ -37,10 +39,10 @@ class AltaPersonalIntegrationTest {
     static class FallosControlados {
         @Bean FallosRegistro fallosRegistro() { return new FallosRegistro(); }
         @Bean @Primary RegistroCuentaService cuentasPrueba(UsuarioRepository repository,
-                PasswordEncoder encoder, FallosRegistro fallos) {
+                                                           PasswordEncoder encoder, FallosRegistro fallos) {
             return new RegistroCuentaService(repository, encoder) {
                 @Override public Usuario guardar(com.restopilot.backend.modules.auth.dto.CuentaRequestDTO datos,
-                        String correo, Rol rol, com.restopilot.backend.modules.restaurante.entity.Restaurante restaurante) {
+                                                 String correo, Rol rol, com.restopilot.backend.modules.restaurante.entity.Restaurante restaurante) {
                     if (fallos.cuenta) throw new IllegalStateException("Fallo simulado al crear la cuenta");
                     return super.guardar(datos, correo, rol, restaurante);
                 }
@@ -87,7 +89,7 @@ class AltaPersonalIntegrationTest {
     }
     String registrarAdmin(String token, String correo) throws Exception {
         return mvc.perform(post("/api/usuarios/administradores").header("Authorization", "Bearer " + token)
-                .contentType("application/json").content(json.writeValueAsString(solicitudAdmin(correo))))
+                        .contentType("application/json").content(json.writeValueAsString(solicitudAdmin(correo))))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.token").doesNotExist())
                 .andExpect(jsonPath("$.passwordHash").doesNotExist()).andExpect(jsonPath("$.password").doesNotExist())
                 .andReturn().getResponse().getContentAsString();
@@ -155,7 +157,8 @@ class AltaPersonalIntegrationTest {
         long locales = restaurantes.count(), cuentasAntes = usuarios.count();
         fallos.cuenta = true;
         mvc.perform(post("/api/auth/register-owner").contentType("application/json").content(json.writeValueAsString(solicitudDueno("rollback@test.com"))))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.mensaje").value("No se pudo completar la operación. Intente nuevamente."));
         assertEquals(locales, restaurantes.count()); assertEquals(cuentasAntes, usuarios.count());
         assertFalse(usuarios.existsByCorreo("rollback@test.com"));
     }
@@ -166,7 +169,8 @@ class AltaPersonalIntegrationTest {
         long locales = restaurantes.count(), cuentasAntes = usuarios.count();
         fallos.token = true;
         mvc.perform(post("/api/auth/register-owner").contentType("application/json").content(json.writeValueAsString(solicitudDueno("token-error@test.com"))))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.mensaje").value("No se pudo completar la operación. Intente nuevamente."));
         assertEquals(locales, restaurantes.count()); assertEquals(cuentasAntes, usuarios.count());
         assertFalse(usuarios.existsByCorreo("token-error@test.com"));
     }
@@ -181,10 +185,13 @@ class AltaPersonalIntegrationTest {
     }
 
     @Test void clienteAdministradorYAnonimoNoPuedenDarAltaDePersonal() throws Exception {
-        for (String correo : List.of("cliente@restopilot.com", "cristian@restopilot.com")) {
-            String token = jwt.generateToken(usuarios.findByCorreo(correo).orElseThrow());
+        for (Rol rol : List.of(Rol.CLIENTE, Rol.ADMINISTRADOR)) {
+            Usuario cuenta = usuarios.save(Usuario.builder().nombreCompleto("Sin permiso")
+                    .correo(rol.name().toLowerCase() + "@permisos.test").passwordHash(passwords.encode(password))
+                    .rol(rol).habilitado(true).build());
+            String token = jwt.generateToken(cuenta);
             mvc.perform(post("/api/usuarios/administradores").header("Authorization", "Bearer " + token)
-                    .contentType("application/json").content(json.writeValueAsString(solicitudAdmin("nuevo@test.com"))))
+                            .contentType("application/json").content(json.writeValueAsString(solicitudAdmin("nuevo@test.com"))))
                     .andExpect(status().isForbidden());
         }
         mvc.perform(post("/api/usuarios/administradores").contentType("application/json").content(json.writeValueAsString(solicitudAdmin("nuevo@test.com"))))
@@ -206,7 +213,7 @@ class AltaPersonalIntegrationTest {
         JsonNode owner = registrarDueno("owner@test.com");
         long cuentasAntes = usuarios.count();
         mvc.perform(post("/api/usuarios/administradores").header("Authorization", "Bearer " + owner.get("token").asText())
-                .contentType("application/json").content(json.writeValueAsString(solicitudAdmin("OWNER@test.com"))))
+                        .contentType("application/json").content(json.writeValueAsString(solicitudAdmin("OWNER@test.com"))))
                 .andExpect(status().isConflict());
         assertEquals(cuentasAntes, usuarios.count()); assertEquals(Rol.DUENO, usuarios.findByCorreo("owner@test.com").orElseThrow().getRol());
     }
@@ -214,7 +221,7 @@ class AltaPersonalIntegrationTest {
     @Test void datosDeAdministradorInvalidosNoCreanCuenta() throws Exception {
         JsonNode owner = registrarDueno("owner@test.com"); long cuentasAntes = usuarios.count();
         mvc.perform(post("/api/usuarios/administradores").header("Authorization", "Bearer " + owner.get("token").asText())
-                .contentType("application/json").content("{}"))
+                        .contentType("application/json").content("{}"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detalles").isArray());
         assertEquals(cuentasAntes, usuarios.count());
     }
@@ -223,7 +230,7 @@ class AltaPersonalIntegrationTest {
         JsonNode owner = registrarDueno("owner@test.com"), otro = registrarDueno("otro@test.com");
         registrarAdmin(owner.get("token").asText(), "admin@test.com");
         JsonNode login = json.readTree(mvc.perform(post("/api/auth/login").contentType("application/json")
-                .content(json.writeValueAsString(Map.of("correo", "admin@test.com", "password", password))))
+                        .content(json.writeValueAsString(Map.of("correo", "admin@test.com", "password", password))))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.rol").value("ADMINISTRADOR"))
                 .andReturn().getResponse().getContentAsString());
         assertEquals(owner.get("restauranteId").asLong(), login.get("restauranteId").asLong());
@@ -238,7 +245,7 @@ class AltaPersonalIntegrationTest {
         Usuario owner = usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Sin negocio").correo("sin@test.com")
                 .passwordHash(passwords.encode(password)).rol(Rol.DUENO).build());
         mvc.perform(post("/api/usuarios/administradores").header("Authorization", "Bearer " + jwt.generateToken(owner))
-                .contentType("application/json").content(json.writeValueAsString(solicitudAdmin("admin@test.com"))))
+                        .contentType("application/json").content(json.writeValueAsString(solicitudAdmin("admin@test.com"))))
                 .andExpect(status().isForbidden());
     }
 }
