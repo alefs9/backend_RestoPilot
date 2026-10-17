@@ -152,10 +152,11 @@ public class ReservaController {
     /**
      * TSK-018: Consultar el estado de activación SaaS del módulo de reservas del restaurante propio.
      */
-    @GetMapping("/modulo/estado")
+    @PatchMapping("/modulo/estado")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
-    public ModuloReservasStatusDTO obtenerEstadoModulo() {
-        return reservaService.obtenerEstadoModulo();
+    public ModuloReservasStatusDTO cambiarEstadoModulo(
+            @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.EstadoModuloRequestDTO body) {
+        return reservaService.cambiarEstadoModulo(body.habilitado());
     }
 
     /**

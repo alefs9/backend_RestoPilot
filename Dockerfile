@@ -5,7 +5,7 @@ COPY --chmod=0755 mvnw ./mvnw
 COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
-RUN ./mvnw -B package -DskipTests
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw && ./mvnw -B package -DskipTests
 
 # Etapa de ejecución
 FROM eclipse-temurin:21-jre-alpine

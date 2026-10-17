@@ -84,6 +84,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     // TSK-017: Reservas del restaurante filtradas por fecha y estado
     List<Reserva> findByRestauranteIdAndFechaAndEstadoOrderByHoraInicioAsc(Long restauranteId, LocalDate fecha, EstadoReserva estado);
 
+    List<Reserva> findByMesaIdAndEstadoInAndFechaGreaterThanEqual(
+        Long mesaId, List<EstadoReserva> estados, LocalDate fecha);
+
     // TSK-018: Contar reservas activas vigentes (futuras o de hoy) para advertencias al desactivar el módulo
     long countByRestauranteIdAndEstadoInAndFechaGreaterThanEqual(
             Long restauranteId, List<EstadoReserva> estados, LocalDate fecha);

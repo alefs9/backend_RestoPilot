@@ -26,6 +26,8 @@ public class MesaService {
     private final RestauranteRepository restauranteRepository;
     private final MesaMapper mesaMapper;
     private final CurrentUser currentUser;
+    private final com.restopilot.backend.modules.reservas.repository.ReservaRepository reservaRepository;
+    private final java.time.Clock clock;
 
     // Crear nueva mesa (Admin/Dueno)
     @Transactional
@@ -96,7 +98,7 @@ public class MesaService {
     public MesaResponseDTO actualizarMesa(Long mesaId, MesaRequestDTO request) {
         Long restauranteId = currentUser.getRestauranteId();
 
-        Mesa mesa = mesaRepository.findById(mesaId)
+        Mesa mesa = mesaRepository.findByIdForUpdate(mesaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa con ID " + mesaId + " no encontrada"));
 
         // Verificar que la mesa pertenece al restaurante del usuario
@@ -113,6 +115,11 @@ public class MesaService {
             }
         }
 
+        if (reservasVigentes(mesaId).stream()
+                .anyMatch(r -> r.getNumeroComensales() > request.capacidad())) {
+            throw new BusinessRuleException("La capacidad no puede ser menor que los comensales de una reserva vigente.");
+        }
+
         mesa.setNumero(request.numero());
         mesa.setCapacidad(request.capacidad());
         mesa.setCoordenadaX(request.coordenadaX());
@@ -127,15 +134,32 @@ public class MesaService {
     public MesaResponseDTO cambiarEstadoMesa(Long mesaId, Boolean activo) {
         Long restauranteId = currentUser.getRestauranteId();
 
-        Mesa mesa = mesaRepository.findById(mesaId)
+        Mesa mesa = mesaRepository.findByIdForUpdate(mesaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa con ID " + mesaId + " no encontrada"));
 
         if (!mesa.getRestaurante().getId().equals(restauranteId)) {
             throw new BusinessRuleException("No tiene permisos para modificar esta mesa.");
         }
 
+        if (activo == null) {
+            throw new BusinessRuleException("El campo activo es obligatorio.");
+        }
+        if (!activo && !reservasVigentes(mesaId).isEmpty()) {
+            throw new BusinessRuleException("No se puede desactivar una mesa con reservas vigentes. Gestione primero esas reservas.");
+        }
         mesa.setActivo(activo);
         Mesa mesaActualizada = mesaRepository.save(mesa);
         return mesaMapper.toResponse(mesaActualizada);
     }
+    private List<com.restopilot.backend.modules.reservas.entity.Reserva> reservasVigentes(Long mesaId) {
+        java.time.LocalDateTime ahora = java.time.LocalDateTime.now(clock);
+        return reservaRepository.findByMesaIdAndEstadoInAndFechaGreaterThanEqual(
+                mesaId,
+                List.of(com.restopilot.backend.modules.reservas.entity.EstadoReserva.PENDIENTE,
+                        com.restopilot.backend.modules.reservas.entity.EstadoReserva.CONFIRMADA),
+                ahora.toLocalDate()).stream()
+                .filter(r -> java.time.LocalDateTime.of(r.getFecha(), r.getHoraFin()).isAfter(ahora))
+                .toList();
+    }
+
 }

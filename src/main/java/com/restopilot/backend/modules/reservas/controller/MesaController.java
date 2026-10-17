@@ -58,8 +58,9 @@ public class MesaController {
     // PATCH - Activar/Desactivar mesa (Admin/Dueno) - US16
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
-    public MesaResponseDTO cambiarEstadoMesa(@PathVariable Long id, @RequestBody Map<String, Boolean> body) {
-        Boolean activo = body.get("activo");
-        return mesaService.cambiarEstadoMesa(id, activo);
+    public MesaResponseDTO cambiarEstadoMesa(
+            @PathVariable Long id,
+            @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.EstadoMesaRequestDTO body) {
+        return mesaService.cambiarEstadoMesa(id, body.activo());
     }
 }
