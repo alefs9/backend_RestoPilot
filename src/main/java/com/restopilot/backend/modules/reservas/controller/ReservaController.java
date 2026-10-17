@@ -49,7 +49,7 @@ public class ReservaController {
 
         String mensaje;
         if (mesas.isEmpty() || !hayDisponibles) {
-            mensaje = "No hay mesas disponibles para la fecha y horario solicitados.";
+            mensaje = "No hay disponibilidad para el horario seleccionado.";
         } else {
             mensaje = "Mesas disponibles encontradas correctamente.";
         }
@@ -63,7 +63,7 @@ public class ReservaController {
     @PatchMapping("/{id}/estado")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ReservaResponseDTO procesarReserva(@PathVariable Long id,
-            @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
+                                              @Valid @RequestBody com.restopilot.backend.modules.reservas.dto.ProcesarReservaRequestDTO request) {
         return reservaService.procesarReserva(id, request);
     }
 
@@ -87,7 +87,7 @@ public class ReservaController {
     public ReservaResponseDTO modificarReserva(
             @PathVariable Long id,
             @Valid @RequestBody ReservaRequestDTO request) {
-        return reservaService.modificarReserva(id, request);
+        return reservaService.modificarReserva(id, request).conMensaje("Reserva modificada con éxito.");
     }
 
     /**
