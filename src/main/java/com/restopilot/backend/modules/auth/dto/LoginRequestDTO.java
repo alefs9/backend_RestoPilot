@@ -21,4 +21,10 @@ public class LoginRequestDTO {
 
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @jakarta.validation.constraints.AssertTrue(message = "La contraseña no puede superar 72 bytes UTF-8")
+    public boolean isPasswordDentroDelLimiteUtf8() {
+        return com.restopilot.backend.security.PasswordUtf8.dentroDelLimite(password);
+    }
+
 }
