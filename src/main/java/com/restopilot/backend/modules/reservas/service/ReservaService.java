@@ -43,8 +43,17 @@ public class ReservaService {
     private final CurrentUser currentUser;
     private final ExpiracionReservasService expiracion;
 
-    /** Validación común de consulta, registro y reprogramación; no sustituye el bloqueo de mesa. */
-    private void validarRestauranteYHorario(Restaurante restaurante, LocalDate fecha,
+    /** Validación de escrituras: no permite registrar ni reprogramar en el pasado. */
+    private void validarRestauranteYHorario(Restaurante restaurante, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+        validarConsultaDisponibilidad(restaurante, fecha, horaInicio, horaFin);
+        LocalDateTime ahora = LocalDateTime.now(clock);
+        if (fecha.isBefore(ahora.toLocalDate())) throw new BusinessRuleException("No se permiten fechas pasadas.");
+        if (fecha.equals(ahora.toLocalDate()) && horaInicio.isBefore(ahora.toLocalTime()))
+            throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
+    }
+
+    /** Consulta de solo lectura: admite verificar la liberación de un rango ya iniciado o pasado. */
+    private void validarConsultaDisponibilidad(Restaurante restaurante, LocalDate fecha,
                                             LocalTime horaInicio, LocalTime horaFin) {
         if (Boolean.FALSE.equals(restaurante.getActivo())) {
             throw new BusinessRuleException("El restaurante se encuentra inactivo actualmente.");
@@ -55,15 +64,8 @@ public class ReservaService {
         if (fecha == null || horaInicio == null || horaFin == null) {
             throw new BusinessRuleException("La fecha y las horas son obligatorias.");
         }
-        LocalDateTime ahora = LocalDateTime.now(clock);
-        if (fecha.isBefore(ahora.toLocalDate())) {
-            throw new BusinessRuleException("No se permiten fechas pasadas.");
-        }
         if (!horaInicio.isBefore(horaFin)) {
             throw new BusinessRuleException("La hora de inicio debe ser anterior a la hora de fin.");
-        }
-        if (fecha.equals(ahora.toLocalDate()) && horaInicio.isBefore(ahora.toLocalTime())) {
-            throw new BusinessRuleException("La hora de inicio no puede ser anterior a la hora actual.");
         }
         if (restaurante.getHoraApertura() != null && restaurante.getHoraCierre() != null
                 && (horaInicio.isBefore(restaurante.getHoraApertura()) || horaFin.isAfter(restaurante.getHoraCierre()))) {
@@ -93,7 +95,7 @@ public class ReservaService {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurante con ID " + restauranteId + " no encontrado"));
 
-        validarRestauranteYHorario(restaurante, fecha, horaInicio, horaFin);
+        validarConsultaDisponibilidad(restaurante, fecha, horaInicio, horaFin);
 
         List<Mesa> mesasActivas = mesaRepository.findByRestauranteIdAndActivoTrue(restauranteId);
 
