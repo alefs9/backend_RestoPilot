@@ -15,6 +15,8 @@ public interface PedidoMapper {
     @Mapping(target = "clienteId", source = "cliente.id")
     @Mapping(target = "clienteNombre", source = "cliente.nombreCompleto")
     @Mapping(target = "mesaId", source = "mesa.id")
+    @Mapping(target = "complejidadMaxima", expression = "java(com.restopilot.backend.modules.pedidos.model.PedidoPrioridad.complejidadMaxima(pedido))")
+    @Mapping(target = "tiempoPreparacionMaximoMinutos", expression = "java(com.restopilot.backend.modules.pedidos.model.PedidoPrioridad.tiempoMaximo(pedido))")
     PedidoResponseDTO toResponse(Pedido pedido);
 
     @Mapping(target = "platoId", source = "plato.id")
