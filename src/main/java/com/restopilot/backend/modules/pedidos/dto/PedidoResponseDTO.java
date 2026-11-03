@@ -20,5 +20,7 @@ public record PedidoResponseDTO(
         BigDecimal total,
         LocalDateTime fechaCreacion,
         LocalDateTime limiteCancelacion,
-        List<DetallePedidoResponseDTO> detalles
+        List<DetallePedidoResponseDTO> detalles,
+        String complejidadMaxima,
+        Integer tiempoPreparacionMaximoMinutos
 ) {}

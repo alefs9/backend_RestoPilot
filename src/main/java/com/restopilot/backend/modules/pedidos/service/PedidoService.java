@@ -200,19 +200,9 @@ public class PedidoService {
     }
 
     private int calcularTiempoMaximoPreparacion(Pedido pedido) {
-        return platos(pedido).stream().map(Plato::getTiempoPreparacionMinutos).filter(Objects::nonNull).mapToInt(Integer::intValue).max().orElse(0);
+        return com.restopilot.backend.modules.pedidos.model.PedidoPrioridad.tiempoParaOrden(pedido);
     }
-
     private int calcularComplejidadMaxima(Pedido pedido) {
-        return platos(pedido).stream().mapToInt(plato -> switch (plato.getComplejidad() == null ? "" : plato.getComplejidad().trim().toUpperCase(Locale.ROOT)) {
-            case "ALTA" -> 3;
-            case "MEDIA" -> 2;
-            case "BAJA" -> 1;
-            default -> 0;
-        }).max().orElse(0);
-    }
-
-    private List<Plato> platos(Pedido pedido) {
-        return pedido.getDetalles() == null ? List.of() : pedido.getDetalles().stream().map(DetallePedido::getPlato).filter(Objects::nonNull).toList();
+        return com.restopilot.backend.modules.pedidos.model.PedidoPrioridad.complejidad(pedido);
     }
 }

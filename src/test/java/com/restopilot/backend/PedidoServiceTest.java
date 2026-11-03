@@ -150,7 +150,7 @@ class PedidoServiceTest {
         // Mock simple del Mapper
         when(pedidoMapper.toResponse(any(Pedido.class))).thenAnswer(invocation -> {
             Pedido p = invocation.getArgument(0);
-            return new PedidoResponseDTO(p.getId(), null, null, null, null, null, null, null, null, null, p.getFechaCreacion(), null, null);
+            return new PedidoResponseDTO(p.getId(), null, null, null, null, null, null, null, null, null, p.getFechaCreacion(), null, null, null, null);
         });
 
         Page<PedidoResponseDTO> resultado = pedidoService.getPendientesCocina(PageRequest.of(0, 10));
