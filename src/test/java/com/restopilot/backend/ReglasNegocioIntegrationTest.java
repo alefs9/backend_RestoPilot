@@ -339,9 +339,9 @@ class ReglasNegocioIntegrationTest {
         assertEquals(0, notificaciones.count());
     }
 
-    @Test void disponibilidadRechazaHoraPasadaYRestauranteInactivo() {
-        assertThrows(BusinessRuleException.class, () -> reservas.consultarDisponibilidad(
-                restaurante.getId(), fecha, LocalTime.of(9, 0), LocalTime.of(10, 0), 2));
+    @Test void disponibilidadPermiteConsultaPasadaPeroEscrituraLaRechazaYRespetaRestauranteInactivo() {
+        assertTrue(reservas.consultarDisponibilidad(
+                restaurante.getId(), fecha, LocalTime.of(9, 0), LocalTime.of(10, 0), 2).getFirst().disponible());
         assertThrows(BusinessRuleException.class, () -> reservar(LocalTime.of(9, 0), LocalTime.of(10, 0)));
         restaurante.setActivo(false); restauranteRepository.saveAndFlush(restaurante);
         assertThrows(BusinessRuleException.class, () -> reservas.consultarDisponibilidad(
