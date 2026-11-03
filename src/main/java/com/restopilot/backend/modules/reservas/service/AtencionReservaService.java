@@ -38,9 +38,10 @@ public class AtencionReservaService {
         if (r.getLlegadaRegistradaEn() != null)
             throw new BusinessRuleException("La llegada ya fue registrada.");
         // Se vuelve a evaluar tras adquirir el bloqueo por si transcurrió el límite.
-        if (ReglasCicloReserva.vencida(r, LocalDateTime.now(clock)))
+        LocalDateTime ahora = LocalDateTime.now(clock);
+        if (!ReglasCicloReserva.puedeRegistrarLlegada(r, ahora))
             throw new BusinessRuleException("La tolerancia de llegada ya venció.");
-        r.setLlegadaRegistradaEn(LocalDateTime.now(clock));
+        r.setLlegadaRegistradaEn(ahora);
         reservas.saveAndFlush(r);
         notificaciones.enviar(r.getUsuario().getId(), "Reserva #" + id + ": llegada registrada.");
         return mapper.toResponse(r).conMensaje("Llegada registrada con éxito.");
@@ -52,7 +53,7 @@ public class AtencionReservaService {
         if (r.getLlegadaRegistradaEn() == null)
             throw new BusinessRuleException("Debe registrar la llegada antes de completar la reserva.");
         LocalDateTime ahora = LocalDateTime.now(clock);
-        if (ahora.isBefore(ReglasCicloReserva.inicio(r)))
+        if (!ReglasCicloReserva.puedeCompletar(r, ahora))
             throw new BusinessRuleException("No se puede completar antes de la hora de inicio.");
         r.setEstado(EstadoReserva.COMPLETADA);
         r.setCompletadaEn(ahora);

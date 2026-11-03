@@ -29,7 +29,10 @@ public record ReservaResponseDTO(
         LocalDateTime completadaEn,
         LocalDateTime expiradaEn,
         @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
-        String mensaje
+        String mensaje,
+        LocalDateTime fechaHoraServidor,
+        boolean puedeRegistrarLlegada,
+        boolean puedeCompletar
 ) {
     public ReservaResponseDTO(
             Long id,
@@ -48,10 +51,15 @@ public record ReservaResponseDTO(
             LocalDateTime creadoEn,
             String motivoRechazo
     ) {
-        this(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre, fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo, null, null, null, null);
+        this(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre, fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo, null, null, null, null, null, false, false);
     }
 
+    public ReservaResponseDTO conControles(LocalDateTime ahora, boolean llegada, boolean completar) {
+        return new ReservaResponseDTO(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre,
+                fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo,
+                llegadaRegistradaEn, completadaEn, expiradaEn, mensaje, ahora, llegada, completar);
+    }
     public ReservaResponseDTO conMensaje(String mensaje) {
-        return new ReservaResponseDTO(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre, fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo, llegadaRegistradaEn, completadaEn, expiradaEn, mensaje);
+        return new ReservaResponseDTO(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre, fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo, llegadaRegistradaEn, completadaEn, expiradaEn, mensaje, fechaHoraServidor, puedeRegistrarLlegada, puedeCompletar);
     }
 }
