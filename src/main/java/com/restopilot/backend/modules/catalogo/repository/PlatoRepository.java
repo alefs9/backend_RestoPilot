@@ -10,5 +10,6 @@ import java.util.List;
 public interface PlatoRepository extends JpaRepository<Plato, Long> {
     List<Plato> findByRestauranteId(Long restauranteId);
     List<Plato> findByRestauranteIdAndCategoriaId(Long restauranteId, Long categoriaId);
+    boolean existsByCategoriaId(Long categoriaId);
     List<Plato> findByCategoriaId(Long categoriaId);
 }
