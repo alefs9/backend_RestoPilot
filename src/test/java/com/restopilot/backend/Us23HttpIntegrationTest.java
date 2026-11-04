@@ -126,4 +126,32 @@ class Us23HttpIntegrationTest {
   }
  }
 
+ @Test
+ @org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named="RUN_US23_BROWSER",matches="true")
+ void navegadorAngularConJwtYJpaReales() throws Exception {
+  var r=restaurantes.findById(local).orElseThrow();r.setNombre("La Mesa Verde");restaurantes.saveAndFlush(r);
+  long principal=0;
+  String[] nombres={"Platos de fondo","Entradas","Bebidas"};
+  String[] descripciones={"Nuestros clásicos de siempre","Para comenzar a compartir","Acompañamientos para cada momento"};
+  for(int i=0;i<nombres.length;i++){
+   var c=new Categoria();c.setRestauranteId(local);c.setNombre(nombres[i]);c.setDescripcion(descripciones[i]);c=categorias.saveAndFlush(c);
+   if(i==0)principal=c.getId();
+  }
+  var plato=new Plato();plato.setRestauranteId(local);plato.setCategoria(categorias.findById(principal).orElseThrow());plato.setNombre("Plato asociado US23");plato.setPrecio(BigDecimal.TEN);platos.saveAndFlush(plato);
+  String correo=UUID.randomUUID()+"@us23-browser.test";
+  String password=UUID.randomUUID()+"aA1!";
+  usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Operación de prueba US23").correo(correo).passwordHash(encoder.encode(password)).rol(Rol.ADMINISTRADOR).restaurante(r).habilitado(true).build());
+  var process=new ProcessBuilder(System.getenv("US23_NODE"),System.getenv("US23_BROWSER_SCRIPT"));
+  process.environment().put("US23_API","http://localhost:"+port);
+  process.environment().put("US23_EMAIL",correo);process.environment().put("US23_PASSWORD",password);
+  process.environment().put("US23_CATEGORY_ID",String.valueOf(principal));
+  process.redirectErrorStream(true);
+  var log=java.nio.file.Path.of("target/us23-browser.log");process.redirectOutput(log.toFile());
+  var running=process.start();
+  if(!running.waitFor(150,java.util.concurrent.TimeUnit.SECONDS)){running.destroyForcibly();fail("El recorrido excedió 150 segundos; revisar target/us23-browser.log.");}
+  assertEquals(0,running.exitValue(),"Recorrido Angular fallido: revisar target/us23-browser.log (sin credenciales).");
+  assertTrue(categorias.existsById(principal));assertTrue(platos.existsByCategoriaId(principal));
+  assertEquals(3,categorias.findByRestauranteId(local).size(),"El recorrido crea, edita y elimina únicamente su categoría de prueba.");
+ }
+
 }
