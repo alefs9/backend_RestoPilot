@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-05",
+  "project": "unvxosrwqmcwrtxplrsf",
+  "schema": "restopilot",
+  "restored": true,
+  "seeded": true,
+  "counts": [
+    {
+      "table": "categorias",
+      "count": 4
+    },
+    {
+      "table": "detalles_pedido",
+      "count": 10
+    },
+    {
+      "table": "mesas",
+      "count": 7
+    },
+    {
+      "table": "notificaciones",
+      "count": 3
+    },
+    {
+      "table": "pagos",
+      "count": 6
+    },
+    {
+      "table": "pedidos",
+      "count": 7
+    },
+    {
+      "table": "platos",
+      "count": 7
+    },
+    {
+      "table": "reservas",
+      "count": 8
+    },
+    {
+      "table": "restaurantes",
+      "count": 3
+    },
+    {
+      "table": "usuarios",
+      "count": 7
+    }
+  ],
+  "schemaPublicAccess": false,
+  "publicTables": 0,
+  "invalidTotals": 0,
+  "expired": 1,
+  "clientTls": true,
+  "api": {
+    "checks": 17,
+    "passed": true,
+    "port": 8081
+  },
+  "browser": {
+    "cases": 22,
+    "passed": true,
+    "viewports": [
+      390,
+      1440
+    ],
+    "mockedResponses": false,
+    "httpRedirect": false,
+    "login": "AuthService desde harness; formulario de acceso pendiente"
+  },
+  "seed": {
+    "idempotentLocal": true,
+    "credentialsInRepository": false,
+    "cancelWindowMinutes": 5
+  },
+  "mcp": {
+    "configured": true,
+    "oauth": true
+  }
+}

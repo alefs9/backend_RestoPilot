@@ -12,6 +12,9 @@ spring:
     # Las migraciones se aplican de forma explicita; el arranque no cambia la nube.
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: restopilot
     show-sql: false
 
 restopilot:
