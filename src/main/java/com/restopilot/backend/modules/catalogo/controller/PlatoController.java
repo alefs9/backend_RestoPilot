@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +68,7 @@ public class PlatoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<PlatoResponseDTO> crear(
-            @RequestBody PlatoRequestDTO dto) {
+            @Valid @RequestBody PlatoRequestDTO dto) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(platoService.crear(dto));
@@ -78,7 +79,7 @@ public class PlatoController {
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
     public ResponseEntity<PlatoResponseDTO> actualizar(
             @PathVariable Long id,
-            @RequestBody PlatoRequestDTO dto) {
+            @Valid @RequestBody PlatoRequestDTO dto) {
 
         return ResponseEntity.ok(platoService.actualizar(id, dto));
     }

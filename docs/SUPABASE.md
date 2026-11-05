@@ -64,3 +64,7 @@ Sustituir el marcador por un hash BCrypt válido, nunca por una contraseña en t
 - MCP Supabase añadido y autenticado con OAuth. Sus herramientas pueden requerir recargar la sesión; esta importación se realizó mediante PostgreSQL.
 
 No se desplegó la API ni el frontend. Para un despliegue posterior, `apiUrl` debe apuntar a la URL pública de Spring Boot, no a la URL de Supabase.
+
+## Corrección de integridad del Sprint 2
+
+Después de los scripts 001–003, ejecutar `docs/sql/004_cierre_sprint2.sql`. Agrega unicidad de número de mesa por restaurante y ajusta solo los tiempos inválidos de los platos demo. Aborta sin borrar datos si existen duplicados. Aplicado y verificado el 2026-11-05; evidencia en `docs/evidencias/cierre-backend/resultado.json`.

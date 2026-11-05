@@ -113,6 +113,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatusCode()).body(error);
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingRoute(Exception ex) {
+        return error(HttpStatus.NOT_FOUND, "La ruta solicitada no existe.");
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnsupportedMethod(org.springframework.web.HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+            .allow(ex.getSupportedHttpMethods() == null ? new org.springframework.http.HttpMethod[0] :
+                ex.getSupportedHttpMethods().toArray(org.springframework.http.HttpMethod[]::new))
+            .body(Map.of("status",405,"mensaje","El método HTTP no está permitido en esta ruta."));
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> handleUnsupportedMedia(Exception ex) {
+        return error(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "El tipo de contenido enviado no está admitido.");
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
         Map<String, Object> error = new HashMap<>();

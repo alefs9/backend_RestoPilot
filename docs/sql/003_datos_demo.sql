@@ -96,13 +96,13 @@ BEGIN
         WHERE NOT EXISTS (SELECT FROM categorias WHERE restaurante_id=item.local_id AND nombre=item.category_name);
     END LOOP;
     FOR item IN SELECT * FROM (VALUES
-      (restaurant_id,'Fondos','Lomo saltado',38.00,'Carne, cebolla, tomate, papa y arroz','Soya','ALTA',30,true),
-      (restaurant_id,'Fondos','Ají de gallina',28.00,'Pollo, ají amarillo, leche y pan','Gluten, lácteos','MEDIA',25,true),
-      (restaurant_id,'Fondos','Arroz con mariscos',32.00,'Arroz, mariscos y verduras','Mariscos','ALTA',35,true),
-      (restaurant_id,'Entradas','Causa limeña',18.00,'Papa amarilla, pollo, palta y mayonesa','Huevo','BAJA',10,true),
-      (restaurant_id,'Bebidas y postres','Chicha morada',8.00,'Maíz morado, piña y canela','Sin alérgenos declarados','BAJA',3,true),
-      (restaurant_id,'Bebidas y postres','Suspiro limeño',13.00,'Leche, azúcar y huevo','Huevo, lácteos','MEDIA',15,false),
-      (other_restaurant_id,'Carta de otro local','Pasta de otro local',25.00,'Pasta y verduras','Gluten','MEDIA',20,true)
+      (restaurant_id,'Fondos','Lomo saltado',38.00,'Carne, cebolla, tomate, papa y arroz','Soya','ALTA',14,true),
+      (restaurant_id,'Fondos','Ají de gallina',28.00,'Pollo, ají amarillo, leche y pan','Gluten, lácteos','MEDIA',12,true),
+      (restaurant_id,'Fondos','Arroz con mariscos',32.00,'Arroz, mariscos y verduras','Mariscos','ALTA',15,true),
+      (restaurant_id,'Entradas','Causa limeña',18.00,'Papa amarilla, pollo, palta y mayonesa','Huevo','BAJA',8,true),
+      (restaurant_id,'Bebidas y postres','Chicha morada',8.00,'Maíz morado, piña y canela','Sin alérgenos declarados','BAJA',5,true),
+      (restaurant_id,'Bebidas y postres','Suspiro limeño',13.00,'Leche, azúcar y huevo','Huevo, lácteos','MEDIA',10,false),
+      (other_restaurant_id,'Carta de otro local','Pasta de otro local',25.00,'Pasta y verduras','Gluten','MEDIA',10,true)
     ) AS dishes(local_id,category_name,dish_name,price,ingredients,allergens,complexity,minutes,available) LOOP
         SELECT id INTO category_id FROM categorias WHERE restaurante_id=item.local_id AND nombre=item.category_name ORDER BY id LIMIT 1;
         INSERT INTO platos(restaurante_id,categoria_id,nombre,descripcion,precio,ingredientes,alergenos,complejidad,tiempo_preparacion_minutos,disponible,imagen_url,creado_en,actualizado_en)
