@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-05",
+  "scope": "27 historias backend del Sprint 2; US03 y US04 IA excluidas",
+  "branch": "fix/backend-sprint2-completo",
+  "build": "passed",
+  "maven": {
+    "registered": 129,
+    "passed": 128,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "skipReason": "US23 visual opcional"
+  },
+  "postgresql": {
+    "isolated": true,
+    "folders": [
+      {
+        "folder": "02",
+        "requests": {
+          "total": 26,
+          "failed": 0
+        },
+        "assertions": {
+          "total": 78,
+          "failed": 0
+        }
+      },
+      {
+        "folder": "03",
+        "requests": {
+          "total": 93,
+          "failed": 0
+        },
+        "assertions": {
+          "total": 265,
+          "failed": 0
+        }
+      },
+      {
+        "folder": "05",
+        "requests": {
+          "total": 38,
+          "failed": 0
+        },
+        "assertions": {
+          "total": 117,
+          "failed": 0
+        }
+      },
+      {
+        "folder": "04",
+        "requests": {
+          "total": 94,
+          "pending": 0,
+          "failed": 0
+        },
+        "assertions": {
+          "total": 294,
+          "pending": 0,
+          "failed": 0
+        },
+        "fixtureErrors": [],
+        "failures": []
+      }
+    ],
+    "totalRequests": 251,
+    "totalAssertions": 754
+  },
+  "supabase": {
+    "schema": "restopilot",
+    "migration004": {
+      "uniqueMesaIndex": true,
+      "duplicateMesaGroups": 0,
+      "invalidDemoPreparation": 0
+    },
+    "httpChecks": 17,
+    "httpPassed": true
+  },
+  "limits": [
+    "No incluye frontend pendiente ni despliegue público.",
+    "La cobertura acredita los escenarios ejecutados.",
+    "La corrida directa inicial de carpeta 04 falló por falta de fixtures; la corrida con fixtures pasó.",
+    "Postman CLI no publicó resultados por falta de sesión; las aserciones locales se verificaron."
+  ]
+}

@@ -1,0 +1,84 @@
+package com.restopilot.backend.modules.pedidos.controller;
+
+import com.restopilot.backend.modules.pedidos.dto.PedidoRequestDTO;
+import com.restopilot.backend.modules.pedidos.dto.PedidoResponseDTO;
+import com.restopilot.backend.modules.pedidos.entity.EstadoPedido;
+import com.restopilot.backend.modules.pedidos.service.PedidoService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/pedidos")
+@RequiredArgsConstructor
+public class PedidoController {
+
+    private final PedidoService pedidoService;
+
+    // POST (Crear pedido - US11)
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('CLIENTE')")
+    public PedidoResponseDTO crearPedido(@Valid @RequestBody PedidoRequestDTO request) {
+        return pedidoService.crearPedido(request);
+    }
+
+    // GET (Consultar historial del cliente - US07)
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<Map<String, Object>> getMisPedidos(Pageable pageable) {
+        Page<PedidoResponseDTO> pedidos = pedidoService.getMisPedidos(pageable);
+        String mensaje = pedidos.getTotalElements() == 0
+                ? "No se encontraron pedidos en el historial."
+                : "Historial de pedidos obtenido correctamente.";
+        return ResponseEntity.ok(Map.of(
+                "mensaje", mensaje,
+                "pedidos", pedidos.getContent(),
+                "totalElementos", pedidos.getTotalElements(),
+                "totalPaginas", pedidos.getTotalPages()
+        ));
+    }
+
+    // GET (Consultar detalle por ID - US12)
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
+    public PedidoResponseDTO getById(@PathVariable Long id) {
+        return pedidoService.getById(id);
+    }
+
+    // GET (Consultar cola de cocina priorizada - US15)
+    @GetMapping("/pendientes")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public Page<PedidoResponseDTO> getPendientesCocina(Pageable pageable) {
+        return pedidoService.getPendientesCocina(pageable);
+    }
+
+    // PUT (Actualizar pedido completo)
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public PedidoResponseDTO actualizarPedidoCompleto(@PathVariable Long id, @Valid @RequestBody PedidoRequestDTO request) {
+        return pedidoService.actualizarPedido(id, request);
+    }
+
+    // PATCH / UPDATE (Actualizar solo el estado - US19)
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public PedidoResponseDTO actualizarEstado(@PathVariable Long id, @RequestParam EstadoPedido nuevoEstado) {
+        return pedidoService.actualizarEstado(id, nuevoEstado);
+    }
+
+    // DELETE (Eliminar/Cancelar pedido de forma manual administrativa)
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DUENO')")
+    public void eliminarPedido(@PathVariable Long id) {
+        pedidoService.eliminarPedido(id);
+    }
+}

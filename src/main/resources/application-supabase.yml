@@ -1,0 +1,22 @@
+# PostgreSQL de Supabase. Activar con SPRING_PROFILES_ACTIVE=supabase.
+# DB_URL debe ser JDBC, usar el Session pooler (5432) o conexion directa.
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      data-source-properties:
+        sslmode: require
+  jpa:
+    # Las migraciones se aplican de forma explicita; el arranque no cambia la nube.
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: restopilot
+    show-sql: false
+
+restopilot:
+  demo:
+    enabled: false

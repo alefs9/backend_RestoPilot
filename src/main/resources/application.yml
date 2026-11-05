@@ -1,0 +1,32 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: RestoPilot API
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  # Clave secreta HMAC en Base64
+  secret: ${JWT_SECRET}
+  # Tiempo de vida del token 24 horas
+  expiration: ${JWT_EXPIRATION:86400000}
+
+restopilot:
+  demo:
+    enabled: ${DEMO_ENABLED:false}
+  reservas:
+    expiracion:
+      enabled: ${RESERVAS_EXPIRACION_ENABLED:true}
+      intervalo-ms: 30000

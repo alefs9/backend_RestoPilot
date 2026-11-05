@@ -1,0 +1,189 @@
+{
+  "archivos": [
+    {
+      "ruta": ".dockerignore",
+      "sha256": "ea9373097d6e07690f144233d8151d7a749f24bb62f20018211d2d00c8faa095",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": ".env.example",
+      "sha256": "0e8560e01282d93912f6db0e8b6b51a913716c4acca10e6e67d7db1105e571e2",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": ".gitattributes",
+      "sha256": "4a79e996a5c00d24518f80cc6e08659312c46b7bccd903e838e2b205bae0d8d7",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": ".mvn/wrapper/maven-wrapper.properties",
+      "sha256": "f120343eb078d4ee8982d5ce239fc564eda5f6574fa35ca8cb69e607427b0e8c",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "CAMBIOS_APLICADOS.md",
+      "sha256": "043cf07e1f24b379d54eee716836dff4acee28ec7d744f29796ca803336d8027",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "Dockerfile",
+      "sha256": "ad50b63236939e9f98f6897e3acc0ba16e877972b50a723d14bf7af9df58168b",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "README.md",
+      "sha256": "c32cfb9bd59c155269cc59943c8b45369fbb507c05a13d358d6548ef7ca50ece",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "README_CORRECCIONES.md",
+      "sha256": "d2881822fd995e671189f4c4fe9e594c4c79df6f0500d76de15add1b1d2d4d0e",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "compose.yaml",
+      "sha256": "03b917b8822e6ec46e794d478c24694578e2daf2676d4d99c7d63d68f7db9869",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "docs/sql/auditoria_constraints.sql",
+      "sha256": "5c484144ea9664c89e200fa9935935bd19c669a90ce0fbed89290936c8cc0e4d",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "mvnw",
+      "sha256": "dc4f9229ac8687e2dbb534a8669498aecca4028aa339daaa72b9a1180129b441",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "postman/README.md",
+      "sha256": "d8183509a0aa807bde81e94a03d94b4fc965407959ed1b6171d73550f66efa2c",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "postman/local.postman_environment.json",
+      "sha256": "0d3fa11287e22af0d28e5fa4692dd44f1459ba1ae46b0a569ab14d6879dcddaa",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "postman/postman_collection.json",
+      "sha256": "8ba4929b8c2a1a04cd78cd099e253e76b48cf370b497348f09f8859ea1d83a76",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "scripts/migrar-auditoria.ps1",
+      "sha256": "d069d6b37805e089b2f66766b660cb7e5fc31bdb119f1c56ddfb212e5c1ca6eb",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "scripts/preparar-env.ps1",
+      "sha256": "92cf510435c22debb9db108b79c21aeec4b5fddaec03051487498e5839f84953",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "scripts/verificar.ps1",
+      "sha256": "fd4b8f5d6740bac66f32d946ef1ef8f67bd4cd04f8963ea949fe87b3a5a0989c",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/config/DataInitializer.java",
+      "sha256": "50b9262fa2420a3e75b1a81940bc8f3809ff547d1fbcc4ac16ec05bb7f94a156",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/core/exception/GlobalExceptionHandler.java",
+      "sha256": "c569b161faa48169bcaf7f663cca242f24da867e7d205a04b52b72f7adf46578",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/pedidos/controller/PedidoController.java",
+      "sha256": "8f945db7d923118c34a9fec93b3cf379be0ffd013f7ea5d89ed3e077c7fa530f",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/controller/MesaController.java",
+      "sha256": "d966d713ade8e43ef1d53df7e2d12327047069e31da6bb652a23335d27e4b33a",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/controller/ReservaController.java",
+      "sha256": "db76a0ddcfbb0b8b60ee83828b3c9c1368e6abe38b9d710f96463cee811b464e",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/dto/MesaResponseDTO.java",
+      "sha256": "b4447612adb1515cad26b4ad2ec2bf813398e10e95e5dc4f9884016076256f27",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/dto/ReservaResponseDTO.java",
+      "sha256": "dc45b61700c83f30954341aa0d068dfbfceda6d057235efde70a9698b47f330b",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/mapper/MesaMapper.java",
+      "sha256": "b85d5fa50d02fcf94a46a7517c66e83fbf14cd80a54cc29306f216fef6c35d52",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/mapper/ReservaMapper.java",
+      "sha256": "15d8b26e8db782ad098d76f2d8ee2aa981ed9f020d7bcce0bf3f98354d4288ce",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/modules/reservas/service/ReservaService.java",
+      "sha256": "c8a9aab02b1e7ab77d1b788abdd6a77cbf93c1e0796c1edd68ddea1e0664d926",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/java/com/restopilot/backend/security/JwtService.java",
+      "sha256": "472ee175ae684bc5cf9091a46543d1a3cb816ab82b8e38cfbb9cc806d296629e",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/main/resources/application.yml",
+      "sha256": "4162e82433b8fe8591c6fa96a0b466335850a370ad79f49293b69c55cfa54bbf",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/test/java/com/restopilot/backend/AltaPersonalIntegrationTest.java",
+      "sha256": "130a400253b995770317737d49b2e528dd2fbd1ea764e7200c66ad7d3e4384db",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "src/test/java/com/restopilot/backend/DataInitializerConditionTest.java",
+      "sha256": "ccd40a8ded02e70142f27331d53005e866cf10acda3b4179d5d36aeb5f92a825",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "src/test/java/com/restopilot/backend/JwtAccessIntegrationTest.java",
+      "sha256": "33762267ce48d78ad7f17331cc155873354b9ba7542522fae6fc577ec7ebdc99",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "src/test/java/com/restopilot/backend/ReglasNegocioIntegrationTest.java",
+      "sha256": "8542bcd11f4094a1eb2c482d725c80414d0174dad32040bdab44f3afae32c317",
+      "accion": "reemplazar"
+    },
+    {
+      "ruta": "validacion/completa-1.json",
+      "sha256": "7c6d005baeaa0025487d0eaf93f37eb44568bdddcec448e71ae6c92aa1ac1e0e",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "validacion/completa-2.json",
+      "sha256": "1c3648c2fd62f62e3b0bbfcc61fe543be293c73fba88b8f9f1849bb604a16e3f",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "validacion/flujo-independiente.json",
+      "sha256": "805c39b8efa1d7b85e72c4359bf7c4588b68f53d354b16fe56f15567e786f159",
+      "accion": "agregar"
+    },
+    {
+      "ruta": "validacion/resumen.json",
+      "sha256": "7236ae01da99f02bb91ab356a32efd94d546ece6c19fa2aa7741a4b92bbac79f",
+      "accion": "agregar"
+    }
+  ]
+}

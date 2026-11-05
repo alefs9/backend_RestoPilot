@@ -1,0 +1,506 @@
+{
+  "resumen": {
+    "ejecucion": "flujo-independiente",
+    "requests": 26,
+    "request_errors": 0,
+    "assertions": 78,
+    "assertion_failures": 0,
+    "fallos_totales": 0
+  },
+  "solicitudes": [
+    {
+      "nombre": "01 Registrar dueño y restaurante",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Rol dueño",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura ownerToken",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura restauranteId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "02 Registrar segundo dueño",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura otroToken",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura otroRestauranteId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "03 Incorporar administrador",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Empleado sin secretos",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "04 Login administrador",
+      "metodo": "POST",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura adminToken",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "05 Registrar cliente",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura clienteToken",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "06 Registrar otro cliente",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura otroClienteToken",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "07 Crear categoría",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura categoriaId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "08 Crear categoría vacía",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura categoriaVaciaId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "09 Publicar plato",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura platoId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "10 Crear mesa para reservas",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Mensaje de alta",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura mesaId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "11 Crear mesa para gestión",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura mesaGestionId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente consulta carta",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Carta",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente consulta disponibilidad",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Disponible",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente reserva",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura reservaId",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente pide delivery",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura pedidoId",
+          "correcta": true
+        },
+        {
+          "nombre": "Captura pedidoTotal",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente revisa historial",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Pedido",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Dueño confirma",
+      "metodo": "PATCH",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Dueño EN_PREPARACION",
+      "metodo": "PATCH",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Dueño LISTO",
+      "metodo": "PATCH",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Dueño ENTREGADO",
+      "metodo": "PATCH",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Dueño cobra",
+      "metodo": "POST",
+      "http": 201,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 201",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Dueño revisa reporte",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Ventas",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente ve reserva confirmada",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Confirmada",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente ve entregado",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Entregado",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente ve pago",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Pagado",
+          "correcta": true
+        }
+      ]
+    },
+    {
+      "nombre": "Cliente recibe notificaciones",
+      "metodo": "GET",
+      "http": 200,
+      "aserciones": [
+        {
+          "nombre": "Sin errores internos inesperados",
+          "correcta": true
+        },
+        {
+          "nombre": "HTTP 200",
+          "correcta": true
+        },
+        {
+          "nombre": "Notificaciones",
+          "correcta": true
+        }
+      ]
+    }
+  ]
+}

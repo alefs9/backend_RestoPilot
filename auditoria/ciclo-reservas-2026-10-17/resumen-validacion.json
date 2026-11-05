@@ -1,0 +1,33 @@
+{
+  "baseCommit": "3f23c2e2bb651d0958fab96f296f34dcd40618e6",
+  "branch": "fix/corregir_errores",
+  "codigo": "Cambios locales de esta sesion; no se crearon commits",
+  "java": 21,
+  "suiteCompleta": {
+    "pruebas": 69,
+    "fallos": 0,
+    "errores": 0,
+    "motor": "H2/Mockito/MockMvc y JWT HTTP"
+  },
+  "cicloPostgreSQL": {
+    "pruebas": 19,
+    "fallos": 0,
+    "errores": 0,
+    "motor": "PostgreSQL16 esquema efimero con Clock controlado, servicios y MockMvc"
+  },
+  "coleccionCompleta": {
+    "solicitudesGuardadas": 350,
+    "peticionesHttp": 354,
+    "aserciones": 1049,
+    "fallos": 0,
+    "exitCode": 0,
+    "motor": "HTTP real en Docker contra PostgreSQL restopilot_audit"
+  },
+  "rutas": {
+    "controladores": 46,
+    "documentadas": 46,
+    "representadasEnColeccion": 46
+  },
+  "migracion": "Aplicada solo en restopilot_audit; sin borrar reservas",
+  "docker": "Build y arranque Java21 verificados"
+}

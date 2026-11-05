@@ -1,0 +1,65 @@
+package com.restopilot.backend.modules.reservas.dto;
+
+import com.restopilot.backend.modules.reservas.entity.EstadoReserva;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+/**
+ * DTO de salida con el detalle completo de una reserva registrada.
+ */
+public record ReservaResponseDTO(
+        Long id,
+        Long mesaId,
+        Integer mesaNumero,
+        Long restauranteId,
+        String restauranteNombre,
+        Long clienteId,
+        String clienteNombre,
+        LocalDate fecha,
+        LocalTime horaInicio,
+        LocalTime horaFin,
+        Integer numeroComensales,
+        EstadoReserva estado,
+        String notas,
+        LocalDateTime creadoEn,
+        String motivoRechazo,
+        LocalDateTime llegadaRegistradaEn,
+        LocalDateTime completadaEn,
+        LocalDateTime expiradaEn,
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+        String mensaje,
+        LocalDateTime fechaHoraServidor,
+        boolean puedeRegistrarLlegada,
+        boolean puedeCompletar
+) {
+    public ReservaResponseDTO(
+            Long id,
+            Long mesaId,
+            Integer mesaNumero,
+            Long restauranteId,
+            String restauranteNombre,
+            Long clienteId,
+            String clienteNombre,
+            LocalDate fecha,
+            LocalTime horaInicio,
+            LocalTime horaFin,
+            Integer numeroComensales,
+            EstadoReserva estado,
+            String notas,
+            LocalDateTime creadoEn,
+            String motivoRechazo
+    ) {
+        this(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre, fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo, null, null, null, null, null, false, false);
+    }
+
+    public ReservaResponseDTO conControles(LocalDateTime ahora, boolean llegada, boolean completar) {
+        return new ReservaResponseDTO(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre,
+                fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo,
+                llegadaRegistradaEn, completadaEn, expiradaEn, mensaje, ahora, llegada, completar);
+    }
+    public ReservaResponseDTO conMensaje(String mensaje) {
+        return new ReservaResponseDTO(id, mesaId, mesaNumero, restauranteId, restauranteNombre, clienteId, clienteNombre, fecha, horaInicio, horaFin, numeroComensales, estado, notas, creadoEn, motivoRechazo, llegadaRegistradaEn, completadaEn, expiradaEn, mensaje, fechaHoraServidor, puedeRegistrarLlegada, puedeCompletar);
+    }
+}

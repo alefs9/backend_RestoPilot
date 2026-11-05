@@ -1,0 +1,1712 @@
+{
+  "target": "http://localhost:18082",
+  "postgresql": "restopilot_audit:55439",
+  "stats": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 91,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 185,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 91,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 93,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 91,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 265,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 182,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 3,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "failures": [],
+  "requests": [
+    {
+      "name": "01 Registrar dueño y restaurante",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Rol dueño",
+          "failed": false
+        },
+        {
+          "name": "Captura ownerToken",
+          "failed": false
+        },
+        {
+          "name": "Captura restauranteId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "02 Registrar segundo dueño",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura otroToken",
+          "failed": false
+        },
+        {
+          "name": "Captura otroRestauranteId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "03 Incorporar administrador",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Empleado sin secretos",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "04 Login administrador",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Captura adminToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "05 Registrar cliente",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura clienteToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "06 Registrar otro cliente",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura otroClienteToken",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "07 Crear categoría",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura categoriaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "08 Crear categoría vacía",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura categoriaVaciaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "09 Publicar plato",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura platoId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "10 Crear mesa para reservas",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Mensaje de alta",
+          "failed": false
+        },
+        {
+          "name": "Captura mesaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "11 Crear mesa para gestión",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura mesaGestionId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente ASCII71 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente ASCII71 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente ASCII72 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente ASCII72 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente sufijo distinto NO autentica",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente ASCII73 alta",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente ASCII73 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente UTF8_72 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente UTF8_72 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente UTF8_74 alta",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 cliente UTF8_74 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno ASCII71 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno ASCII71 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno ASCII72 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno ASCII72 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno sufijo distinto NO autentica",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno ASCII73 alta",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno ASCII73 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno UTF8_72 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno UTF8_72 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno UTF8_74 alta",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 dueno UTF8_74 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador ASCII71 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador ASCII71 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador ASCII72 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador ASCII72 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador sufijo distinto NO autentica",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador ASCII73 alta",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador ASCII73 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador UTF8_72 alta",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador UTF8_72 login original",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Token presente",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador UTF8_74 alta",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV01 administrador UTF8_74 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV04 nombre150",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV04 nombre151",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV04 nombre151 rechazo no ocupa correo",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV04 correo100",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV04 correo101",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 desactivar modulo para preparar",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo vacio",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo sigue desactivado tras vacio",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo null",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo sigue desactivado tras null",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo tipo invalido",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo sigue desactivado tras tipo invalido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo sin cuerpo",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 modulo sigue false sin cuerpo",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 cliente no activa modulo",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 otro local no altera el propio",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 activar modulo explicitamente",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "habilitado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa empieza activa",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa vacio",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa sigue activa tras vacio",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa null",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa sigue activa tras null",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa tipo invalido",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa sigue activa tras tipo invalido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa sin cuerpo",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 cliente no desactiva mesa",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa sin reservas puede desactivarse",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV02 mesa puede reactivarse",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 solicitar cuatro comensales",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura rvReservaId",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 PENDIENTE no desactivar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 PENDIENTE no reducir a uno",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 mesa intacta con PENDIENTE",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        },
+        {
+          "name": "capacidad esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 reserva intacta PENDIENTE",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "numeroComensales esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 confirmar compatible",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 CONFIRMADA no desactivar",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 CONFIRMADA no reducir a uno",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 400",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 mesa intacta con CONFIRMADA",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        },
+        {
+          "name": "capacidad esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 reserva intacta CONFIRMADA",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        },
+        {
+          "name": "numeroComensales esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 ampliar capacidad es valido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "capacidad esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 otra cuenta no confirma",
+      "status": 403,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "Sin clases técnicas públicas",
+          "failed": false
+        },
+        {
+          "name": "HTTP 403",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 cancelar libera compromiso",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "estado esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 despues cancelar reducir es valido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "capacidad esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 despues cancelar desactivar es valido",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "activo esperado",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 carrera crear mesa nueva",
+      "status": 201,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 201",
+          "failed": false
+        },
+        {
+          "name": "Captura rvCarreraMesaId",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 carrera ejecutar dos HTTP independientes",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Carrera sin error transporte 0",
+          "failed": false
+        },
+        {
+          "name": "Carrera sin error transporte 1",
+          "failed": false
+        },
+        {
+          "name": "Carrera mantiene una sola operacion compatible",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 carrera ejecutar dos HTTP independientes",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Carrera sin error transporte 0",
+          "failed": false
+        },
+        {
+          "name": "Carrera sin error transporte 1",
+          "failed": false
+        },
+        {
+          "name": "Carrera mantiene una sola operacion compatible",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 carrera ejecutar dos HTTP independientes",
+      "status": 400,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "Carrera sin error transporte 0",
+          "failed": false
+        },
+        {
+          "name": "Carrera sin error transporte 1",
+          "failed": false
+        },
+        {
+          "name": "Carrera mantiene una sola operacion compatible",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 carrera leer mesa despues",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        }
+      ]
+    },
+    {
+      "name": "RV03 carrera comprobar reservas posteriores",
+      "status": 200,
+      "assertions": [
+        {
+          "name": "Sin errores internos inesperados",
+          "failed": false
+        },
+        {
+          "name": "HTTP 200",
+          "failed": false
+        },
+        {
+          "name": "No hay reserva bloqueante en mesa inactiva",
+          "failed": false
+        }
+      ]
+    }
+  ]
+}
