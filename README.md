@@ -28,3 +28,7 @@ Las pruebas de integración utilizan H2 en memoria con modo PostgreSQL y un relo
 - `postman/postman_collection.json`: colección única con API por funcionalidad (incluidas US21/US22) y recorrido por etapas de dueño y cliente. Ver `postman/README.md` para estructura y ejecución.
 
 US18 registra pagos recibidos por otros medios; no se integra una pasarela. Las notificaciones están disponibles en `/api/notificaciones/me`. La interfaz Angular y el agente IA pertenecen a una fase posterior.
+
+## Cierre del Sprint 2 sin IA
+
+Ver [cobertura y resultados del backend](docs/CIERRE-BACKEND-SPRINT2.md). Documentación de la API en `/swagger-ui/index.html` y `/v3/api-docs`.

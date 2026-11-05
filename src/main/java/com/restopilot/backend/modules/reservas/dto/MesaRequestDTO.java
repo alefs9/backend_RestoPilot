@@ -17,4 +17,11 @@ public record MesaRequestDTO(
 
         @NotNull(message = "La coordenada Y es obligatoria")
         Double coordenadaY
-) {}
+) {
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @jakarta.validation.constraints.AssertTrue(message="Las coordenadas deben ser números finitos")
+    public boolean isUbicacionFinita() {
+        return (coordenadaX == null || Double.isFinite(coordenadaX)) &&
+               (coordenadaY == null || Double.isFinite(coordenadaY));
+    }
+}

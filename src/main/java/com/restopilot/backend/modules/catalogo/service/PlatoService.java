@@ -9,6 +9,7 @@ import com.restopilot.backend.modules.catalogo.mapper.PlatoMapper;
 import com.restopilot.backend.modules.catalogo.repository.PlatoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +41,10 @@ public class PlatoService {
         return platoMapper.toDto(plato);
     }
 
+    @Transactional
     public PlatoResponseDTO crear(PlatoRequestDTO dto) {
-        acceso.exigirGestion(dto.getRestauranteId());
         validarDatos(dto, true);
+        acceso.exigirGestion(dto.getRestauranteId());
         Categoria categoria = categoriaService.buscarPorId(dto.getCategoriaId());
         validarCategoria(categoria, dto.getRestauranteId());
         Plato plato = platoMapper.toEntity(dto, categoria);
@@ -50,6 +52,7 @@ public class PlatoService {
         return platoMapper.toDto(guardado);
     }
 
+    @Transactional
     public PlatoResponseDTO actualizar(Long id, PlatoRequestDTO dto) {
         Plato plato = platoRepository.findById(id)
                 .orElseThrow(() -> new PlatoNotFoundException(id));
@@ -81,6 +84,7 @@ public class PlatoService {
         return platoMapper.toDto(actualizado);
     }
 
+    @Transactional
     public PlatoResponseDTO cambiarDisponibilidad(Long id, Boolean disponible) {
         Plato plato = platoRepository.findById(id)
                 .orElseThrow(() -> new PlatoNotFoundException(id));
@@ -89,6 +93,7 @@ public class PlatoService {
         return platoMapper.toDto(platoRepository.save(plato));
     }
 
+    @Transactional
     public void eliminar(Long id) {
         Plato plato = platoRepository.findById(id).orElseThrow(() -> new PlatoNotFoundException(id));
         acceso.exigirGestion(plato.getRestauranteId());
@@ -102,11 +107,16 @@ public class PlatoService {
     }
 
     private void validarDatos(PlatoRequestDTO dto, boolean nuevo) {
-        if ((nuevo && (dto.getNombre() == null || dto.getNombre().isBlank() || dto.getCategoriaId() == null
+        if ((nuevo && (dto.getRestauranteId() == null || dto.getNombre() == null || dto.getNombre().isBlank() || dto.getCategoriaId() == null
                 || dto.getPrecio() == null || dto.getComplejidad() == null || dto.getTiempoPreparacionMinutos() == null))
                 || (dto.getNombre() != null && dto.getNombre().isBlank())
                 || (dto.getPrecio() != null && dto.getPrecio().signum() <= 0)) {
             throw new com.restopilot.backend.core.exception.BusinessRuleException("Ingrese nombre, categoría, precio positivo, complejidad y tiempo de preparación.");
+        }
+        if (dto.getNombre() != null && dto.getNombre().length() > 150 ||
+            dto.getImagenUrl() != null && dto.getImagenUrl().length() > 255 ||
+            dto.getPrecio() != null && (dto.getPrecio().scale() > 2 || dto.getPrecio().compareTo(new java.math.BigDecimal("99999999.99")) > 0)) {
+            throw new com.restopilot.backend.core.exception.BusinessRuleException("El nombre, la imagen o el precio superan sus límites permitidos.");
         }
         if (dto.getComplejidad() != null) {
             String nivel = dto.getComplejidad().trim().toUpperCase(java.util.Locale.ROOT);
