@@ -95,6 +95,30 @@ class AltaPersonalIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
     }
 
+    @Test void registroPublicoClienteNoPermiteElegirRestaurante() throws Exception {
+        long cuentasAntes = usuarios.count();
+        var datos = new HashMap<String, Object>();
+        datos.put("nombreCompleto", "Cliente de prueba"); datos.put("correo", "cliente-rechazado@test.com");
+        datos.put("password", password); datos.put("restauranteId", 1);
+        mvc.perform(post("/api/auth/register").contentType("application/json")
+                .content(json.writeValueAsString(datos))).andExpect(status().isForbidden());
+        assertEquals(cuentasAntes, usuarios.count());
+        assertFalse(usuarios.existsByCorreo("cliente-rechazado@test.com"));
+    }
+
+    @Test void registroPublicoClienteCreaCuentaSinRestaurante() throws Exception {
+        var datos = new HashMap<String, Object>();
+        datos.put("nombreCompleto", "Cliente de prueba"); datos.put("correo", "CLIENTE-NORMAL@Test.com");
+        datos.put("password", password);
+        mvc.perform(post("/api/auth/register").contentType("application/json")
+                .content(json.writeValueAsString(datos))).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.rol").value("CLIENTE"))
+                .andExpect(jsonPath("$.restauranteId").value(org.hamcrest.Matchers.nullValue()));
+        Usuario cliente = usuarios.findByCorreo("cliente-normal@test.com").orElseThrow();
+        assertEquals(Rol.CLIENTE, cliente.getRol());
+        assertNull(cliente.getRestaurante());
+    }
+
     @Test void altaDuenoCreaCuentaRestauranteYTokenConDatosAsignadosPorServidor() throws Exception {
         long locales = restaurantes.count(), cuentasAntes = usuarios.count();
         JsonNode respuesta = registrarDueno("OWNER@Test.com");
