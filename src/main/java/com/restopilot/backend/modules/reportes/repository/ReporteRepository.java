@@ -10,6 +10,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReporteRepository extends Repository<Pedido, Long> {
+    @Query("select count(p), " +
+            "coalesce(sum(case when p.estado = com.restopilot.backend.modules.pedidos.entity.EstadoPedido.ENTREGADO then 1 else 0 end), 0), " +
+            "coalesce(sum(case when p.estado <> com.restopilot.backend.modules.pedidos.entity.EstadoPedido.CANCELADO then 1 else 0 end), 0) " +
+            "from Pedido p where p.restaurante.id = :restauranteId and p.fechaCreacion >= :inicio and p.fechaCreacion < :fin")
+    List<Object[]> resumenPedidos(Long restauranteId, LocalDateTime inicio, LocalDateTime fin);
+
+    @Query("select count(r), " +
+            "coalesce(sum(case when r.estado = com.restopilot.backend.modules.reservas.entity.EstadoReserva.COMPLETADA then 1 else 0 end), 0) " +
+            "from Reserva r where r.restaurante.id = :restauranteId and r.fecha between :inicio and :fin")
+    List<Object[]> resumenReservas(Long restauranteId, LocalDate inicio, LocalDate fin);
     @Query("select count(p) from Pedido p where p.restaurante.id = :restauranteId and p.fechaCreacion >= :inicio and p.fechaCreacion < :fin")
     long contarPedidos(Long restauranteId, LocalDateTime inicio, LocalDateTime fin);
 
