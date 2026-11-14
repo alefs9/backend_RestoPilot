@@ -1,0 +1,17 @@
+# Activar solo tras verificar esquema y datos del proyecto Supabase usado por Angular.
+# DB_URL, DB_USERNAME, DB_PASSWORD, SUPABASE_AUTH_ISSUER y la clave publica se inyectan en el servidor.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: restopilot
+restopilot:
+  demo:
+    enabled: false
+  auth:
+    provider: supabase
+    supabase:
+      issuer: ${SUPABASE_AUTH_ISSUER}
+      publishable-key: ${SUPABASE_PUBLISHABLE_KEY}

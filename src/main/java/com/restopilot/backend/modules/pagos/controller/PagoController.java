@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/pedidos/{pedidoId}/pagos")
-@CrossOrigin(origins = "*")
 public class PagoController {
 
     private final PagoService pagoService;
