@@ -127,6 +127,7 @@ class PedidoServiceTest {
 
         // Pedido 1: Plato rápido (5 min) creado hace 10 minutos
         Pedido pedidoRapido = new Pedido();
+        pedidoRapido.setId(1L);
         pedidoRapido.setFechaCreacion(LocalDateTime.now().minusMinutes(10));
         Plato platoRapido = new Plato();
         platoRapido.setTiempoPreparacionMinutos(5);
@@ -136,6 +137,7 @@ class PedidoServiceTest {
 
         // Pedido 2: Plato complejo (15 min) creado recién (hace 2 min)
         Pedido pedidoComplejo = new Pedido();
+        pedidoComplejo.setId(2L);
         pedidoComplejo.setFechaCreacion(LocalDateTime.now().minusMinutes(2));
         Plato platoComplejo = new Plato();
         platoComplejo.setTiempoPreparacionMinutos(15);
@@ -143,8 +145,10 @@ class PedidoServiceTest {
         detalleComplejo.setPlato(platoComplejo);
         pedidoComplejo.setDetalles(List.of(detalleComplejo));
 
-        // El repositorio devuelve los datos sin ordenar (simulamos PostgreSQL)
-        when(pedidoRepository.findPendientesParaCocina(1L, List.of(EstadoPedido.PENDIENTE, EstadoPedido.EN_PREPARACION)))
+        // La base entrega la pÃ¡gina en el orden de prioridad solicitado.
+        when(pedidoRepository.findPendingIdsForKitchen(1L, List.of(EstadoPedido.PENDIENTE, EstadoPedido.EN_PREPARACION), PageRequest.of(0, 10)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(2L, 1L), PageRequest.of(0, 10), 2));
+        when(pedidoRepository.findDetailedByIdIn(List.of(2L, 1L)))
                 .thenReturn(List.of(pedidoRapido, pedidoComplejo));
 
         // Mock simple del Mapper

@@ -19,11 +19,21 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     // US07: Permite al cliente consultar su historial de pedidos
     Page<Pedido> findByClienteId(Long clienteId, Pageable pageable);
 
+    @Query("select distinct p from Pedido p join fetch p.restaurante join fetch p.cliente " +
+            "left join fetch p.mesa left join fetch p.detalles d left join fetch d.plato where p.id in :ids")
+    List<Pedido> findDetailedByIdIn(@Param("ids") List<Long> ids);
+
+    @Query(value = "select p.id from Pedido p left join p.detalles d left join d.plato pl " +
+            "where p.restaurante.id = :restauranteId and p.estado in :estados group by p.id " +
+            "order by max(case when upper(trim(pl.complejidad)) = 'ALTA' then 3 " +
+            "when upper(trim(pl.complejidad)) = 'MEDIA' then 2 " +
+            "when upper(trim(pl.complejidad)) = 'BAJA' then 1 else 0 end) desc, " +
+            "max(case when pl.tiempoPreparacionMinutos >= 0 then pl.tiempoPreparacionMinutos else 0 end) desc, " +
+            "p.fechaCreacion asc, p.id asc",
+            countQuery = "select count(p) from Pedido p where p.restaurante.id = :restauranteId and p.estado in :estados")
+    Page<Long> findPendingIdsForKitchen(@Param("restauranteId") Long restauranteId,
+            @Param("estados") List<EstadoPedido> estados, Pageable pageable);
+
     // US15: Consulta vital para el SaaS. Aísla los pedidos pendientes por restaurante
     // y filtra por los estados de la cocina (ej. REGISTRADO, EN_PREPARACION).
-    @Query("SELECT p FROM Pedido p WHERE p.restaurante.id = :restauranteId AND p.estado IN :estados ORDER BY p.fechaCreacion ASC")
-    List<Pedido> findPendientesParaCocina(
-            @Param("restauranteId") Long restauranteId,
-            @Param("estados") List<EstadoPedido> estados
-    );
 }
