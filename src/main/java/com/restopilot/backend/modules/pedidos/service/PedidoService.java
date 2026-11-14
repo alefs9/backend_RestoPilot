@@ -65,7 +65,11 @@ public class PedidoService {
 
     @Transactional(readOnly = true)
     public Page<PedidoResponseDTO> getMisPedidos(Pageable pageable) {
-        return pedidoRepository.findByClienteId(currentUser.get().getId(), pageable).map(pedidoMapper::toResponse);
+        Page<Pedido> page = pedidoRepository.findByClienteId(currentUser.get().getId(), pageable);
+        if (page.isEmpty()) return page.map(pedidoMapper::toResponse);
+        var byId = pedidoRepository.findDetailedByIdIn(page.getContent().stream().map(Pedido::getId).toList())
+                .stream().collect(java.util.stream.Collectors.toMap(Pedido::getId, java.util.function.Function.identity()));
+        return page.map(pedido -> pedidoMapper.toResponse(byId.get(pedido.getId())));
     }
 
     @Transactional(readOnly = true)
@@ -83,17 +87,14 @@ public class PedidoService {
     public Page<PedidoResponseDTO> getPendientesCocina(Pageable pageable) {
         Long restauranteId = currentUser.getRestauranteId();
         acceso.exigirGestion(restauranteId);
-        List<Pedido> ordenados = pedidoRepository.findPendientesParaCocina(restauranteId,
-                List.of(EstadoPedido.PENDIENTE, EstadoPedido.EN_PREPARACION)).stream()
-                .sorted(Comparator.comparingInt(this::calcularComplejidadMaxima).reversed()
-                        .thenComparing(Comparator.comparingInt(this::calcularTiempoMaximoPreparacion).reversed())
-                        .thenComparing(Pedido::getFechaCreacion, Comparator.nullsLast(Comparator.naturalOrder()))
-                        .thenComparing(Pedido::getId, Comparator.nullsLast(Comparator.naturalOrder())))
-                .toList();
-        long offset = pageable.getOffset();
-        int inicio = (int) Math.min(offset, ordenados.size());
-        int fin = (int) Math.min(offset + pageable.getPageSize(), ordenados.size());
-        return new PageImpl<>(ordenados.subList(inicio, fin).stream().map(pedidoMapper::toResponse).toList(), pageable, ordenados.size());
+        Page<Long> page = pedidoRepository.findPendingIdsForKitchen(restauranteId,
+                List.of(EstadoPedido.PENDIENTE, EstadoPedido.EN_PREPARACION),
+                org.springframework.data.domain.PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+        if (page.isEmpty()) return new PageImpl<>(List.of(), pageable, page.getTotalElements());
+        var byId = pedidoRepository.findDetailedByIdIn(page.getContent()).stream()
+                .collect(java.util.stream.Collectors.toMap(Pedido::getId, java.util.function.Function.identity()));
+        return new PageImpl<>(page.getContent().stream().map(id -> pedidoMapper.toResponse(byId.get(id))).toList(),
+                pageable, page.getTotalElements());
     }
 
     @Transactional
@@ -199,10 +200,4 @@ public class PedidoService {
         pedido.setTotal(total);
     }
 
-    private int calcularTiempoMaximoPreparacion(Pedido pedido) {
-        return com.restopilot.backend.modules.pedidos.model.PedidoPrioridad.tiempoParaOrden(pedido);
-    }
-    private int calcularComplejidadMaxima(Pedido pedido) {
-        return com.restopilot.backend.modules.pedidos.model.PedidoPrioridad.complejidad(pedido);
-    }
 }
