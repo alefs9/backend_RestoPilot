@@ -42,7 +42,9 @@ public class ReporteService {
         acceso.exigirGestion(restauranteId);
         LocalDateTime desde = inicio.atStartOfDay();
         LocalDateTime hasta = fin.plusDays(1).atStartOfDay();
-        if (repository.contarPedidos(restauranteId, desde, hasta) == 0 && repository.contarReservas(restauranteId, inicio, fin) == 0) {
+        Object[] resumenPedidos = repository.resumenPedidos(restauranteId, desde, hasta).getFirst();
+        Object[] resumenReservas = repository.resumenReservas(restauranteId, inicio, fin).getFirst();
+        if (((Number) resumenPedidos[0]).longValue() == 0 && ((Number) resumenReservas[0]).longValue() == 0) {
             return new ReporteResponseDTO("No existen datos registrados para el rango de fechas seleccionado.", null, null, null, null, null);
         }
         boolean todos = tipo == TipoReporte.CONSOLIDADO;
@@ -58,22 +60,23 @@ public class ReporteService {
         }
         boolean incluirAtenciones = todos || tipo == TipoReporte.ATENCIONES;
         Integer pedidosAtendidos = incluirAtenciones
-                ? Math.toIntExact(repository.pedidosAtendidos(restauranteId, desde, hasta)) : null;
+                ? Math.toIntExact(((Number) resumenPedidos[1]).longValue()) : null;
         Integer reservasCompletadas = incluirAtenciones
-                ? Math.toIntExact(repository.reservasAtendidas(restauranteId, inicio, fin)) : null;
+                ? Math.toIntExact(((Number) resumenReservas[1]).longValue()) : null;
         // Campo histórico: son operaciones, no visitas únicas. Consumidores nuevos usan los dos campos anteriores.
         Integer atenciones = incluirAtenciones ? Math.addExact(pedidosAtendidos, reservasCompletadas) : null;
         Double ocupacion = todos || tipo == TipoReporte.OCUPACION ? calcularOcupacion(restauranteId, inicio, fin) : null;
-        EstadoPagosDTO pagos = todos || tipo == TipoReporte.PAGOS ? calcularPagos(restauranteId, desde, hasta) : null;
+        EstadoPagosDTO pagos = todos || tipo == TipoReporte.PAGOS
+                ? calcularPagos(restauranteId, desde, hasta, ((Number) resumenPedidos[2]).longValue()) : null;
         return new ReporteResponseDTO("Reporte generado exitosamente.", platos, demanda, atenciones, ocupacion, pagos, pedidosAtendidos, reservasCompletadas);
     }
 
-    private EstadoPagosDTO calcularPagos(Long restauranteId, LocalDateTime inicio, LocalDateTime fin) {
+    private EstadoPagosDTO calcularPagos(Long restauranteId, LocalDateTime inicio, LocalDateTime fin, long pedidosNoCancelados) {
         List<Pago> confirmados = repository.pagos(restauranteId, inicio, fin).stream().filter(p -> p.getEstado() == EstadoPago.PAGADO).toList();
         BigDecimal total = confirmados.stream().map(Pago::getMonto).reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<String, Integer> metodos = new TreeMap<>();
         confirmados.stream().filter(p -> p.getMetodo() != null).forEach(p -> metodos.merge(p.getMetodo().name(), 1, Integer::sum));
-        long pendientes = repository.pedidosNoCancelados(restauranteId, inicio, fin) - confirmados.size();
+        long pendientes = pedidosNoCancelados - confirmados.size();
         return new EstadoPagosDTO(total, confirmados.size(), Math.toIntExact(pendientes), metodos);
     }
 
