@@ -36,13 +36,9 @@ public class AuthService {
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
         PasswordUtf8.validar(request.getPassword());
-        Restaurante restaurante = null;
         if (request.getRestauranteId() != null) {
-            restaurante = restauranteRepository.findById(request.getRestauranteId())
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND,
-                            "El restaurante especificado no existe."
-                    ));
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "El registro público no permite asignar un restaurante.");
         }
 
         String correoLimpio = request.getCorreo().trim().toLowerCase();
@@ -65,7 +61,7 @@ public class AuthService {
                 .correo(correoLimpio)
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .rol(rolAsignado)
-                .restaurante(restaurante)
+                .restaurante(null)
                 .habilitado(true)
                 .build();
 
