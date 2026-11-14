@@ -4,6 +4,7 @@ import com.restopilot.backend.modules.reservas.entity.EstadoReserva;
 import com.restopilot.backend.modules.reservas.entity.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -70,18 +71,23 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("estadosBloqueantes") List<EstadoReserva> estadosBloqueantes);
 
     // TSK-017: Historial de reservas de un usuario específico ordenado cronológicamente (más recientes primero)
+    @EntityGraph(attributePaths = {"mesa", "usuario", "restaurante"})
     List<Reserva> findByUsuarioIdOrderByFechaDescHoraInicioDesc(Long usuarioId);
 
     // TSK-017: Todas las reservas del restaurante ordenadas cronológicamente
+    @EntityGraph(attributePaths = {"mesa", "usuario", "restaurante"})
     List<Reserva> findByRestauranteIdOrderByFechaDescHoraInicioDesc(Long restauranteId);
 
     // TSK-017: Reservas del restaurante filtradas por fecha
+    @EntityGraph(attributePaths = {"mesa", "usuario", "restaurante"})
     List<Reserva> findByRestauranteIdAndFechaOrderByHoraInicioAsc(Long restauranteId, LocalDate fecha);
 
     // TSK-017: Reservas del restaurante filtradas por estado
+    @EntityGraph(attributePaths = {"mesa", "usuario", "restaurante"})
     List<Reserva> findByRestauranteIdAndEstadoOrderByFechaDescHoraInicioDesc(Long restauranteId, EstadoReserva estado);
 
     // TSK-017: Reservas del restaurante filtradas por fecha y estado
+    @EntityGraph(attributePaths = {"mesa", "usuario", "restaurante"})
     List<Reserva> findByRestauranteIdAndFechaAndEstadoOrderByHoraInicioAsc(Long restauranteId, LocalDate fecha, EstadoReserva estado);
 
     List<Reserva> findByMesaIdAndEstadoInAndFechaGreaterThanEqual(
