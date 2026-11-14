@@ -8,10 +8,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.restopilot.backend.modules.auth.entity.Usuario;
+import org.springframework.security.core.Authentication;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;
@@ -30,5 +32,17 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         AuthResponseDTO response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> me(Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        Map<String, Object> profile = new java.util.LinkedHashMap<>();
+        profile.put("id", usuario.getId());
+        profile.put("nombreCompleto", usuario.getNombreCompleto());
+        profile.put("correo", usuario.getCorreo());
+        profile.put("rol", usuario.getRol().name());
+        profile.put("restauranteId", usuario.getRestaurante() == null ? null : usuario.getRestaurante().getId());
+        return ResponseEntity.ok(profile);
     }
 }
