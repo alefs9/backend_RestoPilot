@@ -2,6 +2,7 @@ package com.restopilot.backend.modules.auth.service;
 
 import com.restopilot.backend.security.JwtService;
 import com.restopilot.backend.modules.auth.dto.AuthResponseDTO;
+import com.restopilot.backend.modules.auth.dto.PerfilResponseDTO;
 import com.restopilot.backend.modules.auth.dto.LoginRequestDTO;
 import com.restopilot.backend.modules.auth.dto.RegisterRequestDTO;
 import com.restopilot.backend.modules.auth.entity.Rol;
@@ -32,6 +33,20 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.restauranteRepository = restauranteRepository;
+    }
+    @Transactional
+    public PerfilResponseDTO actualizarPerfilCliente(Long usuarioId, String nombreCompleto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La cuenta no está disponible."));
+        if (usuario.getRol() != Rol.CLIENTE || !usuario.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La cuenta no puede editar este perfil.");
+        }
+        String nombre = nombreCompleto.trim();
+        if (nombre.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El nombre completo es obligatorio.");
+        }
+        usuario.setNombreCompleto(nombre);
+        return PerfilResponseDTO.from(usuario);
     }
     @Transactional
     public AuthResponseDTO register(RegisterRequestDTO request) {
