@@ -1,6 +1,8 @@
 package com.restopilot.backend.modules.auth.controller;
 
 import com.restopilot.backend.modules.auth.dto.AuthResponseDTO;
+import com.restopilot.backend.modules.auth.dto.ActualizarPerfilRequestDTO;
+import com.restopilot.backend.modules.auth.dto.PerfilResponseDTO;
 import com.restopilot.backend.modules.auth.dto.LoginRequestDTO;
 import com.restopilot.backend.modules.auth.dto.RegisterRequestDTO;
 import com.restopilot.backend.modules.auth.service.AuthService;
@@ -10,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.restopilot.backend.modules.auth.entity.Usuario;
 import org.springframework.security.core.Authentication;
-import java.util.Map;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,14 +37,16 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> me(Authentication authentication) {
+    public ResponseEntity<PerfilResponseDTO> me(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
-        Map<String, Object> profile = new java.util.LinkedHashMap<>();
-        profile.put("id", usuario.getId());
-        profile.put("nombreCompleto", usuario.getNombreCompleto());
-        profile.put("correo", usuario.getCorreo());
-        profile.put("rol", usuario.getRol().name());
-        profile.put("restauranteId", usuario.getRestaurante() == null ? null : usuario.getRestaurante().getId());
-        return ResponseEntity.ok(profile);
+        return ResponseEntity.ok(PerfilResponseDTO.from(usuario));
+    }
+
+    @PatchMapping("/me")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<PerfilResponseDTO> actualizarPerfil(
+            Authentication authentication, @Valid @RequestBody ActualizarPerfilRequestDTO request) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        return ResponseEntity.ok(authService.actualizarPerfilCliente(usuario.getId(), request.nombreCompleto()));
     }
 }
