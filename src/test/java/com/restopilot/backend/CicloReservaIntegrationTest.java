@@ -101,6 +101,30 @@ class CicloReservaIntegrationTest {
         autenticar(admin);
     }
     @AfterEach void limpiar() { SecurityContextHolder.clearContext(); }
+
+    @Test void historialPropioPaginadoRespetaOrdenLimitesYAislamiento() throws Exception {
+        var first = nueva(EstadoReserva.PENDIENTE);
+        var second = nueva(EstadoReserva.CONFIRMADA);
+        var third = nueva(EstadoReserva.CANCELADA);
+        String token = "Bearer " + jwt.generateToken(cliente);
+        mvc.perform(get("/api/reservas/me").param("pagina", "0").param("tamano", "2")
+                .header("Authorization", token))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(3))
+            .andExpect(jsonPath("$.paginas").value(2))
+            .andExpect(jsonPath("$.reservas[0].id").value(third.getId()))
+            .andExpect(jsonPath("$.reservas[1].id").value(second.getId()));
+        mvc.perform(get("/api/reservas/me").param("pagina", "1").param("tamano", "2")
+                .header("Authorization", token))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.reservas.length()").value(1))
+            .andExpect(jsonPath("$.reservas[0].id").value(first.getId()));
+        mvc.perform(get("/api/reservas/me").param("pagina", "0").param("tamano", "2")
+                .header("Authorization", "Bearer " + jwt.generateToken(admin)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(0));
+        mvc.perform(get("/api/reservas/me").param("pagina", "-1").param("tamano", "2")
+                .header("Authorization", token)).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/reservas/me").param("pagina", "0").param("tamano", "51")
+                .header("Authorization", token)).andExpect(status().isBadRequest());
+    }
     Usuario usuario(String nombre,Rol rol,Restaurante r) {
         return usuarios.save(Usuario.builder().nombreCompleto(nombre).correo(nombre+"@ciclo.test")
                 .passwordHash("no-se-usa-en-estos-tests").rol(rol).restaurante(r).build());
