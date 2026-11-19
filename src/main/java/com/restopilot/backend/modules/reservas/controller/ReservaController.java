@@ -125,7 +125,23 @@ public class ReservaController {
      */
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('CLIENTE', 'ADMINISTRADOR', 'DUENO')")
-    public ResponseEntity<Map<String, Object>> obtenerMisReservas() {
+    public ResponseEntity<Map<String, Object>> obtenerMisReservas(
+            @RequestParam(required = false) Integer pagina,
+            @RequestParam(required = false) Integer tamano) {
+        if (pagina != null || tamano != null) {
+            if (pagina == null || tamano == null || pagina < 0 || tamano < 1 || tamano > 50) {
+                throw new BusinessRuleException("pagina debe ser >= 0 y tamano debe estar entre 1 y 50.");
+            }
+            var resultado = reservaService.obtenerMisReservasPaginadas(pagina, tamano);
+            Map<String, Object> body = new HashMap<>();
+            body.put("mensaje", resultado.isEmpty() ? "No se encontraron reservas en el historial." : "Historial de reservas obtenido correctamente.");
+            body.put("reservas", resultado.getContent());
+            body.put("pagina", resultado.getNumber());
+            body.put("tamano", resultado.getSize());
+            body.put("total", resultado.getTotalElements());
+            body.put("paginas", resultado.getTotalPages());
+            return ResponseEntity.ok(body);
+        }
         List<ReservaResponseDTO> reservas =
                 reservaService.obtenerMisReservas();
 

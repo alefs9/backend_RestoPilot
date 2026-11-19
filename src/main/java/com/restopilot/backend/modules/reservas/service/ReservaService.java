@@ -511,4 +511,13 @@ public class ReservaService {
                 .map(reservaMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<ReservaResponseDTO> obtenerMisReservasPaginadas(int pagina, int tamano) {
+        expiracion.expirarVencidas();
+        Usuario cliente = currentUser.get();
+        return reservaRepository.findPaginaUsuario(cliente.getId(),
+                org.springframework.data.domain.PageRequest.of(pagina, tamano)).map(reservaMapper::toResponse);
+    }
 }
