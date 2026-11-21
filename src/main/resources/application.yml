@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: RestoPilot API
+  ai:
+    model:
+      chat: ${RESTOPILOT_AI_CHAT_PROVIDER:none}
+      embedding:
+        text: none
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:}
+        chat:
+          options:
+            model: ${GEMINI_MODEL:gemini-3.1-flash-lite}
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME:postgres}
