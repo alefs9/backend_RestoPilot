@@ -12,6 +12,50 @@ Antes de utilizar una base existente con esta versión, revisar y ejecutar `docs
 .\mvnw.cmd spring-boot:run
 ```
 
+## Gemini (Spring AI)
+
+La integración con Gemini Developer API está deshabilitada por defecto. Para activarla en el backend, configura estas variables en el entorno de ejecución o en el archivo local `.env` ignorado por Git:
+
+| Variable | Valor |
+| --- | --- |
+| `RESTOPILOT_AI_CHAT_PROVIDER` | `google-genai` |
+| `GEMINI_API_KEY` | Clave de Gemini Developer API |
+| `GEMINI_MODEL` | Opcional. El valor predeterminado es `gemini-3.1-flash-lite`. |
+
+El endpoint inicial es `POST /api/ia/admin/chat` y requiere un token JWT de
+`DUENO` o `ADMINISTRADOR`. Envía el token en `Authorization: Bearer <token>`.
+Si se omite `restauranteId`, se usa el restaurante del usuario autenticado.
+
+```json
+{"mensaje":"¿Qué tipos de reportes ofrece RestoPilot?","restauranteId":1}
+```
+
+```json
+{"estado":"ANSWER","mensaje":"RestoPilot ofrece reportes administrativos."}
+```
+
+Con JWT legado, el acceso anónimo se rechaza con HTTP 403. El acceso a un
+restaurante ajeno también devuelve 403. Si la IA está deshabilitada, el
+endpoint devuelve HTTP 503 con `codigo: AI_UNAVAILABLE`. Un fallo del
+proveedor devuelve HTTP 502 con `codigo: AI_PROVIDER_FAILURE` y un mensaje
+genérico.
+
+El chat administrativo ya consulta **platos más vendidos** y **pagos por
+período**. Por ejemplo, envía «¿Cuáles fueron los platos más vendidos en
+octubre de 2026?» o «¿Cuánto cobramos del 1 al 31 de octubre de 2026?».
+El campo `datos` incluye el tipo y las fechas inclusivas, junto con
+`platosMasVendidos` en el formato del reporte operativo o `estadoPagos`
+en PEN. El reporte de pagos usa el mismo filtro por fecha de creación del
+pedido que la vista operativa.
+
+Si el período falta o es inválido, el chat puede devolver
+`CLARIFICATION_REQUIRED`. En ese caso, vuelve a enviar la pregunta completa
+con las fechas. `NO_DATA` identifica un reporte válido sin registros.
+Para añadir atenciones y horarios de mayor demanda, reutiliza
+`HerramientasReportes` y amplía los datos del contrato con los campos del
+reporte correspondiente.
+
+
 ## Validación
 
 ```powershell
