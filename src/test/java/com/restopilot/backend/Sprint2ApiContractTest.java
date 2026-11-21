@@ -69,11 +69,11 @@ class Sprint2ApiContractTest {
  @Test void pruebasUsanH2YNoCredencialesDeSupabase() throws Exception {
   try(var c=datasource.getConnection()){assertTrue(c.getMetaData().getURL().startsWith("jdbc:h2:"));}
  }
- @Test void swaggerYOpenApiDisponiblesConJWTYAuthPublicaSinIA(){
+ @Test void swaggerYOpenApiDisponiblesConJWTYAuthPublica(){
   var response=http.getForEntity("/v3/api-docs",JsonNode.class);assertEquals(HttpStatus.OK,response.getStatusCode());var doc=response.getBody();
   assertEquals("RestoPilot API",doc.at("/info/title").asText());assertEquals("bearer",doc.at("/components/securitySchemes/bearerAuth/scheme").asText());
   assertTrue(doc.get("paths").size()>30);assertTrue(doc.at("/paths/~1api~1auth~1login/post/security").isArray());assertEquals(0,doc.at("/paths/~1api~1auth~1login/post/security").size());
-  doc.get("paths").fieldNames().forEachRemaining(p->assertFalse(p.startsWith("/api/ia")));
+  assertTrue(doc.at("/paths/~1api~1ia~1admin~1chat/post").isObject());
   var ui=http.getForEntity("/swagger-ui/index.html",String.class);assertEquals(HttpStatus.OK,ui.getStatusCode());assertTrue(ui.getBody().contains("Swagger UI"));
  }
  @Test void erroresDeRutaMetodoContenidoYParametrosNoSePresentanComo500(){
