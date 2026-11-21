@@ -171,6 +171,56 @@ class AgenteIAHttpIntegrationTest {
                 .getBody().path("estado").asText());
     }
 
+    @Test
+    void asistenteClienteSoloConsultaPedidosPropios() {
+        String ruta = "/api/ia/cliente/chat";
+        var mensaje = Map.of("mensaje", "¿Cómo va mi último pedido?");
+        assertEquals(HttpStatus.FORBIDDEN, http.postForEntity(ruta,
+                new HttpEntity<>(mensaje, login(Rol.DUENO)), JsonNode.class).getStatusCode());
+        verifyNoInteractions(modelo);
+
+        var cliente = usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Cliente IA")
+                .correo(UUID.randomUUID() + "@ia.test").passwordHash(encoder.encode(PASSWORD))
+                .rol(Rol.CLIENTE).habilitado(true).build());
+        var pedido = new Pedido();
+        pedido.setRestaurante(restaurante);
+        pedido.setCliente(cliente);
+        pedido.setTipoEntrega(TipoEntrega.LLEVAR);
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setTotal(BigDecimal.TEN);
+        Long pedidoId = pedidos.saveAndFlush(pedido).getId();
+
+        when(modelo.call(any(Prompt.class))).thenReturn(
+                new ChatResponse(List.of(new Generation(new AssistantMessage("PEDIDO")))));
+        var propio = http.postForEntity(ruta, new HttpEntity<>(mensaje, login(cliente.getCorreo())), JsonNode.class);
+        assertEquals(HttpStatus.OK, propio.getStatusCode());
+        assertEquals("ANSWER", propio.getBody().path("estado").asText());
+        assertEquals("Tu pedido más reciente es el #" + pedidoId + ". Estado: pendiente.",
+                propio.getBody().path("mensaje").asText());
+
+        var ajeno = http.postForEntity(ruta, new HttpEntity<>(mensaje, login(Rol.CLIENTE)), JsonNode.class);
+        assertEquals(HttpStatus.OK, ajeno.getStatusCode());
+        assertEquals("NO_DATA", ajeno.getBody().path("estado").asText());
+    }
+
+    @Test
+    void asistenteClienteUsaLaDireccionRegistradaDelRestauranteSeleccionado() {
+        restaurante.setDireccion("Av. Demo 123");
+        restaurantes.saveAndFlush(restaurante);
+        when(modelo.call(any(Prompt.class))).thenReturn(
+                new ChatResponse(List.of(new Generation(new AssistantMessage("DIRECCION")))));
+        var cliente = login(Rol.CLIENTE);
+        String ruta = "/api/ia/cliente/chat";
+        var sinSeleccion = http.postForEntity(ruta,
+                new HttpEntity<>(Map.of("mensaje", "¿Dónde queda?"), cliente), JsonNode.class);
+        assertEquals("CLARIFICATION_REQUIRED", sinSeleccion.getBody().path("estado").asText());
+        var conSeleccion = http.postForEntity(ruta,
+                new HttpEntity<>(Map.of("mensaje", "¿Dónde queda?", "restauranteId", restaurante.getId()), cliente),
+                JsonNode.class);
+        assertEquals(HttpStatus.OK, conSeleccion.getStatusCode());
+        assertEquals("Local de prueba IA queda en Av. Demo 123.", conSeleccion.getBody().path("mensaje").asText());
+    }
+
     private JsonNode reporte(HttpHeaders jwt, String ruta) {
         var respuesta = http.exchange(ruta, HttpMethod.GET, new HttpEntity<>(jwt), JsonNode.class);
         assertEquals(HttpStatus.OK, respuesta.getStatusCode());
@@ -196,6 +246,10 @@ class AgenteIAHttpIntegrationTest {
         String correo = UUID.randomUUID() + "@ia.test";
         usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Usuario de prueba IA").correo(correo)
                 .passwordHash(encoder.encode(PASSWORD)).rol(rol).restaurante(restaurante).habilitado(true).build());
+        return login(correo);
+    }
+
+    private HttpHeaders login(String correo) {
         var respuesta = http.postForEntity("/api/auth/login", Map.of("correo", correo, "password", PASSWORD),
                 JsonNode.class);
         assertEquals(HttpStatus.OK, respuesta.getStatusCode());

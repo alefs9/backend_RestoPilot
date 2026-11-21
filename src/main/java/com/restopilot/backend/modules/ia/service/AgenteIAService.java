@@ -83,7 +83,7 @@ public class AgenteIAService {
         private final HttpStatus estado;
         private final String codigo;
 
-        private FalloChat(HttpStatus estado, String codigo, String mensaje) {
+        FalloChat(HttpStatus estado, String codigo, String mensaje) {
             super(mensaje);
             this.estado = estado;
             this.codigo = codigo;
