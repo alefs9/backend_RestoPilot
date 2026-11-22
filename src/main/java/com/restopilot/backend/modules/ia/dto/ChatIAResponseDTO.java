@@ -1,11 +1,17 @@
 package com.restopilot.backend.modules.ia.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.restopilot.backend.modules.reportes.dto.EstadoPagosDTO;
 import com.restopilot.backend.modules.reportes.dto.TipoReporte;
 import java.time.LocalDate;
 import java.util.List;
 
-public record ChatIAResponseDTO(Estado estado, String mensaje, DatosReporte datos) {
+public record ChatIAResponseDTO(Estado estado, String mensaje, DatosReporte datos,
+                                @JsonInclude(JsonInclude.Include.NON_NULL) Long pedidoId) {
+    public ChatIAResponseDTO(Estado estado, String mensaje, DatosReporte datos) {
+        this(estado, mensaje, datos, null);
+    }
+
     public ChatIAResponseDTO(Estado estado, String mensaje) {
         this(estado, mensaje, null);
     }

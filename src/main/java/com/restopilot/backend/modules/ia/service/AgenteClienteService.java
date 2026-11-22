@@ -1,7 +1,9 @@
 package com.restopilot.backend.modules.ia.service;
 
 import com.restopilot.backend.modules.ia.dto.ChatIAResponseDTO;
+import com.restopilot.backend.core.exception.BusinessRuleException;
 import com.restopilot.backend.modules.pedidos.repository.PedidoRepository;
+import com.restopilot.backend.modules.pedidos.service.PedidoService;
 import com.restopilot.backend.modules.reservas.repository.ReservaRepository;
 import com.restopilot.backend.core.exception.ResourceNotFoundException;
 import com.restopilot.backend.modules.restaurante.service.ConsultaRestauranteService;
@@ -16,16 +18,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class AgenteClienteService {
+    private static final Pattern CONFIRMACION = Pattern.compile(
+            "confirmar cancelar pedido\\s+#?([1-9][0-9]{0,18})", Pattern.CASE_INSENSITIVE);
+
     private static final String INSTRUCCIONES = """
             Eres el asistente del cliente de RestoPilot.
             Para consultas de carta, precios, ingredientes, alérgenos o disponibilidad llama a consultarCarta.
             Usa el nombre del plato o categoría como búsqueda, o una cadena vacía para la carta general.
             El restaurante siempre se selecciona en el chat. Si indican otro restaurante o piden
             recomendaciones para una restricción alimentaria, responde AYUDA.
+            Si indican el número de un pedido propio, usa consultarPedido para conocer el estado
+            o prepararCancelacion si quieren cancelarlo. Si quieren cancelar pero no indican el número
+            exacto, responde NUMERO_PEDIDO. Realiza como máximo una llamada a una herramienta.
             Para las consultas restantes, responde únicamente una palabra.
             PEDIDO si quiere conocer el estado de su pedido más reciente.
             RESERVA si quiere conocer el estado de su reserva más reciente.
@@ -33,9 +42,7 @@ public class AgenteClienteService {
             DIRECCION para saber dónde queda el restaurante seleccionado.
             ATENCION para saber si el restaurante seleccionado tiene delivery o atención en el local.
             CANCELACION para preguntar cómo o cuándo se puede cancelar una reserva.
-            AYUDA para otras solicitudes, incluidos cambios y consultas por número de pedido o reserva.
-            Si el cliente menciona un restaurante en el texto, responde AYUDA para indicar que debe
-            seleccionarlo en el chat antes de preguntar por sus datos.
+            AYUDA para otras solicitudes, incluidos los cambios de pedido y las consultas por número de reserva.
             """;
 
     private final ObjectProvider<ChatModel> modelos;
@@ -43,15 +50,19 @@ public class AgenteClienteService {
     private final ReservaRepository reservas;
     private final ConsultaRestauranteService restaurantes;
     private final PlatoService platos;
+    private final PedidoService gestionPedidos;
 
     public ChatIAResponseDTO responder(String mensaje, Long clienteId, Long restauranteId) {
+        var confirmacion = CONFIRMACION.matcher(mensaje.strip());
+        if (confirmacion.matches()) return cancelarPedido(confirmacion.group(1));
+
         var modelo = modelos.getIfAvailable();
         if (modelo == null) {
             throw new AgenteIAService.FalloChat(HttpStatus.SERVICE_UNAVAILABLE,
                     "AI_UNAVAILABLE", "El asistente no está disponible.");
         }
 
-        var herramientas = new HerramientasCliente(restaurantes, platos, restauranteId);
+        var herramientas = new HerramientasCliente(restaurantes, platos, restauranteId, gestionPedidos);
         String intent;
         try {
             intent = ChatClient.create(modelo).prompt().system(INSTRUCCIONES).user(mensaje)
@@ -68,6 +79,8 @@ public class AgenteClienteService {
 
         return switch (intent == null ? "" : intent.strip().toUpperCase(Locale.ROOT)) {
             case "PEDIDO" -> ultimoPedido(clienteId);
+            case "NUMERO_PEDIDO" -> new ChatIAResponseDTO(ChatIAResponseDTO.Estado.CLARIFICATION_REQUIRED,
+                    "Indica el número del pedido que quieres cancelar.");
             case "RESERVA" -> ultimaReserva(clienteId);
             case "HORARIO", "DIRECCION", "ATENCION" ->
                     datosRestaurante(intent.strip().toUpperCase(Locale.ROOT), restauranteId);
@@ -75,9 +88,22 @@ public class AgenteClienteService {
                     + "o confirmada con más de dos horas de anticipación y sin llegada registrada. "
                     + "Si ya estás dentro de ese plazo, comunícate con el restaurante.");
             default -> new ChatIAResponseDTO(ChatIAResponseDTO.Estado.CLARIFICATION_REQUIRED,
-                    "Puedo consultar tu último pedido o reserva, o explicarte cómo cancelar una reserva. "
+                    "Puedo consultar tus pedidos, ayudarte a cancelarlos o revisar tu última reserva. "
                     + "Para consultar la carta, horarios, dirección o atención, selecciona primero el restaurante.");
         };
+    }
+
+    private ChatIAResponseDTO cancelarPedido(String numero) {
+        try {
+            Long pedidoId = Long.valueOf(numero);
+            gestionPedidos.cancelarPedidoPropio(pedidoId);
+            return new ChatIAResponseDTO(ChatIAResponseDTO.Estado.ANSWER,
+                    "Tu pedido #" + pedidoId + " está cancelado.", null, pedidoId);
+        } catch (ResourceNotFoundException | NumberFormatException ex) {
+            return new ChatIAResponseDTO(ChatIAResponseDTO.Estado.NO_DATA, "No encontré ese pedido en tu historial.");
+        } catch (BusinessRuleException ex) {
+            return new ChatIAResponseDTO(ChatIAResponseDTO.Estado.ANSWER, ex.getMessage(), null, Long.valueOf(numero));
+        }
     }
 
     private ChatIAResponseDTO datosRestaurante(String consulta, Long restauranteId) {
@@ -123,7 +149,8 @@ public class AgenteClienteService {
                 .stream().findFirst()
                 .map(pedido -> new ChatIAResponseDTO(ChatIAResponseDTO.Estado.ANSWER,
                         "Tu pedido más reciente es el #" + pedido.getId() + ". Estado: "
-                        + pedido.getEstado().name().toLowerCase(Locale.forLanguageTag("es")).replace('_', ' ') + "."))
+                        + pedido.getEstado().name().toLowerCase(Locale.forLanguageTag("es")).replace('_', ' ') + ".",
+                        null, pedido.getId()))
                 .orElseGet(() -> new ChatIAResponseDTO(ChatIAResponseDTO.Estado.NO_DATA, "Todavía no tienes pedidos."));
     }
 
