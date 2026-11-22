@@ -5,6 +5,7 @@ import com.restopilot.backend.modules.pedidos.repository.PedidoRepository;
 import com.restopilot.backend.modules.reservas.repository.ReservaRepository;
 import com.restopilot.backend.core.exception.ResourceNotFoundException;
 import com.restopilot.backend.modules.restaurante.service.ConsultaRestauranteService;
+import com.restopilot.backend.modules.catalogo.service.PlatoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
@@ -20,7 +21,12 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class AgenteClienteService {
     private static final String INSTRUCCIONES = """
-            Clasifica la consulta del cliente de RestoPilot. Responde únicamente una palabra.
+            Eres el asistente del cliente de RestoPilot.
+            Para consultas de carta, precios, ingredientes, alérgenos o disponibilidad llama a consultarCarta.
+            Usa el nombre del plato o categoría como búsqueda, o una cadena vacía para la carta general.
+            El restaurante siempre se selecciona en el chat. Si indican otro restaurante o piden
+            recomendaciones para una restricción alimentaria, responde AYUDA.
+            Para las consultas restantes, responde únicamente una palabra.
             PEDIDO si quiere conocer el estado de su pedido más reciente.
             RESERVA si quiere conocer el estado de su reserva más reciente.
             HORARIO para el horario del restaurante seleccionado o si está abierto ahora.
@@ -36,6 +42,7 @@ public class AgenteClienteService {
     private final PedidoRepository pedidos;
     private final ReservaRepository reservas;
     private final ConsultaRestauranteService restaurantes;
+    private final PlatoService platos;
 
     public ChatIAResponseDTO responder(String mensaje, Long clienteId, Long restauranteId) {
         var modelo = modelos.getIfAvailable();
@@ -44,13 +51,20 @@ public class AgenteClienteService {
                     "AI_UNAVAILABLE", "El asistente no está disponible.");
         }
 
+        var herramientas = new HerramientasCliente(restaurantes, platos, restauranteId);
         String intent;
         try {
-            intent = ChatClient.create(modelo).prompt().system(INSTRUCCIONES).user(mensaje).call().content();
+            intent = ChatClient.create(modelo).prompt().system(INSTRUCCIONES).user(mensaje)
+                    .tools(herramientas).call().content();
         } catch (RuntimeException ex) {
+            if (herramientas.fallo() != null) throw herramientas.fallo();
             throw new AgenteIAService.FalloChat(HttpStatus.BAD_GATEWAY,
                     "AI_PROVIDER_FAILURE", "El asistente no pudo responder. Intenta nuevamente.");
         }
+
+        if (herramientas.fallo() != null) throw herramientas.fallo();
+        var resultado = herramientas.resultado();
+        if (resultado != null) return resultado;
 
         return switch (intent == null ? "" : intent.strip().toUpperCase(Locale.ROOT)) {
             case "PEDIDO" -> ultimoPedido(clienteId);
@@ -62,7 +76,7 @@ public class AgenteClienteService {
                     + "Si ya estás dentro de ese plazo, comunícate con el restaurante.");
             default -> new ChatIAResponseDTO(ChatIAResponseDTO.Estado.CLARIFICATION_REQUIRED,
                     "Puedo consultar tu último pedido o reserva, o explicarte cómo cancelar una reserva. "
-                    + "Para preguntas de horarios, dirección o atención, selecciona primero el restaurante.");
+                    + "Para consultar la carta, horarios, dirección o atención, selecciona primero el restaurante.");
         };
     }
 
