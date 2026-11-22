@@ -41,10 +41,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -65,6 +68,7 @@ class AgenteIAHttpIntegrationTest {
     @Autowired PagoRepository pagos;
     @Autowired CategoriaRepository categorias;
     @Autowired PlatoRepository platos;
+    @Autowired Clock clock;
     @MockitoBean ChatModel modelo;
 
     private Restaurante restaurante;
@@ -221,6 +225,107 @@ class AgenteIAHttpIntegrationTest {
         assertEquals("Local de prueba IA queda en Av. Demo 123.", conSeleccion.getBody().path("mensaje").asText());
     }
 
+    @Test
+    void cartaConsultaSoloElRestauranteSeleccionadoYDeclaraDatosFaltantes() {
+        var categoria = new Categoria();
+        categoria.setNombre("Fondos");
+        categoria.setRestauranteId(restaurante.getId());
+        categoria = categorias.saveAndFlush(categoria);
+        var plato = new Plato();
+        plato.setNombre("Ají de gallina");
+        plato.setRestauranteId(restaurante.getId());
+        plato.setCategoria(categoria);
+        plato.setPrecio(new BigDecimal("18.50"));
+        plato.setIngredientes("Gallina y ají amarillo");
+        plato.setDisponible(false);
+        platos.saveAndFlush(plato);
+
+        var cliente = login(Rol.CLIENTE);
+        simularHerramienta("consultarCarta", "{\"busqueda\":\"aji de gallina\"}");
+        var sinSeleccion = chatCliente(cliente, "¿Qué contiene el ají de gallina?", null);
+        assertEquals("CLARIFICATION_REQUIRED", sinSeleccion.path("estado").asText());
+
+        var seleccion = chatCliente(cliente, "¿Qué contiene el ají de gallina?", restaurante.getId());
+        assertEquals("ANSWER", seleccion.path("estado").asText());
+        assertTrue(seleccion.path("mensaje").asText().contains("S/ 18.50, agotado"));
+        assertTrue(seleccion.path("mensaje").asText().contains("Gallina y ají amarillo"));
+        assertTrue(seleccion.path("mensaje").asText().contains("Alérgenos: sin información registrada"));
+
+        var otroLocal = restaurantes.saveAndFlush(Restaurante.builder().nombre("Carta sin coincidencias").build());
+        assertEquals("NO_DATA", chatCliente(cliente, "¿Qué contiene el ají de gallina?", otroLocal.getId())
+                .path("estado").asText());
+    }
+
+    @Test
+    void confirmaCancelacionPropiaEnHistorialYNotificaUnaVez() {
+        var pedido = guardarPedido(EstadoPedido.PENDIENTE, LocalDateTime.now(clock).plusMinutes(3));
+        var cliente = login(pedido.getCliente().getCorreo());
+        var ajeno = login(Rol.CLIENTE);
+        String argumentos = "{\"pedidoId\":" + pedido.getId() + "}";
+        String confirmacion = "Confirmar cancelar pedido #" + pedido.getId();
+
+        simularHerramienta("consultarPedido", argumentos);
+        assertEquals("NO_DATA", chatCliente(ajeno, "Consulta el pedido #" + pedido.getId(), null).path("estado").asText());
+        assertEquals(pedido.getId().longValue(),
+                chatCliente(cliente, "Consulta mi pedido #" + pedido.getId(), null).path("pedidoId").asLong());
+
+        simularHerramienta("prepararCancelacion", argumentos);
+        assertEquals("CLARIFICATION_REQUIRED",
+                chatCliente(cliente, "Quiero cancelar mi pedido #" + pedido.getId(), null).path("estado").asText());
+        assertEquals("NO_DATA", chatCliente(ajeno, confirmacion, null).path("estado").asText());
+        assertEquals(EstadoPedido.PENDIENTE, pedidos.findById(pedido.getId()).orElseThrow().getEstado());
+
+        for (int intento = 0; intento < 2; intento++) {
+            assertEquals("Tu pedido #" + pedido.getId() + " está cancelado.",
+                    chatCliente(cliente, confirmacion, null).path("mensaje").asText());
+        }
+        assertEquals("CANCELADO", reporte(cliente, "/api/pedidos/me").at("/pedidos/0/estado").asText());
+        var notificaciones = reporte(cliente, "/api/notificaciones/me");
+        assertEquals(1, notificaciones.path("totalElements").asInt());
+        assertEquals("Pedido #" + pedido.getId() + ": CANCELADO", notificaciones.at("/content/0/mensaje").asText());
+    }
+
+    @Test
+    void rechazaConfirmacionConPlazoVencidoOEstadoNoCancelable() {
+        var vencido = guardarPedido(EstadoPedido.PENDIENTE, LocalDateTime.now(clock).minusMinutes(1));
+        var preparado = guardarPedido(EstadoPedido.EN_PREPARACION, LocalDateTime.now(clock).plusMinutes(3));
+        var pagado = guardarPedido(EstadoPedido.PENDIENTE, LocalDateTime.now(clock).plusMinutes(3));
+        pagos.saveAndFlush(Pago.builder().pedidoId(pagado.getId()).estado(EstadoPago.PAGADO)
+                .monto(pagado.getTotal()).build());
+        var motivos = Map.of(vencido, "el plazo", preparado, "pendiente y no pagado", pagado, "pendiente y no pagado");
+
+        motivos.forEach((pedido, motivo) -> {
+            var cliente = login(pedido.getCliente().getCorreo());
+            var respuesta = chatCliente(cliente, "Confirmar cancelar pedido #" + pedido.getId(), null);
+            assertTrue(respuesta.path("mensaje").asText().toLowerCase(java.util.Locale.ROOT).contains(motivo));
+            assertEquals(pedido.getEstado(), pedidos.findById(pedido.getId()).orElseThrow().getEstado());
+            assertEquals(0, reporte(cliente, "/api/notificaciones/me").path("totalElements").asInt());
+        });
+        verifyNoInteractions(modelo);
+    }
+
+    private Pedido guardarPedido(EstadoPedido estado, LocalDateTime limite) {
+        var cliente = usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Cliente IA")
+                .correo(UUID.randomUUID() + "@ia.test").passwordHash(encoder.encode(PASSWORD))
+                .rol(Rol.CLIENTE).habilitado(true).build());
+        var pedido = new Pedido();
+        pedido.setRestaurante(restaurante);
+        pedido.setCliente(cliente);
+        pedido.setTipoEntrega(TipoEntrega.LLEVAR);
+        pedido.setEstado(estado);
+        pedido.setTotal(BigDecimal.TEN);
+        pedido.setLimiteCancelacion(limite);
+        return pedidos.saveAndFlush(pedido);
+    }
+
+    private JsonNode chatCliente(HttpHeaders jwt, String mensaje, Long restauranteId) {
+        Map<String, Object> cuerpo = restauranteId == null
+                ? Map.of("mensaje", mensaje) : Map.of("mensaje", mensaje, "restauranteId", restauranteId);
+        var respuesta = http.postForEntity("/api/ia/cliente/chat", new HttpEntity<>(cuerpo, jwt), JsonNode.class);
+        assertEquals(HttpStatus.OK, respuesta.getStatusCode());
+        return respuesta.getBody();
+    }
+
     private JsonNode reporte(HttpHeaders jwt, String ruta) {
         var respuesta = http.exchange(ruta, HttpMethod.GET, new HttpEntity<>(jwt), JsonNode.class);
         assertEquals(HttpStatus.OK, respuesta.getStatusCode());
@@ -228,12 +333,16 @@ class AgenteIAHttpIntegrationTest {
     }
 
     private void simularHerramienta(String nombre, String inicio, String fin) {
+        simularHerramienta(nombre, "{\"fechaInicio\":\"%s\",\"fechaFin\":\"%s\"}".formatted(inicio, fin));
+    }
+
+    private void simularHerramienta(String nombre, String argumentos) {
         org.mockito.Mockito.doAnswer(invocation -> {
             Prompt prompt = invocation.getArgument(0);
             var opciones = (ToolCallingChatOptions) prompt.getOptions();
             var herramienta = opciones.getToolCallbacks().stream()
                     .filter(tool -> nombre.equals(tool.getToolDefinition().name())).findFirst().orElseThrow();
-            herramienta.call("{\"fechaInicio\":\"%s\",\"fechaFin\":\"%s\"}".formatted(inicio, fin));
+            herramienta.call(argumentos);
             return new ChatResponse(List.of(new Generation(new AssistantMessage("Texto simulado"))));
         }).when(modelo).call(any(Prompt.class));
     }
