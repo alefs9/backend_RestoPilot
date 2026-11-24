@@ -24,7 +24,7 @@ Esto favorece omitir candidatos dudosos: no es un analizador exhaustivo de recet
 - `CLARIFICATION_REQUIRED`: falta restaurante, preferencia/restricción o hay una restricción no soportada.
 - `NO_DATA`: restaurante no disponible o ninguna opción recomendable con los datos actuales.
 
-La respuesta genérica cuando no hay candidatos evita afirmaciones injustificadas. El detalle de qué datos faltan por plato y la interacción específica de información insuficiente corresponden a S3-TSK-008, en la siguiente rama.
+La respuesta ahora distingue ausencia de platos disponibles, incompatibilidad e información insuficiente. S3-TSK-008 agrega el detalle por plato, respuestas mixtas y consulta de compatibilidad individual; ver [información alimentaria incompleta](INFORMACION-ALIMENTARIA-INCOMPLETA.md).
 
 La base de Spring AI y las herramientas de carta ya están integradas en `develop` (73d28ab); no hay bloqueo pendiente del equipo. No se modificaron el frontend, la base de datos ni el contrato de respuesta.
 
