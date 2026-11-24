@@ -14,6 +14,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,19 @@ final class HerramientasCliente {
     public boolean consultarCarta(@ToolParam(description = "Nombre del plato o categoría, o cadena vacía para toda la carta.")
                                   String busqueda) {
         return registrar(() -> carta(busqueda));
+    }
+
+    @Tool(description = "Recomienda platos disponibles de la carta seleccionada según preferencia vegetariana, "
+            + "vegana y todas las restricciones indicadas por el cliente. No certifica ausencia de trazas.", returnDirect = true)
+    public boolean recomendarPlatos(
+            @ToolParam(description = "VEGETARIANA, VEGANA o SIN_PREFERENCIA si solo solicita excluir alérgenos.")
+            PreferenciaAlimentaria preferencia,
+            @ToolParam(description = "Todas las restricciones explícitas: GLUTEN, LACTEOS (incluye lactosa), HUEVO, MANI, "
+                    + "FRUTOS_SECOS, SOJA, PESCADO, MARISCOS, SESAMO. Lista vacía si no hay. "
+                    + "Incluye OTRA si alguna no está soportada; nunca omitas restricciones.")
+            List<RestriccionAlimentaria> restricciones) {
+        return registrar(() -> new RecomendacionesAlimentarias(restaurantes, platos)
+                .recomendar(restauranteId, preferencia, restricciones));
     }
 
     @Tool(description = "Consulta el estado de un pedido propio por su número.", returnDirect = true)
