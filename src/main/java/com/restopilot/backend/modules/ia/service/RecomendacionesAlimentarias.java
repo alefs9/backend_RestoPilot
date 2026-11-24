@@ -29,9 +29,7 @@ final class RecomendacionesAlimentarias {
             return new ChatIAResponseDTO(Estado.CLARIFICATION_REQUIRED,
                     "Selecciona un restaurante para consultar recomendaciones de su carta.");
         }
-        if (preferencia == null || restricciones == null || restricciones.stream().anyMatch(Objects::isNull)
-                || restricciones.contains(RestriccionAlimentaria.OTRA)
-                || preferencia == PreferenciaAlimentaria.SIN_PREFERENCIA && restricciones.isEmpty()) {
+        if (!SolicitudAlimentaria.valida(preferencia, restricciones)) {
             return new ChatIAResponseDTO(Estado.CLARIFICATION_REQUIRED,
                     "Indica si buscas opciones vegetarianas, veganas o sin gluten, lácteos, huevo, maní, "
                     + "frutos secos, soja, pescado, mariscos o sésamo. Para otras restricciones, consulta al restaurante.");
@@ -42,19 +40,31 @@ final class RecomendacionesAlimentarias {
             return noDisponible();
         }
         var exclusiones = new HashSet<>(restricciones);
-        var compatibles = platos.listar(restauranteId, null).stream()
+        var evaluados = platos.listar(restauranteId, null).stream()
                 .filter(plato -> Objects.equals(restauranteId, plato.getRestauranteId()))
                 .filter(plato -> Boolean.TRUE.equals(plato.getDisponible()))
                 .filter(plato -> plato.getNombre() != null && !plato.getNombre().isBlank())
-                .filter(plato -> evaluador.evaluar(plato, preferencia, exclusiones)
-                        == EvaluadorAlimentario.Resultado.COMPATIBLE_SEGUN_REGISTRO)
                 .sorted(Comparator.comparing(PlatoResponseDTO::getNombre, String.CASE_INSENSITIVE_ORDER)
                         .thenComparing(PlatoResponseDTO::getId, Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(plato -> new PlatoEvaluado(plato, evaluador.diagnosticar(plato, preferencia, exclusiones))).toList();
+        var compatibles = evaluados.stream()
+                .filter(p -> p.diagnostico().resultado() == EvaluadorAlimentario.Resultado.COMPATIBLE_SEGUN_REGISTRO)
+                .map(PlatoEvaluado::plato)
                 .limit(LIMITE + 1L).toList();
+        var incompletos = evaluados.stream()
+                .filter(p -> p.diagnostico().resultado() == EvaluadorAlimentario.Resultado.NO_EVALUABLE).toList();
+        String faltantes = incompletos.stream().limit(LIMITE)
+                .map(p -> RespuestaInformacionAlimentaria.explicar(p.plato().getNombre(), p.diagnostico()))
+                .collect(Collectors.joining("\n"));
+        if (incompletos.size() > LIMITE) faltantes += "\nHay más platos sin información suficiente; consulta un plato concreto.";
         if (compatibles.isEmpty()) {
+            if (!incompletos.isEmpty()) return new ChatIAResponseDTO(Estado.NO_DATA,
+                    "No puedo recomendar opciones con los datos actuales.\n" + faltantes + "\n"
+                    + RespuestaInformacionAlimentaria.CONFIRMAR);
             return new ChatIAResponseDTO(Estado.NO_DATA,
-                    "No encontré opciones disponibles que pueda recomendar para esa preferencia y restricciones "
-                    + "con la información registrada. Consulta al personal del restaurante.");
+                    evaluados.isEmpty() ? "No hay platos disponibles para evaluar en la carta seleccionada."
+                    : "Los platos disponibles evaluados presentan incompatibilidades con tu consulta. "
+                    + "Consulta al personal del restaurante por otras opciones.");
         }
         String detalles = compatibles.stream().limit(LIMITE).map(this::describir).collect(Collectors.joining("\n"));
         String mas = compatibles.size() > LIMITE ? "\nSe muestran las primeras 8 opciones por nombre." : "";
@@ -67,8 +77,11 @@ final class RecomendacionesAlimentarias {
                 + (exclusiones.isEmpty() ? "" : ", excluyendo " + exclusiones.stream().sorted()
                         .map(r -> r.name().toLowerCase(java.util.Locale.ROOT).replace('_', ' ')).collect(Collectors.joining(", ")))
                 + ":\n" + detalles + mas
+                + (incompletos.isEmpty() ? "" : "\nOtros platos no recomendados por información insuficiente:\n" + faltantes)
                 + "\nLa carta no certifica ausencia de trazas ni contaminación cruzada. Confirma la preparación con el restaurante.");
     }
+
+    private record PlatoEvaluado(PlatoResponseDTO plato, DiagnosticoAlimentario diagnostico) {}
 
     private ChatIAResponseDTO noDisponible() {
         return new ChatIAResponseDTO(Estado.NO_DATA, "El restaurante seleccionado no está disponible.");
