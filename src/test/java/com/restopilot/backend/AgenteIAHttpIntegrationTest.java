@@ -304,6 +304,38 @@ class AgenteIAHttpIntegrationTest {
         verifyNoInteractions(modelo);
     }
 
+    @Test
+    void recomendacionesUsanCartaRealYRespetanPreferenciaYRestricciones() {
+        var categoria = new Categoria();
+        categoria.setNombre("Opciones IA");
+        categoria.setRestauranteId(restaurante.getId());
+        categoria = categorias.saveAndFlush(categoria);
+        for (String nombre : List.of("Bowl vegetal", "Bowl con queso", "Bowl con maní", "Bowl agotado")) {
+            var plato = new Plato();
+            plato.setNombre(nombre);
+            plato.setRestauranteId(restaurante.getId());
+            plato.setCategoria(categoria);
+            plato.setPrecio(new BigDecimal("19.00"));
+            plato.setIngredientes("quinua, tomate" + (nombre.contains("queso") ? ", queso" : nombre.contains("maní") ? ", maní" : ""));
+            plato.setAlergenos("ninguno");
+            plato.setDisponible(!nombre.contains("agotado"));
+            platos.saveAndFlush(plato);
+        }
+        var cliente = login(Rol.CLIENTE);
+        simularHerramienta("recomendarPlatos", "{\"preferencia\":\"VEGANA\",\"restricciones\":[\"MANI\"]}");
+        assertEquals("CLARIFICATION_REQUIRED", chatCliente(cliente, "Algo vegano sin maní", null).path("estado").asText());
+        var respuesta = chatCliente(cliente, "Algo vegano sin maní", restaurante.getId());
+        assertEquals("ANSWER", respuesta.path("estado").asText());
+        String texto = respuesta.path("mensaje").asText();
+        assertTrue(texto.contains("Bowl vegetal (S/ 19.00, disponible)"));
+        assertFalse(texto.contains("Bowl con queso"));
+        assertFalse(texto.contains("Bowl con maní"));
+        assertFalse(texto.contains("Bowl agotado"));
+        assertFalse(texto.contains("Texto simulado"));
+        var otro = restaurantes.saveAndFlush(Restaurante.builder().nombre("Local sin opciones").build());
+        assertEquals("NO_DATA", chatCliente(cliente, "Algo vegano", otro.getId()).path("estado").asText());
+    }
+
     private Pedido guardarPedido(EstadoPedido estado, LocalDateTime limite) {
         var cliente = usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Cliente IA")
                 .correo(UUID.randomUUID() + "@ia.test").passwordHash(encoder.encode(PASSWORD))
