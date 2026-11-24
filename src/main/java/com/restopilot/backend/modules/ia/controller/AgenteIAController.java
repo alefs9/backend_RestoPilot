@@ -36,14 +36,9 @@ public class AgenteIAController {
 
     @PostMapping("/cliente/chat")
     @PreAuthorize("hasRole('CLIENTE')")
-    public ChatIAResponseDTO chatCliente(@Valid @RequestBody MensajeCliente solicitud) {
+    public ChatIAResponseDTO chatCliente(@Valid @RequestBody ChatIARequestDTO solicitud) {
         return agenteCliente.responder(solicitud.mensaje(), currentUser.get().getId(), solicitud.restauranteId());
     }
-
-    public record MensajeCliente(
-            @jakarta.validation.constraints.NotBlank
-            @jakarta.validation.constraints.Size(max = 2000) String mensaje,
-            @jakarta.validation.constraints.Positive Long restauranteId) {}
 
     @ExceptionHandler(AgenteIAService.FalloChat.class)
     public ResponseEntity<ErrorChat> errorChat(AgenteIAService.FalloChat error) {

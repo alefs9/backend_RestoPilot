@@ -137,9 +137,31 @@ public class PedidoService {
         if (pedido.getEstado() != EstadoPedido.PENDIENTE || pagos.estaPagado(id)) {
             throw new BusinessRuleException("Solo se puede cancelar un pedido pendiente y no pagado.");
         }
+        cancelar(pedido);
+    }
+
+    @Transactional
+    public void cancelarPedidoPropio(Long id) {
+        Usuario cliente = currentUser.get();
+        Pedido pedido = pedidoRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado."));
+        if (cliente.getRol() != Rol.CLIENTE || !Objects.equals(pedido.getCliente().getId(), cliente.getId())) {
+            throw new ResourceNotFoundException("Pedido no encontrado.");
+        }
+        if (pedido.getEstado() == EstadoPedido.CANCELADO) return;
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE || pagos.estaPagado(id)) {
+            throw new BusinessRuleException("Solo puedes cancelar un pedido pendiente y no pagado.");
+        }
+        if (pedido.getLimiteCancelacion() == null || !LocalDateTime.now(clock).isBefore(pedido.getLimiteCancelacion())) {
+            throw new BusinessRuleException("El plazo para cancelar este pedido ha vencido.");
+        }
+        cancelar(pedido);
+    }
+
+    private void cancelar(Pedido pedido) {
         pedido.setEstado(EstadoPedido.CANCELADO);
         pedidoRepository.saveAndFlush(pedido);
-        notificaciones.enviar(pedido.getCliente().getId(), "Pedido #" + id + ": CANCELADO");
+        notificaciones.enviar(pedido.getCliente().getId(), "Pedido #" + pedido.getId() + ": CANCELADO");
     }
 
     private Pedido buscarParaGestion(Long id) {

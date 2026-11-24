@@ -1,6 +1,8 @@
 package com.restopilot.backend;
 
 import com.restopilot.backend.core.exception.BusinessRuleException;
+import com.restopilot.backend.core.exception.ResourceNotFoundException;
+import com.restopilot.backend.modules.auth.entity.Rol;
 import com.restopilot.backend.modules.auth.entity.Usuario;
 import com.restopilot.backend.modules.catalogo.entity.Plato;
 import com.restopilot.backend.modules.pedidos.dto.PedidoRequestDTO;
@@ -20,7 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -162,5 +166,55 @@ class PedidoServiceTest {
         // Validación: El motor de priorización de tu PedidoService debe colocar el pedido complejo primero (15 min > 5 min), a pesar de que el rápido se creó antes.
         assertEquals(2, resultado.getContent().size());
         assertEquals(pedidoComplejo.getFechaCreacion(), resultado.getContent().getFirst().fechaCreacion());
+    }
+
+    @Test
+    void cancelarPedidoPropioEsIdempotenteYNotificaUnaVez() {
+        var pedido = pedidoCancelable();
+        when(currentUser.get()).thenReturn(pedido.getCliente());
+        when(pedidoRepository.findByIdForUpdate(51L)).thenReturn(Optional.of(pedido));
+
+        pedidoService.cancelarPedidoPropio(51L);
+        pedidoService.cancelarPedidoPropio(51L);
+
+        assertEquals(EstadoPedido.CANCELADO, pedido.getEstado());
+        verify(pedidoRepository).saveAndFlush(pedido);
+        verify(notificaciones).enviar(23L, "Pedido #51: CANCELADO");
+        verifyNoMoreInteractions(notificaciones);
+    }
+
+    @Test
+    void cancelarPedidoPropioRechazaPlazoEstadoPagoYTitularidad() {
+        var pedido = pedidoCancelable();
+        var ajeno = new Usuario();
+        ajeno.setId(24L);
+        ajeno.setRol(Rol.CLIENTE);
+        when(currentUser.get()).thenReturn(ajeno, pedido.getCliente());
+        when(pedidoRepository.findByIdForUpdate(51L)).thenReturn(Optional.of(pedido));
+
+        assertThrows(ResourceNotFoundException.class, () -> pedidoService.cancelarPedidoPropio(51L));
+        pedido.setLimiteCancelacion(LocalDateTime.now(clock));
+        assertThrows(BusinessRuleException.class, () -> pedidoService.cancelarPedidoPropio(51L));
+        pedido.setLimiteCancelacion(LocalDateTime.now(clock).plusMinutes(1));
+        pedido.setEstado(EstadoPedido.EN_PREPARACION);
+        assertThrows(BusinessRuleException.class, () -> pedidoService.cancelarPedidoPropio(51L));
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        when(pagos.estaPagado(51L)).thenReturn(true);
+        assertThrows(BusinessRuleException.class, () -> pedidoService.cancelarPedidoPropio(51L));
+
+        verify(pedidoRepository, never()).saveAndFlush(any());
+        verifyNoMoreInteractions(notificaciones);
+    }
+
+    private Pedido pedidoCancelable() {
+        var cliente = new Usuario();
+        cliente.setId(23L);
+        cliente.setRol(Rol.CLIENTE);
+        var pedido = new Pedido();
+        pedido.setId(51L);
+        pedido.setCliente(cliente);
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setLimiteCancelacion(LocalDateTime.now(clock).plusMinutes(1));
+        return pedido;
     }
 }
