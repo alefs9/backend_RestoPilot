@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 final class RecomendacionesAlimentarias {
-    private static final int LIMITE = 8;
+    private static final int LIMITE = 3;
     private final EvaluadorAlimentario evaluador = new EvaluadorAlimentario();
     private final ConsultaRestauranteService restaurantes;
     private final PlatoService platos;
@@ -53,32 +53,35 @@ final class RecomendacionesAlimentarias {
                 .limit(LIMITE + 1L).toList();
         var incompletos = evaluados.stream()
                 .filter(p -> p.diagnostico().resultado() == EvaluadorAlimentario.Resultado.NO_EVALUABLE).toList();
-        String faltantes = incompletos.stream().limit(LIMITE)
-                .map(p -> RespuestaInformacionAlimentaria.explicar(p.plato().getNombre(), p.diagnostico()))
-                .collect(Collectors.joining("\n"));
-        if (incompletos.size() > LIMITE) faltantes += "\nHay más platos sin información suficiente; consulta un plato concreto.";
         if (compatibles.isEmpty()) {
             if (!incompletos.isEmpty()) return new ChatIAResponseDTO(Estado.NO_DATA,
-                    "No puedo recomendar opciones con los datos actuales.\n" + faltantes + "\n"
-                    + RespuestaInformacionAlimentaria.CONFIRMAR);
+                    "Busquemos una opción que encaje contigo. Para recomendarte con confianza, "
+                    + "conviene confirmar los ingredientes y alérgenos con el restaurante. "
+                    + "Puedes preguntarme por un plato concreto para revisar su información registrada.");
             return new ChatIAResponseDTO(Estado.NO_DATA,
-                    evaluados.isEmpty() ? "No hay platos disponibles para evaluar en la carta seleccionada."
-                    : "Los platos disponibles evaluados presentan incompatibilidades con tu consulta. "
-                    + "Consulta al personal del restaurante por otras opciones.");
+                    evaluados.isEmpty()
+                    ? "Podemos empezar eligiendo otro restaurante para explorar su carta. Usa Cambiar restaurante en el chat."
+                    : "Para tu preferencia, te sugiero consultar al restaurante por una preparación adaptada "
+                    + "o elegir otro local desde Cambiar restaurante. Mantengamos tus restricciones al buscar alternativas.");
         }
-        String detalles = compatibles.stream().limit(LIMITE).map(this::describir).collect(Collectors.joining("\n"));
-        String mas = compatibles.size() > LIMITE ? "\nSe muestran las primeras 8 opciones por nombre." : "";
+        String detalles = compatibles.stream().limit(LIMITE).map(this::describir).collect(Collectors.joining("\n\n"));
+        String preferenciaTexto = switch (preferencia) {
+            case VEGETARIANA -> "vegetarianas";
+            case VEGANA -> "veganas";
+            case SIN_PREFERENCIA -> "para las restricciones que indicaste";
+        };
+        String inicio = compatibles.size() == 1
+                ? "Te propongo esta opción " + (preferencia == PreferenciaAlimentaria.VEGETARIANA ? "vegetariana"
+                    : preferencia == PreferenciaAlimentaria.VEGANA ? "vegana" : "para tu consulta")
+                : "Te propongo estas opciones " + preferenciaTexto;
+        String cierre = compatibles.size() > LIMITE
+                ? "Estas son tres opciones para empezar. Puedes preguntarme por un plato concreto para conocerlo mejor."
+                : "¿Cuál te llama más la atención? Puedes preguntarme por sus ingredientes indicando el nombre del plato.";
+        String cuidado = exclusiones.isEmpty()
+                ? "Si tienes alguna alergia, confirma la preparación con el restaurante: la carta no certifica ausencia de trazas ni contaminación cruzada."
+                : "Para tus restricciones, confirma la preparación con el restaurante: la carta no certifica ausencia de trazas ni contaminación cruzada.";
         return new ChatIAResponseDTO(Estado.ANSWER,
-                "Opciones según los ingredientes y alérgenos registrados: " + switch (preferencia) {
-                    case VEGETARIANA -> "preferencia vegetariana";
-                    case VEGANA -> "preferencia vegana";
-                    case SIN_PREFERENCIA -> "restricciones indicadas";
-                }
-                + (exclusiones.isEmpty() ? "" : ", excluyendo " + exclusiones.stream().sorted()
-                        .map(r -> r.name().toLowerCase(java.util.Locale.ROOT).replace('_', ' ')).collect(Collectors.joining(", ")))
-                + ":\n" + detalles + mas
-                + (incompletos.isEmpty() ? "" : "\nOtros platos no recomendados por información insuficiente:\n" + faltantes)
-                + "\nLa carta no certifica ausencia de trazas ni contaminación cruzada. Confirma la preparación con el restaurante.");
+                inicio + ", según la carta registrada:\n\n" + detalles + "\n\n" + cierre + "\n\n" + cuidado);
     }
 
     private record PlatoEvaluado(PlatoResponseDTO plato, DiagnosticoAlimentario diagnostico) {}
@@ -88,8 +91,13 @@ final class RecomendacionesAlimentarias {
     }
 
     private String describir(PlatoResponseDTO plato) {
-        String precio = plato.getPrecio() == null ? "precio sin registrar" : "S/ " + plato.getPrecio().toPlainString();
-        return "%s (%s, disponible). Ingredientes: %s. Alérgenos: %s.".formatted(
-                plato.getNombre(), precio, plato.getIngredientes().strip(), plato.getAlergenos().strip());
+        String precio = plato.getPrecio() == null ? "Consulta el precio con el restaurante"
+                : "S/ " + plato.getPrecio().setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
+        String alergenos = plato.getAlergenos().strip();
+        boolean sinDeclarados = alergenos.toLowerCase(java.util.Locale.ROOT)
+                .matches("(ninguno|ninguna|sin alérgenos declarados|sin alergenos declarados|no declarados)" );
+        return plato.getNombre() + " - " + precio + "\n"
+                + "Lleva " + plato.getIngredientes().strip() + "."
+                + (sinDeclarados ? "" : "\nAlérgenos registrados: " + alergenos + ".");
     }
 }
