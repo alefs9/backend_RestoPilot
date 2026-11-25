@@ -327,7 +327,7 @@ class AgenteIAHttpIntegrationTest {
         var respuesta = chatCliente(cliente, "Algo vegano sin maní", restaurante.getId());
         assertEquals("ANSWER", respuesta.path("estado").asText());
         String texto = respuesta.path("mensaje").asText();
-        assertTrue(texto.contains("Bowl vegetal (S/ 19.00, disponible)"));
+        assertTrue(texto.contains("Bowl vegetal - S/ 19.00"));
         assertFalse(texto.contains("Bowl con queso"));
         assertFalse(texto.contains("Bowl con maní"));
         assertFalse(texto.contains("Bowl agotado"));

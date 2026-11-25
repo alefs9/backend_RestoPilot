@@ -55,7 +55,7 @@ class RecomendacionesAlimentariasTest {
                 plato(2, 9, "Ajeno", true), plato(3, 7, "Agotado", false), plato(4, 7, "Desconocido", null), animal));
         var r = servicio.recomendar(7L, VEGANA, List.of(MANI));
         assertEquals(ANSWER, r.estado());
-        assertTrue(r.mensaje().contains("Bowl (S/ 18.50, disponible)"));
+        assertTrue(r.mensaje().contains("Bowl - S/ 18.50"));
         assertTrue(r.mensaje().contains("quinua, tomate, limón"));
         for (String nombre : List.of("Ajeno", "Agotado", "Desconocido", "Pollo")) assertFalse(r.mensaje().contains(nombre));
         assertTrue(r.mensaje().contains("no certifica ausencia de trazas"));
@@ -69,8 +69,8 @@ class RecomendacionesAlimentariasTest {
         for (int i = 0; i < 9; i++) carta.add(plato(i + 20, 7, "Bowl " + i, true));
         when(platos.listar(7L, null)).thenReturn(carta);
         var r = servicio.recomendar(7L, VEGANA, List.of());
-        assertTrue(r.mensaje().contains("Bowl 0")); assertTrue(r.mensaje().contains("Bowl 7"));
-        assertFalse(r.mensaje().contains("Bowl 8")); assertTrue(r.mensaje().contains("primeras 8"));
+        assertTrue(r.mensaje().contains("Bowl 0")); assertTrue(r.mensaje().contains("Bowl 2"));
+        assertFalse(r.mensaje().contains("Bowl 3")); assertTrue(r.mensaje().contains("tres opciones"));
     }
 
     @Test void devuelveSinDatosSiNoHayOpcionesEvaluables() {

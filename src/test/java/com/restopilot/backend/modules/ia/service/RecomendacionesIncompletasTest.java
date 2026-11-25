@@ -24,30 +24,39 @@ class RecomendacionesIncompletasTest {
         var p = new PlatoResponseDTO(); p.setId(id); p.setRestauranteId(7L); p.setNombre(nombre);
         p.setDisponible(true); p.setIngredientes(ingredientes); p.setAlergenos(alergenos); return p;
     }
-    @Test void distingueCartaVaciaDeIncompatiblesYDeDatosFaltantes() {
+    @Test void ofreceAlternativasSinInventarCompatibilidad() {
         when(platos.listar(7L, null)).thenReturn(List.of());
-        assertTrue(servicio.recomendar(7L, VEGANA, List.of()).mensaje().contains("No hay platos disponibles"));
+        var vacia = servicio.recomendar(7L, VEGANA, List.of());
+        assertEquals(NO_DATA, vacia.estado());
+        assertTrue(vacia.mensaje().contains("otro restaurante"));
         when(platos.listar(7L, null)).thenReturn(List.of(plato(1, "Pollo", "pollo", "ninguno")));
         var incompatible = servicio.recomendar(7L, VEGANA, List.of());
-        assertEquals(NO_DATA, incompatible.estado()); assertTrue(incompatible.mensaje().contains("incompatibilidades"));
+        assertEquals(NO_DATA, incompatible.estado());
+        assertTrue(incompatible.mensaje().contains("adaptada"));
         when(platos.listar(7L, null)).thenReturn(List.of(plato(2, "Bowl", "arroz", null)));
         var incompleto = servicio.recomendar(7L, VEGANA, List.of());
-        assertEquals(NO_DATA, incompleto.estado()); assertTrue(incompleto.mensaje().contains("faltan los alérgenos"));
+        assertEquals(NO_DATA, incompleto.estado());
+        assertTrue(incompleto.mensaje().contains("confirmar los ingredientes"));
+        assertFalse(incompleto.mensaje().contains("Lleva arroz"));
     }
-    @Test void mantieneOpcionesEvaluablesYSeparaLasDesconocidas() {
+    @Test void recomiendaSoloEvaluablesSinInventarioDeDescartados() {
         when(platos.listar(7L, null)).thenReturn(List.of(plato(1, "A completo", "arroz", "ninguno"),
                 plato(2, "B incompleto", null, null)));
         var r = servicio.recomendar(7L, VEGANA, List.of());
         assertEquals(ANSWER, r.estado());
-        assertTrue(r.mensaje().indexOf("A completo") < r.mensaje().indexOf("Otros platos no recomendados"));
-        assertTrue(r.mensaje().indexOf("B incompleto") > r.mensaje().indexOf("Otros platos no recomendados"));
+        assertTrue(r.mensaje().contains("A completo"));
+        assertTrue(r.mensaje().contains("Te propongo"));
+        assertFalse(r.mensaje().contains("B incompleto"));
+        assertFalse(r.mensaje().contains("Otros platos no recomendados"));
+        assertTrue(r.mensaje().contains("\n\n"));
     }
-    @Test void limitaDetalleSinOcultarQueHayMasPlatos() {
+    @Test void agrupaFaltantesEnUnSiguientePasoUtil() {
         var lista = new ArrayList<PlatoResponseDTO>();
         for (int i = 0; i < 10; i++) lista.add(plato(i, "Bowl " + i, null, null));
         when(platos.listar(7L, null)).thenReturn(lista);
         var r = servicio.recomendar(7L, VEGANA, List.of());
-        assertTrue(r.mensaje().contains("Bowl 7")); assertFalse(r.mensaje().contains("Bowl 8"));
-        assertTrue(r.mensaje().contains("Hay más platos"));
+        assertEquals(NO_DATA, r.estado());
+        assertFalse(r.mensaje().contains("Bowl"));
+        assertTrue(r.mensaje().contains("plato concreto"));
     }
 }
