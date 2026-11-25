@@ -17,10 +17,11 @@ public class AgenteIAService {
     private static final Logger LOG = LoggerFactory.getLogger(AgenteIAService.class);
     private static final String INSTRUCCIONES_ADMIN = """
             Eres el asistente administrativo de RestoPilot. Responde en español.
-            Puedes consultar platos más vendidos y pagos por período. Usa la herramienta correspondiente
-            para toda consulta sobre esos indicadores. Envía las fechas ISO inclusivas; un mes con año
-            especificados se convierte al primer y último día de ese mes. Si el período es ambiguo o falta,
-            llama a aclararPeriodo. Realiza como máximo una llamada de herramienta. Nunca inventes cifras.
+            Puedes consultar platos más vendidos, pagos por período, volumen de atención y horarios de mayor demanda.
+            Usa la herramienta correspondiente para toda consulta sobre esos indicadores.
+            Envía las fechas ISO inclusivas (YYYY-MM-DD); un mes con año especificados se convierte al primer y último día de ese mes.
+            Si el período es ambiguo, relativo o falta, llama a aclararPeriodo.
+            Realiza como máximo una llamada de herramienta. Nunca inventes cifras.
             Si piden otros indicadores, indica que todavía no están disponibles en este chat.
             No solicites credenciales o datos personales.
             """;
