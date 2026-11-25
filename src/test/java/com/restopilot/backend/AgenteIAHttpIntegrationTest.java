@@ -336,6 +336,33 @@ class AgenteIAHttpIntegrationTest {
         assertEquals("NO_DATA", chatCliente(cliente, "Algo vegano", otro.getId()).path("estado").asText());
     }
 
+    @Test
+    void compatibilidadExplicaDatosFaltantesYConsultaLaCartaActualizada() {
+        var categoria = new Categoria();
+        categoria.setNombre("Compatibilidad IA");
+        categoria.setRestauranteId(restaurante.getId());
+        categoria = categorias.saveAndFlush(categoria);
+        var plato = new Plato();
+        plato.setNombre("Bowl de quinua"); plato.setRestauranteId(restaurante.getId());
+        plato.setCategoria(categoria); plato.setPrecio(new BigDecimal("15.00")); plato.setDisponible(true);
+        plato = platos.saveAndFlush(plato);
+        var cliente = login(Rol.CLIENTE);
+        simularHerramienta("consultarCompatibilidad", "{\"busqueda\":\"Bowl de quinua\",\"preferencia\":\"SIN_PREFERENCIA\",\"restricciones\":[\"LACTEOS\"]}");
+        var incompleto = chatCliente(cliente, "¿El Bowl de quinua es compatible sin lactosa?", restaurante.getId());
+        assertEquals("NO_DATA", incompleto.path("estado").asText());
+        assertTrue(incompleto.path("mensaje").asText().contains("faltan los ingredientes"));
+        assertTrue(incompleto.path("mensaje").asText().contains("faltan los alérgenos"));
+        assertFalse(incompleto.path("mensaje").asText().contains("Texto simulado"));
+        plato.setIngredientes("quinua, tomate"); plato.setAlergenos("ninguno");
+        platos.saveAndFlush(plato);
+        var actualizado = chatCliente(cliente, "¿El Bowl de quinua es compatible sin lactosa?", restaurante.getId());
+        assertEquals("ANSWER", actualizado.path("estado").asText());
+        assertTrue(actualizado.path("mensaje").asText().contains("Según los ingredientes y alérgenos registrados"));
+        var otro = restaurantes.saveAndFlush(Restaurante.builder().nombre("Otro restaurante compatibilidad").build());
+        assertEquals("NO_DATA", chatCliente(cliente, "¿El Bowl de quinua es compatible sin lactosa?", otro.getId()).path("estado").asText());
+        assertEquals("CLARIFICATION_REQUIRED", chatCliente(cliente, "¿El Bowl de quinua es compatible sin lactosa?", null).path("estado").asText());
+    }
+
     private Pedido guardarPedido(EstadoPedido estado, LocalDateTime limite) {
         var cliente = usuarios.saveAndFlush(Usuario.builder().nombreCompleto("Cliente IA")
                 .correo(UUID.randomUUID() + "@ia.test").passwordHash(encoder.encode(PASSWORD))

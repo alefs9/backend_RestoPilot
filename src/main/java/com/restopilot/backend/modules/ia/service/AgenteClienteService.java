@@ -28,6 +28,11 @@ public class AgenteClienteService {
 
     private static final String INSTRUCCIONES = """
             Eres el asistente del cliente de RestoPilot.
+            Si preguntan si un plato concreto es compatible con una preferencia o restricción (por ejemplo,
+            si un plato es apto sin lactosa o para alguien alérgico al maní), llama a consultarCompatibilidad.
+            Usa esa herramienta también cuando pidan confirmar la compatibilidad con datos incompletos.
+            Incluye el nombre o ID explícito del plato y todas las restricciones; nunca deduzcas una receta
+            ni interpretes un campo vacío como ausencia de alérgenos. Esta regla tiene prioridad sobre consultarCarta.
             Para consultas de carta, precios, ingredientes, alérgenos o disponibilidad llama a consultarCarta.
             Usa el nombre del plato o categoría como búsqueda, o una cadena vacía para la carta general.
             Para recomendaciones vegetarianas, veganas o por restricciones alimentarias llama a recomendarPlatos,

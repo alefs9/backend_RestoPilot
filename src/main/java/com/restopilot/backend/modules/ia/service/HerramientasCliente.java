@@ -56,6 +56,18 @@ final class HerramientasCliente {
                 .recomendar(restauranteId, preferencia, restricciones));
     }
 
+    @Tool(description = "Evalúa si un plato concreto es compatible con una preferencia o restricciones, "
+            + "y explica cuándo faltan ingredientes o alérgenos para confirmarlo.", returnDirect = true)
+    public boolean consultarCompatibilidad(
+            @ToolParam(description = "Nombre del plato indicado por el cliente o # seguido de su ID, sin inventarlo.") String busqueda,
+            @ToolParam(description = "VEGETARIANA, VEGANA o SIN_PREFERENCIA si solo indica restricciones.") PreferenciaAlimentaria preferencia,
+            @ToolParam(description = "Todas las restricciones: GLUTEN, LACTEOS, HUEVO, MANI, FRUTOS_SECOS, SOJA, "
+                    + "PESCADO, MARISCOS, SESAMO. Lista vacía si ninguna. Incluye OTRA para cualquier restricción no soportada.")
+            List<RestriccionAlimentaria> restricciones) {
+        return registrar(() -> new ConsultaCompatibilidadAlimentaria(restaurantes, platos)
+                .consultar(restauranteId, busqueda, preferencia, restricciones));
+    }
+
     @Tool(description = "Consulta el estado de un pedido propio por su número.", returnDirect = true)
     public boolean consultarPedido(@ToolParam(description = "Número de pedido indicado por el cliente.") Long pedidoId) {
         return registrar(() -> pedido(pedidoId, false));
