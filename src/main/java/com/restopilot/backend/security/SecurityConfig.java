@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/register-owner")
                             .access((authentication, context) -> new org.springframework.security.authorization.AuthorizationDecision(!"supabase".equals(authProvider)))
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/health/ready").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
