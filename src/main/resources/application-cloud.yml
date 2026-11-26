@@ -1,0 +1,14 @@
+# Additive production profile; Supabase profiles provide identity and schema.
+spring:
+  jpa:
+    open-in-view: false
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
