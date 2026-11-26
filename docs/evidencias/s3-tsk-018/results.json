@@ -1,0 +1,92 @@
+{
+  "timestamp": "2026-11-26T04:18:34.747106+00:00",
+  "base": "https://backend-restopilot.onrender.com",
+  "writes": "No business writes; login and read-only queries only",
+  "results": [
+    {
+      "test": "database_readiness",
+      "status": 200,
+      "seconds": 1.769,
+      "passed": true
+    },
+    {
+      "test": "anonymous_cliente",
+      "status": 401,
+      "seconds": 0.303,
+      "passed": true
+    },
+    {
+      "test": "anonymous_admin",
+      "status": 401,
+      "seconds": 0.336,
+      "passed": true
+    },
+    {
+      "test": "invalid_token",
+      "status": 401,
+      "seconds": 0.282,
+      "passed": true
+    },
+    {
+      "test": "supabase_login_client",
+      "status": 200,
+      "seconds": 2.466,
+      "passed": true
+    },
+    {
+      "test": "database_identity_client",
+      "status": 200,
+      "seconds": 9.88,
+      "passed": true
+    },
+    {
+      "test": "role_isolation_client",
+      "status": 403,
+      "seconds": 2.246,
+      "passed": true
+    },
+    {
+      "test": "client_own_order",
+      "status": 200,
+      "seconds": 1.042,
+      "passed": true
+    },
+    {
+      "test": "supabase_login_owner",
+      "status": 200,
+      "seconds": 0.411,
+      "passed": true
+    },
+    {
+      "test": "database_identity_owner",
+      "status": 200,
+      "seconds": 0.308,
+      "passed": true
+    },
+    {
+      "test": "role_isolation_owner",
+      "status": 403,
+      "seconds": 0.407,
+      "passed": true
+    },
+    {
+      "test": "active_restaurant_owner",
+      "status": 200,
+      "seconds": 1.022,
+      "passed": true
+    },
+    {
+      "test": "gemini_report_owner",
+      "status": 200,
+      "seconds": 10.071,
+      "passed": true
+    },
+    {
+      "test": "restaurant_isolation_owner",
+      "status": 403,
+      "seconds": 0.193,
+      "passed": true
+    }
+  ],
+  "passed": true
+}
